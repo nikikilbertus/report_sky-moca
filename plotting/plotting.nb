@@ -1,0 +1,168 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      5405,        159]
+NotebookOptionsPosition[      4998,        141]
+NotebookOutlinePosition[      5357,        157]
+CellTagsIndexPosition[      5314,        154]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"grid", " ", "=", " ", 
+   RowBox[{"Import", "[", 
+    RowBox[{
+    "\"\<~/Dropbox/Uni/Exercises/12Semester/Magnetismus/data/T0_N30.h5\>\"", 
+     ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"\"\<Datasets\>\"", ",", "\"\</grid\>\""}], "}"}]}], "]"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.681659892549882*^9, 3.681660004407991*^9}, 
+   3.681661270211714*^9}],
+
+Cell[BoxData[
+ RowBox[{"Dimensions", "@", "grid"}]], "Input",
+ CellChangeTimes->{{3.681660009059286*^9, 3.681660015546023*^9}}],
+
+Cell[BoxData[
+ RowBox[{"num", " ", "=", " ", "30"}]], "Input",
+ CellChangeTimes->{3.68166134958145*^9}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"vecData", " ", "=", " ", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", "j", ",", "k"}], "}"}], ",", 
+       RowBox[{"grid", "[", 
+        RowBox[{"[", 
+         RowBox[{"i", ",", "j", ",", "k", ",", ";;"}], "]"}], "]"}]}], "}"}], 
+     ",", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", 
+       RowBox[{"Range", "@", "num"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"j", ",", 
+       RowBox[{"Range", "@", "num"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"k", ",", 
+       RowBox[{"Range", "@", "num"}]}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"ListVectorPlot3D", "[", 
+  RowBox[{"vecData", ",", " ", 
+   RowBox[{"VectorStyle", "\[Rule]", "\"\<Arrow3D\>\""}], ",", " ", 
+   RowBox[{"VectorPoints", "\[Rule]", "num"}], ",", " ", 
+   RowBox[{"VectorScale", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"0.04", ",", "0.6"}], "}"}]}], ",", " ", 
+   RowBox[{"VectorColorFunction", "\[Rule]", 
+    RowBox[{"Function", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+       "x", ",", "y", ",", "z", ",", "vx", ",", "vy", ",", "vz", ",", "n"}], 
+       "}"}], ",", 
+      RowBox[{
+       RowBox[{"ColorData", "[", "\"\<DarkRainbow\>\"", "]"}], "[", "vz", 
+       "]"}]}], "]"}]}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.6816600986340218`*^9, 3.6816601263100233`*^9}, {
+  3.6816601679896107`*^9, 3.6816602855885077`*^9}, {3.6816603344889917`*^9, 
+  3.681660342870192*^9}, {3.681660454217821*^9, 3.681660457985351*^9}, {
+  3.6816605261219263`*^9, 3.681660579336256*^9}, {3.681660643907933*^9, 
+  3.681660656657318*^9}, {3.6816607120842733`*^9, 3.681660743524407*^9}, {
+  3.681660854439991*^9, 3.6816609486437283`*^9}, {3.6816610588305073`*^9, 
+  3.681661099751731*^9}, {3.68166114193013*^9, 3.68166123011871*^9}, {
+  3.681661297115272*^9, 3.681661357817885*^9}}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"kk", "=", "1"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"colors", " ", "=", " ", 
+   RowBox[{
+    RowBox[{"grid", "[", 
+     RowBox[{"[", 
+      RowBox[{";;", ",", ";;", ",", "kk", ",", "3"}], "]"}], "]"}], "[", 
+    RowBox[{"[", 
+     RowBox[{"1", ",", "5"}], "]"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"vecData2d", " ", "=", " ", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"i", ",", "j"}], "}"}], ",", 
+       RowBox[{"grid", "[", 
+        RowBox[{"[", 
+         RowBox[{"i", ",", "j", ",", "kk", ",", 
+          RowBox[{"1", ";;", "2"}]}], "]"}], "]"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", 
+       RowBox[{"Range", "@", "num"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"j", ",", 
+       RowBox[{"Range", "@", "num"}]}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"ListVectorPlot", "[", 
+  RowBox[{"vecData2d", ",", 
+   RowBox[{"VectorPoints", "\[Rule]", "num"}], ",", " ", 
+   RowBox[{"VectorColorFunction", "\[Rule]", 
+    RowBox[{"Function", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"x", ",", "y", ",", "vx", ",", "vy", ",", "n"}], "}"}], ",", 
+      RowBox[{
+       RowBox[{"ColorData", "[", "\"\<DarkRainbow\>\"", "]"}], "[", 
+       RowBox[{"Sqrt", "[", 
+        RowBox[{"1", "-", 
+         SuperscriptBox["vx", "2"], "-", 
+         SuperscriptBox["vy", "2"]}], "]"}], "]"}]}], "]"}]}]}], 
+  "]"}]}], "Input",
+ CellChangeTimes->{{3.6816613602632008`*^9, 3.681661453765276*^9}, {
+  3.681661510316782*^9, 3.681661559508567*^9}, {3.6816615929096403`*^9, 
+  3.681661644782385*^9}, {3.6816617140278883`*^9, 3.6816617141396847`*^9}, {
+  3.681661756235125*^9, 3.6816618357450438`*^9}, {3.681661969781897*^9, 
+  3.6816619874976997`*^9}, {3.6816620230711737`*^9, 3.681662095398713*^9}}]
+},
+WindowSize->{965, 812},
+WindowMargins->{{Automatic, 326}, {Automatic, 67}},
+FrontEndVersion->"10.3 for Mac OS X x86 (32-bit, 64-bit Kernel) (December 10, \
+2015)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 398, 11, 28, "Input"],
+Cell[959, 33, 127, 2, 28, "Input"],
+Cell[1089, 37, 103, 2, 28, "Input"],
+Cell[1195, 41, 1909, 47, 63, "Input"],
+Cell[3107, 90, 1887, 49, 107, "Input"]
+}
+]
+*)
+
+(* End of internal cache information *)
