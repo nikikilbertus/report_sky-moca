@@ -1,0 +1,58 @@
+\documentclass{project}
+%
+\pagenumbering{roman}
+%
+% begin
+\begin{document}
+%
+% title page
+\mytitle
+%
+% use lower case roman page numbers for toc
+% \cleardoublepage
+% \pagenumbering{roman}
+%
+% german abstract: zusammenfassung
+\cleardoublepage
+\setcounter{page}{1}
+\include{chapters/abstract_german}
+%
+% english abstract
+\cleardoublepage
+\include{chapters/abstract_english}
+%
+% table of contents
+\cleardoublepage
+{\sffamily \tableofcontents}
+\cleardoublepage
+%
+% for the main matter use arabic page numbers and headers
+\pagestyle{headings}
+\pagenumbering{arabic}
+%
+% chapters
+\include{chapters/chapter_1}
+%
+\include{chapters/chapter_2}
+%
+\include{chapters/chapter_3}
+%
+\include{chapters/chapter_4}
+%
+% bibliography
+\nocite{*}
+\cleardoublepage
+\bibliographystyle{amsplain}
+\addcontentsline{toc}{chapter}{References}
+\bibliography{references}
+%
+% index
+% \cleardoublepage
+% \printindex
+%
+% eidesstattliche erklärung / declaration of academic honesty
+\cleardoublepage
+\include{chapters/erklaerung}
+%
+% end
+\end{document}

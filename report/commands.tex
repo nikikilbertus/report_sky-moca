@@ -1,0 +1,95 @@
+% Math operators
+\DeclareMathOperator{\re}{Re}
+\DeclareMathOperator{\im}{Im}
+%
+% Mathematical shortcuts
+% Special sets
+\newcommand{\bN}{\mathbb{N}}
+\newcommand{\bZ}{\mathbb{Z}}
+\newcommand{\bQ}{\mathbb{Q}}
+\newcommand{\bR}{\mathbb{R}}
+\newcommand{\bRp}{\mathbb{R}_{\ge 0}}
+\newcommand{\bRpp}{\mathbb{R}_{> 0}}
+\newcommand{\bRn}{\mathbb{R}_{\le 0}}
+\newcommand{\bRnn}{\mathbb{R}_{< 0}}
+\newcommand{\bC}{\mathbb{C}}
+\newcommand{\1}{\mbox{\rmfamily \scalebox{1}[0.93]{1} \hspace{-1.02 em} 1}}
+\newcommand{\cH}{\mathcal{H}}
+% Special objects
+\newcommand{\const}{\mathrm{const}}
+
+%
+% Map
+\newcommand{\map}[3]{{#1}:{#2}\to{#3}}
+%
+\newcommand{\maprule}[4]{{#1}:{#2}\to{#3},\quad {#4}}
+%
+% Absolute value
+\newcommand{\abs}[1]{\left\lvert#1\right\rvert}
+%
+% Norm (two lines)
+\newcommand{\norm}[2][]{%
+	\left\lVert#2\right\rVert
+	\ifthenelse{\equal{#1}{}}{}{_{#1}}
+}
+%
+% List of numbers
+\newcommand{\numlist}[2]{\{#1,\dots,#2\}}
+%
+% Text surrounded by quad
+\newcommand{\qtxtq}[1]{\quad\text{#1}\quad}
+%
+% Text surrounded by qquad
+\newcommand{\qqtxtqq}[1]{\qquad\text{#1}\qquad}
+%
+% For differentiation
+\newcommand{\pred}[1]{d#1\,}
+\newcommand{\sucd}[1]{\,d#1}
+\newcommand{\intd}[1]{d#1}
+%
+% Shortcuts for frequently used terms
+%
+\newcommand{\ie}{\mbox{i.\,e}.}
+\newcommand{\eg}{\mbox{e.\,g}.}
+%
+% Software names / trademarks
+\newcommand{\cpp}{C{}\texttt{++}\ }
+\newcommand{\matlab}{Matlab\textsuperscript{TM}}
+\newcommand{\mathematica}{Mathematica\textsuperscript{TM}}
+%
+% Theorems
+% \swapnumbers
+%
+% \newtheoremstyle{note}% ⟨name ⟩
+% {3pt}% ⟨Space above ⟩1
+% {3pt}% ⟨Space below ⟩1
+% {}% ⟨Body font ⟩
+% {}% ⟨Indent amount ⟩2
+% {\itshape}% ⟨Theorem head font⟩
+% {:}% ⟨Punctuation after theorem head ⟩
+% {.5em}% ⟨Space after theorem head ⟩3
+% {}% ⟨Theorem head spec (can be left empty, meaning ‘normal’ )⟩
+%
+\newtheoremstyle{mathm}{}{}{}{}{\sffamily\bfseries}{.}{ }{}
+\theoremstyle{mathm}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{remark}{Remark}
+%
+\newtheoremstyle{maremark}{}{}{}{}{\sffamily\bfseries}{.}{ }{}
+\theoremstyle{maremark}
+\newtheorem*{remarkinline}{Remark}
+\newtheorem*{exampleinline}{Example}
+% Given styles: plain, definition, remark, see texdoc amsthm
+%
+% A new technical term, which is not defined at that point
+\newcommand{\newterm}[1]{\emph{#1}}
+%
+% Definition of a term
+\newcommand{\newdef}[1]{{\bfseries\sffamily #1}}
+%
+% Temporary definition, TODO: remove in the end
+\newcommand{\todo}[1]{%
+  {\color{red}TODO: #1}
+}
+%
