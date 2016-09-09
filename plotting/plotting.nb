@@ -10,17 +10,18 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     12368,        326]
-NotebookOptionsPosition[     11763,        303]
-NotebookOutlinePosition[     12123,        319]
-CellTagsIndexPosition[     12080,        316]
+NotebookDataLength[     17353,        447]
+NotebookOptionsPosition[     16704,        423]
+NotebookOutlinePosition[     17064,        439]
+CellTagsIndexPosition[     17021,        436]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
 Notebook[{
 Cell[BoxData[{
  RowBox[{
-  RowBox[{"name", " ", "=", " ", "\"\<highres/T0.8_B0.1_cmpct\>\""}], 
+  RowBox[{
+  "name", " ", "=", " ", "\"\<focused/Ntot27000_T0.8_B0.1_cmpct\>\""}], 
   ";"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{"raw", " ", "=", " ", 
@@ -39,7 +40,14 @@ Cell[BoxData[{
    3.6820787445440493`*^9, 3.682078746723963*^9}, {3.68207965876882*^9, 
    3.682079662846406*^9}, {3.682079818420525*^9, 3.682079832315213*^9}, {
    3.682140698230974*^9, 3.682140711499563*^9}, {3.682147197476022*^9, 
-   3.6821472007302837`*^9}}],
+   3.6821472007302837`*^9}, {3.6823943930997066`*^9, 3.682394402195554*^9}, {
+   3.6823945342522087`*^9, 3.682394561477107*^9}, {3.6823946127706203`*^9, 
+   3.6823946677381897`*^9}, {3.682394718335237*^9, 3.682394718526766*^9}, {
+   3.682394802210319*^9, 3.682394805329814*^9}, {3.68239536705206*^9, 
+   3.682395367619631*^9}, {3.68242546564336*^9, 3.682425467073463*^9}, {
+   3.682425603772851*^9, 3.682425641473042*^9}, {3.682447207040481*^9, 
+   3.6824472078614597`*^9}, {3.682451352615892*^9, 3.6824513543273573`*^9}, {
+   3.6824514832409782`*^9, 3.682451483814856*^9}}],
 
 Cell[BoxData[
  RowBox[{
@@ -206,8 +214,8 @@ Cell[BoxData[{
     RowBox[{
      RowBox[{"vecData", "[", 
       RowBox[{"[", 
-       RowBox[{"i", ",", "24", ",", "13", ",", "2", ",", ";;"}], "]"}], "]"}],
-      ",", 
+       RowBox[{"i", ",", "i", ",", "i", ",", "2", ",", ";;"}], "]"}], "]"}], 
+     ",", 
      RowBox[{"{", 
       RowBox[{"i", ",", "num"}], "}"}]}], "]"}]}], 
   ";"}], "\[IndentingNewLine]", 
@@ -240,7 +248,8 @@ Cell[BoxData[{
   3.682079505679578*^9, 3.6820795840901623`*^9}, {3.682079962374453*^9, 
   3.6820799628671503`*^9}, {3.682150608926278*^9, 3.682150611493524*^9}, {
   3.6821507512546864`*^9, 3.682150830739482*^9}, {3.68215087755459*^9, 
-  3.682150879897935*^9}, {3.682154551488578*^9, 3.682154553856385*^9}}],
+  3.682150879897935*^9}, {3.682154551488578*^9, 3.682154553856385*^9}, {
+  3.682451396104988*^9, 3.682451453808072*^9}}],
 
 Cell[BoxData[{
  RowBox[{
@@ -299,10 +308,121 @@ Cell[BoxData[{
   3.681661756235125*^9, 3.6816618357450438`*^9}, {3.681661969781897*^9, 
   3.6816619874976997`*^9}, {3.6816620230711737`*^9, 3.681662095398713*^9}, {
   3.6817071991235647`*^9, 3.681707213465932*^9}, {3.681719385695809*^9, 
-  3.6817193867713842`*^9}}]
+  3.6817193867713842`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Manipulate", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"grid", " ", "=", " ", 
+      RowBox[{"Import", "[", 
+       RowBox[{
+        RowBox[{
+        "\"\<~/Dropbox/Uni/Exercises/12Semester/Magnetismus/data/focused/\
+Ntot27000_T0.8_B\>\"", "<>", 
+         RowBox[{"ToString", "[", "bb", "]"}], "<>", "\"\<_cmpct.h5\>\""}], 
+        ",", " ", 
+        RowBox[{"{", 
+         RowBox[{"\"\<Datasets\>\"", ",", "\"\</avg\>\""}], "}"}]}], "]"}]}], 
+     ";", " ", 
+     RowBox[{"vecData", " ", "=", " ", 
+      RowBox[{"Table", "[", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"i", ",", "j", ",", "k"}], "}"}], ",", 
+          RowBox[{"grid", "[", 
+           RowBox[{"[", 
+            RowBox[{"k", ",", "j", ",", "i", ",", ";;"}], "]"}], "]"}]}], 
+         "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"i", ",", 
+          RowBox[{"Range", "@", "num"}]}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"j", ",", 
+          RowBox[{"Range", "@", "num"}]}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"k", ",", 
+          RowBox[{"Range", "@", "num"}]}], "}"}]}], "]"}]}], ";", 
+     RowBox[{"contData", " ", "=", " ", 
+      RowBox[{"Table", "[", 
+       RowBox[{
+        RowBox[{"grid", "[", 
+         RowBox[{"[", 
+          RowBox[{"i", ",", "j", ",", "k", ",", "3"}], "]"}], "]"}], ",", " ", 
+        RowBox[{"{", 
+         RowBox[{"i", ",", 
+          RowBox[{"Range", "@", "num"}]}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"j", ",", 
+          RowBox[{"Range", "@", "num"}]}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"k", ",", 
+          RowBox[{"Range", "@", "num"}]}], "}"}]}], "]"}]}], ";", " ", 
+     RowBox[{"Show", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"ListVectorPlot3D", "[", 
+         RowBox[{"vecData", ",", " ", 
+          RowBox[{"VectorStyle", "\[Rule]", "\"\<Arrow3D\>\""}], ",", " ", 
+          RowBox[{"VectorPoints", "\[Rule]", "num"}], ",", " ", 
+          RowBox[{"VectorScale", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"0.03", ",", 
+             RowBox[{"Scaled", "[", "0.7", "]"}]}], "}"}]}], ",", " ", 
+          RowBox[{"VectorColorFunction", "\[Rule]", 
+           RowBox[{"Function", "[", 
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{
+              "x", ",", "y", ",", "z", ",", "vx", ",", "vy", ",", "vz", ",", 
+               "n"}], "}"}], ",", 
+             RowBox[{
+              RowBox[{"ColorData", "[", "\"\<DarkRainbow\>\"", "]"}], "[", 
+              "vz", "]"}]}], "]"}]}], ",", 
+          RowBox[{"RegionFunction", "\[Rule]", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{"#3", " ", "\[Equal]", " ", "1"}], " ", "||", " ", 
+               RowBox[{"#3", " ", "\[Equal]", " ", "num"}]}], " ", 
+              RowBox[{"(*", 
+               RowBox[{"||", " ", 
+                RowBox[{"#6", " ", "<", " ", 
+                 RowBox[{"-", "0.7"}]}]}], "*)"}], ")"}], "&"}], ")"}]}], ",",
+           " ", 
+          RowBox[{"AxesLabel", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"\"\<x\>\"", ",", "\"\<y\>\"", ",", "\"\<z\>\""}], 
+            "}"}]}], ",", " ", 
+          RowBox[{"Boxed", "\[Rule]", "False"}]}], "]"}], ",", 
+        RowBox[{"ListContourPlot3D", "[", 
+         RowBox[{"contData", ",", 
+          RowBox[{"Contours", "\[Rule]", 
+           RowBox[{"{", "0", "}"}]}], ",", 
+          RowBox[{"Mesh", "\[Rule]", "None"}], ",", " ", 
+          RowBox[{"ContourStyle", "\[Rule]", 
+           RowBox[{"{", 
+            RowBox[{"Yellow", ",", 
+             RowBox[{"Opacity", "[", "0.4", "]"}]}], "}"}]}], ",", " ", 
+          RowBox[{"BoundaryStyle", "\[Rule]", "None"}]}], "]"}]}], "}"}], 
+      "]"}]}], "}"}], ",", " ", 
+   RowBox[{"{", 
+    RowBox[{"bb", ",", " ", 
+     RowBox[{"{", 
+      RowBox[{
+      "0.1", ",", " ", "0.05", ",", " ", "0.02", ",", " ", "0.01", ",", " ", 
+       "0.0"}], "}"}]}], "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.682452605258964*^9, 3.682452607887805*^9}, {
+  3.682452689717888*^9, 3.682452778637097*^9}, {3.6824528170517797`*^9, 
+  3.68245285044842*^9}, {3.682452922360376*^9, 3.682452927558221*^9}, {
+  3.682452958041615*^9, 3.6824529661920853`*^9}}]
 },
 WindowSize->{1161, 914},
-WindowMargins->{{Automatic, 188}, {19, Automatic}},
+WindowMargins->{{Automatic, 191}, {Automatic, 20}},
 FrontEndVersion->"10.3 for Mac OS X x86 (32-bit, 64-bit Kernel) (December 10, \
 2015)",
 StyleDefinitions->"Default.nb"
@@ -318,16 +438,17 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[558, 20, 1011, 21, 46, "Input"],
-Cell[1572, 43, 174, 4, 28, "Input"],
-Cell[1749, 49, 127, 2, 28, "Input"],
-Cell[1879, 53, 488, 9, 28, "Input"],
-Cell[2370, 64, 732, 22, 28, "Input"],
-Cell[3105, 88, 851, 21, 28, "Input"],
-Cell[3959, 111, 1528, 29, 46, "Input"],
-Cell[5490, 142, 2314, 57, 80, "Input"],
-Cell[7807, 201, 1622, 41, 46, "Input"],
-Cell[9432, 244, 2327, 57, 153, "Input"]
+Cell[558, 20, 1570, 29, 46, "Input"],
+Cell[2131, 51, 174, 4, 28, "Input"],
+Cell[2308, 57, 127, 2, 28, "Input"],
+Cell[2438, 61, 488, 9, 28, "Input"],
+Cell[2929, 72, 732, 22, 28, "Input"],
+Cell[3664, 96, 851, 21, 28, "Input"],
+Cell[4518, 119, 1528, 29, 46, "Input"],
+Cell[6049, 150, 2314, 57, 80, "Input"],
+Cell[8366, 209, 1669, 42, 46, "Input"],
+Cell[10038, 253, 2327, 57, 153, "Input"],
+Cell[12368, 312, 4332, 109, 165, "Input"]
 }
 ]
 *)
