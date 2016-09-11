@@ -6,25 +6,25 @@
 \begin{document}
 %
 % title page
-\mytitle
+\mytitle%
 %
 % use lower case roman page numbers for toc
 % \cleardoublepage
 % \pagenumbering{roman}
 %
 % german abstract: zusammenfassung
-\cleardoublepage
+\cleardoublepage%
 \setcounter{page}{1}
 \include{chapters/abstract_german}
 %
 % english abstract
-\cleardoublepage
+\cleardoublepage%
 \include{chapters/abstract_english}
 %
 % table of contents
-\cleardoublepage
+\cleardoublepage%
 {\sffamily \tableofcontents}
-\cleardoublepage
+\cleardoublepage%
 %
 % for the main matter use arabic page numbers and headers
 \pagestyle{headings}
@@ -41,7 +41,7 @@
 %
 % bibliography
 \nocite{*}
-\cleardoublepage
+\cleardoublepage%
 \bibliographystyle{amsplain}
 \addcontentsline{toc}{chapter}{References}
 \bibliography{references}
@@ -51,7 +51,7 @@
 % \printindex
 %
 % eidesstattliche erklärung / declaration of academic honesty
-\cleardoublepage
+\cleardoublepage%
 \include{chapters/erklaerung}
 %
 % end
