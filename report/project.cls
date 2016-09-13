@@ -152,3 +152,6 @@
 %
 % include all mathematical definitions and commands
 \include{commands}
+%
+% include all tikz drawing commands
+\include{tikzcommands}
