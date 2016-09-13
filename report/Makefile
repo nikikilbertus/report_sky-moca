@@ -16,7 +16,7 @@ DEPENDENCIES = $(FILE).tex \
 
 #	$(TEMP).cls \
 
-.PHONY: all clean clear
+.PHONY: all clean clear clearall
 
 all: $(FILE).pdf clean
 
@@ -29,7 +29,10 @@ $(FILE).pdf: $(DEPENDENCIES)
 
 clean:
 	rm -f *.aux *.idx *.blg *.log *.out *.mtc* *.ilg *.ind *.maf *.toc *.bbl *.auxlock chapters/*.aux *.gnuplot *.table
-	#	rm -rf cache/
 
 clear:
 	rm -f $(FILE).pdf
+
+clearall:
+	rm -f $(FILE).pdf
+	rm -f cache/*
