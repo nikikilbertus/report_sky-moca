@@ -146,12 +146,6 @@
 \renewcommand{\left}{\mathopen{}\mathclose\bgroup\originalleft}
 \renewcommand{\right}{\aftergroup\egroup\originalright}
 %
-% References (just wrappers of usual \ref for flexibility)
-\newcommand{\chapref}[1]{\ref{#1}}
-\newcommand{\secref}[1]{\ref{#1}}
-\newcommand{\chaplabel}[1]{\label{#1}}
-\newcommand{\seclabel}[1]{\label{#1}}
-%
 % include package and the command for the titlepage
 \RequirePackage{titlepage}
 \include{titleinfo}
