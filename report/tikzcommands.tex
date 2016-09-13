@@ -1,0 +1,49 @@
+% tikz drawing commands
+%
+\newcommand{\latticeflat}[1]{%
+  \pgfmathsetmacro{\r}{0.08}
+  \pgfmathsetmacro{\d}{1}
+  \pgfmathsetmacro{\n}{#1}
+  \pgfmathsetmacro{\nm}{\n-1}
+  \foreach \x in {0,...,\nm}{
+    \draw[black!50, dashed] (\x*\d,0) -- ++(0,\nm*\d);
+    \draw[black!50, dashed] (0,\x*\d) -- ++(\nm*\d,0);
+  }
+  \foreach \x in {0,...,\nm}{
+    \foreach \y in {0,...,\nm}{
+      \coordinate (S) at (\d*\x, \d*\y);
+      \pgfmathsetmacro{\vx}{rand}
+      \pgfmathsetmacro{\vy}{rand}
+      \pgfmathsetmacro{\nn}{2 * sqrt(\vx * \vx + \vy * \vy)}
+      \draw[thick, >=latex, ->, black!50] (S) -- +(\vx / \nn, \vy / \nn);
+      \filldraw (S) circle (\r);
+    }
+  }
+}
+%
+\newcommand{\lattice}[1]{%
+  \pgfmathsetmacro{\r}{0.05}
+  \pgfmathsetmacro{\d}{1}
+  \pgfmathsetmacro{\n}{#1}
+  \pgfmathsetmacro{\nm}{\n-1}
+  \foreach \x in {0,...,\nm}{
+    \foreach \y in {0,...,\nm}{
+      \draw[black!50, dashed] (\x*\d,\y*\d,0) -- ++(0,0,\nm*\d);
+      \draw[black!50, dashed] (\x*\d,0,\y*\d) -- ++(0,\nm*\d,0);
+      \draw[black!50, dashed] (0,\x*\d,\y*\d) -- ++(\nm*\d,0,0);
+    }
+  }
+  \foreach \x in {0,...,\nm}{
+    \foreach \y in {0,...,\nm}{
+      \foreach \z in {0,...,\nm}{
+        \coordinate (S) at (\d*\x, \d*\y, \d*\z);
+        \pgfmathsetmacro{\vx}{rand}
+        \pgfmathsetmacro{\vy}{rand}
+        \pgfmathsetmacro{\vz}{rand}
+        \pgfmathsetmacro{\nn}{2.5*sqrt(\vx * \vx + \vy * \vy + \vz * \vz)}
+        \draw[thick, >=latex, ->, black!50] (S) -- +(\vx / \nn, \vy / \nn, \vz / \nn);
+        \shade[ball color=black] (S) circle (\r + \z / 60);
+      }
+    }
+  }
+}
