@@ -1,20 +1,62 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Theoretical background}\chaplabel{chap:1}
+\chapter{Theoretical background}\label{chap:1}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Introduction}\seclabel{sec:intro}
+\section{Introduction}\label{sec:intro}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 Since the \todo{theoretical prediction?} of skyrmions in \todo{year?}
 \todo{cite} and their experimental discovery in \todo{year} \todo{cite},
 skyrmions have been extensively investigated both by theorists and
 experimentalists \todo{some refs}. Skyrmions have caused a lot of excitement
-mostly due to their promising properties that might make them suitable for a
-fast and efficient memory. Three-dimensional non-perturbative
-classical Monte Carlo methods developed recently \todo{cite main paper}, allow
-us to compute the full finite temperature phase diagrom and explore phase
-transitions.
+mostly due to their promising properties that might qualify them as fast and
+efficient memory. Three-dimensional non-perturbative classical Monte Carlo
+methods developed recently~\cite{skyrmionlattice}, allow us to compute the full
+finite temperature phase diagrom and explore phase transitions. The goal of this
+project was to implement the discretized lattice hamiltonian introduced
+in~\cite{skyrmionlattice} and basically reproduce the results discussed there.
+In contrast to most previous work on Monte Carlo methods describing skyrmions,
+we want to provide a detailed exposition of the algorithms and numerical
+aspects. The report can serve as an ab-initio step-by-step introdcution on how
+to write Monte Carlo methods and associated pitfalls or caveats based on a
+concrete example. All code is publicly available on GitHub under
+\todo{link} and we hope that it will be useful to others.
 
-The goal of this paper was to implement the discretized version introduced in \todo{ref} and \todo{ihre ergebnisse nachrechnen. im gegensatz zu den papers erklaeren wir genau was wir auf der numerik seite gemacht haben}
+We introduce the model in \secref{sec:model} and briefly outline the genearl
+idea of Monte Carlo methods on an abstract level. In \secref{sec:mctheory} we
+introduce Monte Carlo techniques more formally and state some important
+properties and results mostly without proofs. Moreover we discuss verification
+strategies for Monte Carlo codes. \Secref{sec:code} contains the documentation
+of our code as well as a user manual. Moreover, we provide reasoning for design
+decisions. Physical results of the simulations are presented in
+\secref{sec:results}. Finally, we conclude in \chapref{chap:3}.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The Spin Lattice Model}\label{sec:model}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+A common high-level way to think about magnetism in condensed matter is in terms
+of complex collective behavior of spins, which are associated to a magnetic
+moment. Astoundingly this simple model is quite powerful. The model we use here
+consists of a three-dimensional lattice with equidistant spacing in each
+direction. To each lattice site we attach a spin, represented as an arbitrary
+element of the unit sphere~$S^2$, see \figref{fig:lattice}.
+
+% \tdplotsetmaincoords{60}{110}
+\begin{figure}
+\centering
+\begin{tikzpicture}%[tdplot_main_coords]
+  \lattice{3}
+  % \latticeflat{4}
+\end{tikzpicture}%
+\caption{A cubic three-dimensional lattice with a spin at each lattice site.}
+\label{fig:lattice}
+\end{figure}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Monte Carlo Methods}\label{sec:mctheory}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\todo{}
