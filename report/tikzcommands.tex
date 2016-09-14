@@ -21,6 +21,83 @@
   }
 }
 %
+\newcommand{\latticeselect}[1]{%
+  \pgfmathsetmacro{\r}{0.08}
+  \pgfmathsetmacro{\d}{1}
+  \pgfmathsetmacro{\n}{#1}
+  \pgfmathsetmacro{\nm}{\n-1}
+  \foreach \x in {0,...,\nm}{
+    \draw[black!50, dashed] (\x*\d,0) -- ++(0,\nm*\d);
+    \draw[black!50, dashed] (0,\x*\d) -- ++(\nm*\d,0);
+  }
+  \foreach \x in {0,...,\nm}{
+    \foreach \y in {0,...,\nm}{
+      \coordinate (S) at (\d*\x, \d*\y);
+      \pgfmathsetmacro{\vx}{rand}
+      \pgfmathsetmacro{\vy}{rand}
+      \pgfmathsetmacro{\nn}{2 * sqrt(\vx * \vx + \vy * \vy)}
+      \ifthenelse{\x=1 \AND \y=1}{\def\mycol{\select}}{\def\mycol{black!50}}
+      \draw[thick, >=latex, ->, \mycol]
+        (S) -- +(\vx / \nn, \vy / \nn);
+      \filldraw[\mycol] (S) circle (\r);
+    }
+  }
+}
+%
+\newcommand{\latticeinter}[1]{%
+  \pgfmathsetmacro{\r}{0.08}
+  \pgfmathsetmacro{\d}{1}
+  \pgfmathsetmacro{\n}{#1}
+  \pgfmathsetmacro{\nm}{\n-1}
+  \foreach \x in {0,...,\nm}{
+    \ifthenelse{\x=1}{\def\mycol{\inter}}{\def\mycol{black!50}}
+    \ifthenelse{\x=2}{\def\mythi{thick}}{\def\mythi{thin}}
+    \draw[\mycol, \mythi,  dashed] (\x*\d,0) -- ++(0,\nm*\d);
+    \draw[\mycol, \mythi,  dashed] (0,\x*\d) -- ++(\nm*\d,0);
+  }
+  \foreach [evaluate={\xx=int(abs(\x-1));}] \x in {0,...,\nm}{
+    \foreach [evaluate={\yy=int(abs(\y-1));}] \y in {0,...,\nm}{
+      \coordinate (S) at (\d*\x, \d*\y);
+      \pgfmathsetmacro{\vx}{rand}
+      \pgfmathsetmacro{\vy}{rand}
+      \pgfmathsetmacro{\nn}{2 * sqrt(\vx * \vx + \vy * \vy)}
+      \ifthenelse{\x=1 \AND \y=1}{\def\mycol{\select}}{%
+        \ifthenelse{\xx=1 \OR \yy=1 \AND \NOT \xx=\yy}{\def\mycol{\neigh}}{\def\mycol{black!50}}}
+      \draw[thick, >=latex, ->, \mycol]
+        (S) -- +(\vx / \nn, \vy / \nn);
+      \filldraw[\mycol] (S) circle (\r);
+    }
+  }
+}
+%
+\newcommand{\latticeinternn}[1]{%
+  \pgfmathsetmacro{\r}{0.08}
+  \pgfmathsetmacro{\d}{1}
+  \pgfmathsetmacro{\n}{#1}
+  \pgfmathsetmacro{\nm}{\n-1}
+  \foreach \x in {0,...,\nm}{
+    \ifthenelse{\x=2}{\def\mycol{\inter}}{\def\mycol{black!50}}
+    \ifthenelse{\x=2}{\def\mythi{thick}}{\def\mythi{thin}}
+    \draw[\mycol, \mythi, dashed] (\x*\d,0) -- ++(0,\nm*\d);
+    \draw[\mycol, \mythi, dashed] (0,\x*\d) -- ++(\nm*\d,0);
+  }
+  \foreach [evaluate={\xx=int(abs(\x-2));}] \x in {0,...,\nm}{
+    \foreach [evaluate={\yy=int(abs(\y-2));}] \y in {0,...,\nm}{
+      \coordinate (S) at (\d*\x, \d*\y);
+      \pgfmathsetmacro{\vx}{rand}
+      \pgfmathsetmacro{\vy}{rand}
+      \pgfmathsetmacro{\nn}{2 * sqrt(\vx * \vx + \vy * \vy)}
+      \ifthenelse{\x=2 \AND \y=2}{\def\mycol{\select}}{%
+        \ifthenelse{\xx<2 \AND \yy<2 \AND \NOT \xx=\yy}{\def\mycol{\neigh}}{%
+          \ifthenelse{\xx=2 \AND \yy=0}{\def\mycol{\nneigh}}{%
+            \ifthenelse{\xx=0 \AND \yy=2}{\def\mycol{\nneigh}}{\def\mycol{black!50}}}}}
+      \draw[thick, >=latex, ->, \mycol]
+        (S) -- +(\vx / \nn, \vy / \nn);
+      \filldraw[\mycol] (S) circle (\r);
+    }
+  }
+}
+%
 \newcommand{\lattice}[1]{%
   \pgfmathsetmacro{\r}{0.05}
   \pgfmathsetmacro{\d}{1}
