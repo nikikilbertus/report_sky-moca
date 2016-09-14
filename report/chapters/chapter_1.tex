@@ -38,21 +38,144 @@ decisions. Physical results of the simulations are presented in
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 A common high-level way to think about magnetism in condensed matter is in terms
-of complex collective behavior of spins, which are associated to a magnetic
-moment. Astoundingly this simple model is quite powerful. The model we use here
-consists of a three-dimensional lattice with equidistant spacing in each
-direction. To each lattice site we attach a spin, represented as an arbitrary
-element of the unit sphere~$S^2$, see \figref{fig:lattice}.
+of complex collective behavior of spins, each of which is associated to a
+magnetic moment. Astoundingly this simple model is quite powerful and allows for
+an thorough explanation of a wide range of phenomena. Let us consier a
+three-dimensional lattice with equidistant spacing in each direction. To each
+lattice site we attach a spin, represented by an arbitrary element of the unit
+sphere~$S^2$, see \figref{fig:lattice}. In the following we will often resort to
+the two-dimensional model for illustration purposes, because it is easier to
+draw on a two-dimensional surface. Each lattice sites typically represents a
+nucleus, hence the whole lattice can be interpreted as a regular atomic
+structure of a solid.
 
-% \tdplotsetmaincoords{60}{110}
+We work with a simple cubic lattice
+%
+\begin{equation}
+  \Sigma := \numlist{1}{N_x} \times \numlist{1}{N_y} \times
+  \numlist{1}{N_z} \subset \bN^3 \subset \bR^3\:,
+\end{equation}
+%
+where we interpret~$(i,j,k) \in \Sigma$ as~$i \hat{\x} + j \hat{\y} + k \hat{\z}
+\in \bR^3$. Here,~$\hat{\x}, \hat{\y}, \hat{\z}$ are the standard basis vectors
+of~$\bR^3$. At each point~$\r \in \Sigma$ we attach a spin~$\S_{\r} \in S^2$,
+which yields an overall configuration space~$\Pi := \prod_{\r \in \Sigma} S^2$.
+Note that we only discretize the positions of the spins, but not explicitly
+their directions.  In any real implementation they are of course discretized by
+the finite count of floating point numbers. This mirrors the naturally
+discretized crystal structure of solids.
+
+% While the microscopic field within the solid varies greatly over distances on
+% the order of the lattice spacing, from far away those microscopic fluctuations
+% smear out and we observe an averaged macroscopic field. For example, when we
+% choose each spin uniformly at random, as we did in \figref{fig:lattice}, one
+% expects the overall macroscopic field to be zero for a sufficiently large
+% system.
+
+The goal of our simulation is to find a state~$\pi \in \Pi$ that minimizes the
+energy of the system for given parameters. You might notice that we have not
+defined a notion of energy yet nor explicitly listed the free parameters of such
+a spin lattice. Apparently any physical measure of energy must be based on
+interactions between the spins within the system or also with external fields.
+Let us elaborate on some possible interactions. Each of them comes with a
+constant that can be interpreted as a weight, \ie{} how much the respective
+interaction contributes to the action with respect to the others. Those
+constants are parameters of the system.
+
+\subsection{Interactions}
+
+The most obvious interaction is the \newterm{ferromagnetic} or \newterm{direct}
+exchange.  Pictorially speaking, it favors constellations where spins that are
+close to each other point into the same direction. A system only interacting
+this way will end up in a state where all spins are parallel to each other. The
+measure for parallelism of two neighbouring spins~$\S_{\r_1}, \S_{\r_2} \in S^2$
+can be expressed as~$- \S_1 \cdot \S_2 = - \norm{\S_1} \norm{\S_2}
+\cos(\alpha)$, where~$\alpha$ is the angle between~$\S_1$ and~$\S_2$. The minus
+sign ensures that the energy of two parallel spins is smaller than the energy of
+two perpendicular or even antiparallel ones. In the continuum the direct
+exchange term consists of a gradient, which is a local quantity, \ie{} the
+gradient at a point only depends on an arbitrarily small neighbourhood of the
+point. Thus we will always consider the ferromagnetic exchange to be
+\newterm{local} or \newterm{short ranged} in the sense that it only contributes
+for adjacent lattice sites and we can thus hide the distance in a leading
+constant, see \todo{figref}.
+
+Another important exchange term describes the interaction of the system with an
+\newterm{external magnetic field}. Clearly, every spin tries to align with an
+external field~$\B$, which we express mathematically via~$-\B \cdot \S$ for
+every spin~$\S$ on the lattice. It can be misleading to use terms such as
+\newterm{non-local} or \newterm{long ranged} for this exchange, since it is not
+an interaction between two or more spins within the system, but affects each
+lattice site independently in the same way.
+
+These two are the most commonly encountered exchange terms. The
+\newterm{dipole-dipole interaction} is somewhat more complex, but also weaker.
+For two spins~$\S_1, \S_2 \in S^2$ at positions~$\r_1, \r_2 \in \bR^3$, it is
+given by
+%
+\begin{equation}
+  - \frac{1}{\norm{\r}^3}
+  (3 (\S_1 \cdot \hat{\r})(\S_2 \cdot \hat{\r}) - \S_1 \cdot \S_2)\:,
+\end{equation}
+%
+where~$\r = \r_2 - \r_1$ and~$\hat{\r} = \r / \norm{\r}$. The dipole-dipole
+interaction depends on the distance between the two lattice sites as well as the
+orientation of the two spins not only relative to each other, but also to the
+line connecting them. Moreover, the explicit dependense on the relative position
+already indicates that the dipole-dipole interaciton is relevant for each pair
+of spin in the system, it is a long ranged interaction. In a system of~$N^3$
+lattice sites, the number of pairs scales like~$N^6$. Hence, most simulations do
+not take the dipole-dipole exchange into account purely due to limited
+computational resources. The same holds true for our example.
+
+In this work we are interested in chrial magnets, certain crystals that lack
+inversion symmetry, \eg{} MnSi. This gives rise to the so called \newterm{weak
+Dzyaloshinskii-Moriya} (DM) coupling. In the continuum it is described by a term
+proportional to~$-\S(\r) \cdot (\nabla \times \S(\r)$. Just like the gradient,
+the curl of a vector field is a local property, thus the DM exchange only
+contributes for adjacent lattice sites. The discretized version for two
+spins~$\S_1, \S_2 \in S^2$ at neighbouring positions~$\r_1, \r_2 \in \bR^3$
+\todo{lattice instead of R3} reads~$- (\S_1 \times \S_2) \cdot (\r_2 - \r_1)$.
+Since the cross product is zero for parallel vectors and maximal for
+perpendicular vector, the DM coupling acts to some extent against the
+ferromagnetic interaction and favors constellations where adjacent spins are
+perpendicular to each other.
+
+\todo{Why is ferromagnetic exchange always canonically local (neighbouring only)
+and dipole dipole interaction would be between all pairs?}
+
+
 \begin{figure}
-\centering
-\begin{tikzpicture}%[tdplot_main_coords]
-  \lattice{3}
-  % \latticeflat{4}
-\end{tikzpicture}%
-\caption{A cubic three-dimensional lattice with a spin at each lattice site.}
+  \centering
+  \begin{tikzpicture}
+    \latticeflat{4}
+    \begin{scope}[xshift=8cm,yshift=1cm]
+      \lattice{4}
+    \end{scope}
+  \end{tikzpicture}%
+  \caption{On the left side we show a two-dimensional spin lattice. Each lattice
+  site represents a magnetic moment or spin, represented by an arrow of unit
+  length, \ie{}, in the two-dimensional picture, by an element of~$S^1$. The
+  three-dimensional picture on the right side becomes unclear in a
+  two-dimensional drawing rather quickly. Note that the magnetic moments are now
+  also three-dimensional, \ie{} elements of the two-dimensional unit
+  sphere~$S^2$.}
 \label{fig:lattice}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    \latticeselect{3}
+    \begin{scope}[xshift=5cm]
+      \latticeinter{3}
+    \end{scope}
+    \begin{scope}[xshift=10cm, yshift=-1cm]
+      \latticeinternn{5}
+    \end{scope}
+  \end{tikzpicture}%
+  \caption{\todo{}}
+\label{fig:interact}
 \end{figure}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
