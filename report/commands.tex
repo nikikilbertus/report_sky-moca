@@ -17,6 +17,12 @@
 \newcommand{\cH}{\mathcal{H}}
 % Special objects
 \newcommand{\const}{\mathrm{const}}
+\renewcommand{\S}{\mathbf{S}}
+\newcommand{\B}{\mathbf{B}}
+\renewcommand{\r}{\mathbf{r}}
+\newcommand{\x}{\mathbf{x}}
+\newcommand{\y}{\mathbf{y}}
+\newcommand{\z}{\mathbf{z}}
 
 %
 % Map
@@ -28,10 +34,7 @@
 \newcommand{\abs}[1]{\left\lvert#1\right\rvert}
 %
 % Norm (two lines)
-\newcommand{\norm}[2][]{%
-	\left\lVert#2\right\rVert
-	\ifthenelse{\equal{#1}{}}{}{_{#1}}
-}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
 %
 % List of numbers
 \newcommand{\numlist}[2]{\{#1,\dots,#2\}}
