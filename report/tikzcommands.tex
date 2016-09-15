@@ -1,7 +1,35 @@
 % tikz drawing commands
-%
+
+\newcommand{\arrtwo}[3]{% coordinate, color, symbol
+  \coordinate (S) at #1;
+  \pgfmathsetmacro{\vx}{rand}
+  \pgfmathsetmacro{\vy}{rand}
+  \pgfmathsetmacro{\nn}{2 * sqrt(\vx * \vx + \vy * \vy)}
+  \draw[thick, >=latex, ->, #2] (S) -- +(\vx / \nn, \vy / \nn);
+  \ifthenelse{\equal{#3}{1}}
+    {\filldraw[#2] (S) circle (0.08);}
+    {\ifthenelse{\equal{#3}{2}}
+      {\filldraw[#2] (S)[xshift=-0.07cm, yshift=-0.07cm] rectangle ++(0.14,0.14);}
+      {\ifthenelse{\equal{#3}{3}}
+        {\node[#2, fill=#2,regular polygon, regular polygon sides=5,inner sep=0.06cm] at (S) {};}
+        {}
+      }
+    }
+}
+
+\newcommand{\arrp}[1]{% coordinate, color
+  \arrtwo{#1}{black!50}{1}}
+
+\newcommand{\arrs}[1]{% coordinate
+  \arrtwo{#1}{\select}{1}}
+
+\newcommand{\arrn}[1]{% coordinate
+  \arrtwo{#1}{\neigh}{2}}
+
+\newcommand{\arrnn}[1]{% coordinate
+  \arrtwo{#1}{\nneigh}{3}}
+
 \newcommand{\latticeflat}[1]{%
-  \pgfmathsetmacro{\r}{0.08}
   \pgfmathsetmacro{\d}{1}
   \pgfmathsetmacro{\n}{#1}
   \pgfmathsetmacro{\nm}{\n-1}
@@ -11,93 +39,67 @@
   }
   \foreach \x in {0,...,\nm}{
     \foreach \y in {0,...,\nm}{
-      \coordinate (S) at (\d*\x, \d*\y);
-      \pgfmathsetmacro{\vx}{rand}
-      \pgfmathsetmacro{\vy}{rand}
-      \pgfmathsetmacro{\nn}{2 * sqrt(\vx * \vx + \vy * \vy)}
-      \draw[thick, >=latex, ->, black!50] (S) -- +(\vx / \nn, \vy / \nn);
-      \filldraw (S) circle (\r);
+      \arrp{(\d*\x, \d*\y)}
     }
   }
 }
-%
+
 \newcommand{\latticeselect}[1]{%
-  \pgfmathsetmacro{\r}{0.08}
   \pgfmathsetmacro{\d}{1}
   \pgfmathsetmacro{\n}{#1}
   \pgfmathsetmacro{\nm}{\n-1}
+  \pgfmathsetmacro{\s}{int(\nm/2)}
   \foreach \x in {0,...,\nm}{
     \draw[black!50, dashed] (\x*\d,0) -- ++(0,\nm*\d);
     \draw[black!50, dashed] (0,\x*\d) -- ++(\nm*\d,0);
   }
   \foreach \x in {0,...,\nm}{
     \foreach \y in {0,...,\nm}{
-      \coordinate (S) at (\d*\x, \d*\y);
-      \pgfmathsetmacro{\vx}{rand}
-      \pgfmathsetmacro{\vy}{rand}
-      \pgfmathsetmacro{\nn}{2 * sqrt(\vx * \vx + \vy * \vy)}
-      \ifthenelse{\x=1 \AND \y=1}{\def\mycol{\select}}{\def\mycol{black!50}}
-      \draw[thick, >=latex, ->, \mycol]
-        (S) -- +(\vx / \nn, \vy / \nn);
-      \filldraw[\mycol] (S) circle (\r);
+      \ifthenelse{\x=\s \AND \y=\s}{\arrs{(\d*\x, \d*\y)}}{\arrp{(\d*\x, \d*\y)}}
     }
   }
 }
-%
+
 \newcommand{\latticeinter}[1]{%
-  \pgfmathsetmacro{\r}{0.08}
   \pgfmathsetmacro{\d}{1}
   \pgfmathsetmacro{\n}{#1}
   \pgfmathsetmacro{\nm}{\n-1}
+  \pgfmathsetmacro{\s}{int(\nm/2)}
   \foreach \x in {0,...,\nm}{
-    \ifthenelse{\x=1}{\def\mycol{\inter}}{\def\mycol{black!50}}
-    \ifthenelse{\x=2}{\def\mythi{thick}}{\def\mythi{thin}}
+    \ifthenelse{\x=\s}{\def\mycol{\inter}}{\def\mycol{black!50}}
+    \ifthenelse{\x=\s}{\def\mythi{thick}}{\def\mythi{thin}}
     \draw[\mycol, \mythi,  dashed] (\x*\d,0) -- ++(0,\nm*\d);
     \draw[\mycol, \mythi,  dashed] (0,\x*\d) -- ++(\nm*\d,0);
   }
-  \foreach [evaluate={\xx=int(abs(\x-1));}] \x in {0,...,\nm}{
-    \foreach [evaluate={\yy=int(abs(\y-1));}] \y in {0,...,\nm}{
-      \coordinate (S) at (\d*\x, \d*\y);
-      \pgfmathsetmacro{\vx}{rand}
-      \pgfmathsetmacro{\vy}{rand}
-      \pgfmathsetmacro{\nn}{2 * sqrt(\vx * \vx + \vy * \vy)}
-      \ifthenelse{\x=1 \AND \y=1}{\def\mycol{\select}}{%
-        \ifthenelse{\xx=1 \OR \yy=1 \AND \NOT \xx=\yy}{\def\mycol{\neigh}}{\def\mycol{black!50}}}
-      \draw[thick, >=latex, ->, \mycol]
-        (S) -- +(\vx / \nn, \vy / \nn);
-      \filldraw[\mycol] (S) circle (\r);
+  \foreach [evaluate={\xx=int(abs(\x-\s));}] \x in {0,...,\nm}{
+    \foreach [evaluate={\yy=int(abs(\y-\s));}] \y in {0,...,\nm}{
+      \ifthenelse{\x=\s \AND \y=\s}{\arrs{(\d*\x, \d*\y)}}{%
+        \ifthenelse{\xx<2 \AND \yy<2 \AND \NOT \xx=\yy}{\arrn{(\d*\x, \d*\y)}}{\arrp{(\d*\x, \d*\y)}}}
     }
   }
 }
-%
+
 \newcommand{\latticeinternn}[1]{%
-  \pgfmathsetmacro{\r}{0.08}
   \pgfmathsetmacro{\d}{1}
   \pgfmathsetmacro{\n}{#1}
   \pgfmathsetmacro{\nm}{\n-1}
+  \pgfmathsetmacro{\s}{int(\nm/2)}
   \foreach \x in {0,...,\nm}{
-    \ifthenelse{\x=2}{\def\mycol{\inter}}{\def\mycol{black!50}}
-    \ifthenelse{\x=2}{\def\mythi{thick}}{\def\mythi{thin}}
+    \ifthenelse{\x=\s}{\def\mycol{\inter}}{\def\mycol{black!50}}
+    \ifthenelse{\x=\s}{\def\mythi{thick}}{\def\mythi{thin}}
     \draw[\mycol, \mythi, dashed] (\x*\d,0) -- ++(0,\nm*\d);
     \draw[\mycol, \mythi, dashed] (0,\x*\d) -- ++(\nm*\d,0);
   }
-  \foreach [evaluate={\xx=int(abs(\x-2));}] \x in {0,...,\nm}{
-    \foreach [evaluate={\yy=int(abs(\y-2));}] \y in {0,...,\nm}{
-      \coordinate (S) at (\d*\x, \d*\y);
-      \pgfmathsetmacro{\vx}{rand}
-      \pgfmathsetmacro{\vy}{rand}
-      \pgfmathsetmacro{\nn}{2 * sqrt(\vx * \vx + \vy * \vy)}
-      \ifthenelse{\x=2 \AND \y=2}{\def\mycol{\select}}{%
-        \ifthenelse{\xx<2 \AND \yy<2 \AND \NOT \xx=\yy}{\def\mycol{\neigh}}{%
-          \ifthenelse{\xx=2 \AND \yy=0}{\def\mycol{\nneigh}}{%
-            \ifthenelse{\xx=0 \AND \yy=2}{\def\mycol{\nneigh}}{\def\mycol{black!50}}}}}
-      \draw[thick, >=latex, ->, \mycol]
-        (S) -- +(\vx / \nn, \vy / \nn);
-      \filldraw[\mycol] (S) circle (\r);
+  \foreach [evaluate={\xx=int(abs(\x-\s));}] \x in {0,...,\nm}{
+    \foreach [evaluate={\yy=int(abs(\y-\s));}] \y in {0,...,\nm}{
+      \ifthenelse{\x=\s \AND \y=\s}{\arrs{(\d*\x, \d*\y)}}{%
+        \ifthenelse{\xx<2 \AND \yy<2 \AND \NOT \xx=\yy}{\arrn{(\d*\x, \d*\y)}}{%
+          \ifthenelse{\xx=2 \AND \yy=0}{\arrnn{(\d*\x, \d*\y)}}{%
+            \ifthenelse{\xx=0 \AND \yy=2}{\arrnn{(\d*\x, \d*\y)}}{\arrp{(\d*\x, \d*\y)}}}}}
     }
   }
 }
-%
+
 \newcommand{\lattice}[1]{%
   \pgfmathsetmacro{\r}{0.05}
   \pgfmathsetmacro{\d}{1}
@@ -119,8 +121,68 @@
         \pgfmathsetmacro{\vz}{rand}
         \pgfmathsetmacro{\nn}{2.5*sqrt(\vx * \vx + \vy * \vy + \vz * \vz)}
         \draw[thick, >=latex, ->, black!50] (S) -- +(\vx / \nn, \vy / \nn, \vz / \nn);
-        \shade[ball color=black] (S) circle (\r + \z / 60);
+        \shade[ball color=black!50] (S) circle (\r + \z / 60);
       }
     }
   }
+}
+
+\newcommand{\shaderec}[4]{%
+  \pgfmathsetmacro{\d}{0.5}
+  \fill[\select, opacity=0.2] (#1*\d,#2*\d) rectangle ++(#3*\d,#4*\d);
+}
+
+\newcommand{\squaremark}[2]{%
+  \pgfmathsetmacro{\d}{0.5}
+  \filldraw[\neigh, xshift=-0.06cm, yshift=-0.06cm] (#1*\d, #2*\d) rectangle ++(0.12, 0.12);
+}
+
+\newcommand{\pentmark}[2]{%
+  \pgfmathsetmacro{\d}{0.5}
+  \node[\nneigh, fill=\nneigh,regular polygon, regular polygon sides=5,inner sep=0.06cm] at (#1*\d,#2*\d) {};
+}
+
+\newcommand{\periodic}{%
+  \pgfmathsetmacro{\d}{0.7}
+  \shaderec{2}{2}{3}{3}
+  \shaderec{0}{0}{1}{1}
+  \shaderec{0}{6}{1}{1}
+  \shaderec{6}{0}{1}{1}
+  \shaderec{6}{6}{1}{1}
+  \shaderec{0}{2}{1}{3}
+  \shaderec{6}{2}{1}{3}
+  \shaderec{2}{0}{3}{1}
+  \shaderec{2}{6}{3}{1}
+
+  \foreach \i in {1, 5}{%
+    \draw[dotted,thick] (2*\d, \i*\d) -- ++(3*\d,0);
+    \draw[dashdotted,thick] (\i*\d, 2*\d) -- ++(0,3*\d);
+    \foreach \j in {0, 6}{
+      \draw[dotted,thick] (\j*\d, \i*\d) -- ++(\d,0);
+      \draw[dashdotted,thick] (\i*\d, \j*\d) -- ++(0,\d);
+    }
+  }
+  \foreach \i in {2, 6}{%
+    \draw[thick] (2*\d, \i*\d) -- ++(3*\d,0);
+    \draw[dashed,thick] (\i*\d, 2*\d) -- ++(0,3*\d);
+    \foreach \j in {0, 6}{
+      \draw[thick] (\j*\d, \i*\d) -- ++(\d,0);
+      \draw[dashed,thick] (\i*\d, \j*\d) -- ++(0,\d);
+    }
+  }
+  \foreach \i in {0,...,7}{
+    \foreach \j in {0,...,7}{
+      \filldraw[black!50] (\i*\d, \j*\d) circle (0.06cm);
+    }
+  }
+
+  \squaremark{3}{3}
+  \squaremark{3}{7}
+  \squaremark{7}{3}
+  \squaremark{7}{7}
+
+  \pentmark{5}{4}
+  \pentmark{1}{4}
+  \pentmark{5}{0}
+  \pentmark{1}{0}
 }
