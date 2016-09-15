@@ -14,17 +14,17 @@ experimentalists \todo{some refs}. Skyrmions have caused a lot of excitement
 mostly due to their promising properties that might qualify them as fast and
 efficient memory. Three-dimensional non-perturbative classical Monte Carlo
 methods developed recently~\cite{skyrmionlattice}, allow us to compute the full
-finite temperature phase diagrom and explore phase transitions. The goal of this
-project was to implement the discretized lattice hamiltonian introduced
+finite temperature phase diagram and explore phase transitions. The goal of this
+project was to implement the discretized lattice Hamiltonian introduced
 in~\cite{skyrmionlattice} and basically reproduce the results discussed there.
 In contrast to most previous work on Monte Carlo methods describing skyrmions,
 we want to provide a detailed exposition of the algorithms and numerical
-aspects. The report can serve as an ab-initio step-by-step introdcution on how
+aspects. The report can serve as an ab initio step-by-step introduction on how
 to write Monte Carlo methods and associated pitfalls or caveats based on a
 concrete example. All code is publicly available on GitHub under
 \todo{link} and we hope that it will be useful to others.
 
-We introduce the model in \secref{sec:model} and briefly outline the genearl
+We introduce the model in \secref{sec:model} and briefly outline the general
 idea of Monte Carlo methods on an abstract level. In \secref{sec:mctheory} we
 introduce Monte Carlo techniques more formally and state some important
 properties and results mostly without proofs. Moreover we discuss verification
@@ -40,7 +40,7 @@ decisions. Physical results of the simulations are presented in
 A common high-level way to think about magnetism in condensed matter is in terms
 of complex collective behavior of spins, each of which is associated to a
 magnetic moment. Astoundingly this simple model is quite powerful and allows for
-an thorough explanation of a wide range of phenomena. Let us consier a
+an thorough explanation of a wide range of phenomena. Let us consider a
 three-dimensional lattice with equidistant spacing in each direction. To each
 lattice site we attach a spin, represented by an arbitrary element of the unit
 sphere~$S^2$, see \figref{fig:lattice}. In the following we will often resort to
@@ -56,14 +56,21 @@ We work with a simple cubic lattice
   \numlist{1}{N_z} \subset \bN^3 \subset \bR^3\:,
 \end{equation}
 %
-where we interpret~$(i,j,k) \in \Sigma$ as~$i \hat{\x} + j \hat{\y} + k \hat{\z}
-\in \bR^3$. Here,~$\hat{\x}, \hat{\y}, \hat{\z}$ are the standard basis vectors
-of~$\bR^3$. At each point~$\r \in \Sigma$ we attach a spin~$\S_{\r} \in S^2$,
-which yields an overall configuration space~$\Pi := \prod_{\r \in \Sigma} S^2$.
-Note that we only discretize the positions of the spins, but not explicitly
-their directions.  In any real implementation they are of course discretized by
-the finite count of floating point numbers. This mirrors the naturally
-discretized crystal structure of solids.
+where we interpret~$(i,j,k) \in \Sigma$ as~$i \hx + j \hy + k \hz
+\in \bR^3$. Note that we can translate the whole lattice by arbitrary integer
+linear combinations of the standard basis vectors, thus starting at~$(1,1,1)$
+does not have any physical meaning. It merely translates nicely to the numerical
+implementation in any~$1$-indexed programming language. Here,~$\hx,
+\hy, \hz$ are the standard basis vectors of~$\bR^3$. At each point~$\r
+\in \Sigma$ we attach a spin~$\S_{\r} \in S^2$, which yields an overall
+configuration space~$\Pi := \prod_{\r \in \Sigma} S^2$.  Each element of~$\Pi$
+consists of~$\abs{\Sigma}=N_x N_y N_z$ spins, \ie{} elements of~$S^2$, thus
+describes one possible spin configuration of the whole lattice. We refer to the
+specific spin at position~$\r \in \Sigma$ with~$\S_{\r} \in S^2$.  Note that we
+only discretize the positions of the spins, but not explicitly their directions.
+In any real implementation they are of course discretized by the finite count of
+floating point numbers. This mirrors the naturally discretized crystal structure
+of solids.
 
 % While the microscopic field within the solid varies greatly over distances on
 % the order of the lattice spacing, from far away those microscopic fluctuations
@@ -84,21 +91,25 @@ constants are parameters of the system.
 
 \subsection{Interactions}
 
+\subsubsection{Ferromagnetic/direct exchange}
+
 The most obvious interaction is the \newterm{ferromagnetic} or \newterm{direct}
 exchange.  Pictorially speaking, it favors constellations where spins that are
 close to each other point into the same direction. A system only interacting
 this way will end up in a state where all spins are parallel to each other. The
-measure for parallelism of two neighbouring spins~$\S_{\r_1}, \S_{\r_2} \in S^2$
-can be expressed as~$- \S_1 \cdot \S_2 = - \norm{\S_1} \norm{\S_2}
-\cos(\alpha)$, where~$\alpha$ is the angle between~$\S_1$ and~$\S_2$. The minus
-sign ensures that the energy of two parallel spins is smaller than the energy of
-two perpendicular or even antiparallel ones. In the continuum the direct
-exchange term consists of a gradient, which is a local quantity, \ie{} the
-gradient at a point only depends on an arbitrarily small neighbourhood of the
-point. Thus we will always consider the ferromagnetic exchange to be
-\newterm{local} or \newterm{short ranged} in the sense that it only contributes
-for adjacent lattice sites and we can thus hide the distance in a leading
-constant, see \todo{figref}.
+measure for parallelism of two neighboring spins~$\S_{\r_1}, \S_{\r_2} \in S^2$
+can be expressed as~$- \S_{\r_1} \cdot \S_{\r_2} = - \norm{\S_{\r_1}}
+\norm{\S_{\r_2}} \cos(\alpha)$, where~$\alpha$ is the angle between~$\S_{\r_1}$
+and~$\S_{\r_2}$. The minus sign ensures that the energy of two parallel spins is
+actually smaller than the energy of two perpendicular or even antiparallel ones.
+In the continuum, the direct exchange term consists of a gradient, which is a
+local quantity, \ie{} the gradient at a point only depends on an arbitrarily
+small neighborhood of the point. Thus we will always consider the ferromagnetic
+exchange to be \newterm{local} or \newterm{short ranged} in the sense that it
+only contributes for adjacent lattice sites and we can thus hide the distance in
+an overall constant, see \todo{figref}.
+
+\subsubsection{Interaction with an external field}
 
 Another important exchange term describes the interaction of the system with an
 \newterm{external magnetic field}. Clearly, every spin tries to align with an
@@ -106,44 +117,238 @@ external field~$\B$, which we express mathematically via~$-\B \cdot \S$ for
 every spin~$\S$ on the lattice. It can be misleading to use terms such as
 \newterm{non-local} or \newterm{long ranged} for this exchange, since it is not
 an interaction between two or more spins within the system, but affects each
-lattice site independently in the same way.
+lattice site independently in the same way. Naturally, for the external
+field,~$\B$ itself is the parameter of the interaction.
+
+\subsubsection{Dipole-dipole interaction}
 
 These two are the most commonly encountered exchange terms. The
 \newterm{dipole-dipole interaction} is somewhat more complex, but also weaker.
-For two spins~$\S_1, \S_2 \in S^2$ at positions~$\r_1, \r_2 \in \bR^3$, it is
-given by
+For two spins~$\S_{\r_1}, \S_{\r_2} \in S^2$, it is given by
 %
 \begin{equation}
-  - \frac{1}{\norm{\r}^3}
-  (3 (\S_1 \cdot \hat{\r})(\S_2 \cdot \hat{\r}) - \S_1 \cdot \S_2)\:,
+  - {\norm{\r}^{-3}} (3 (\S_{\r_1} \cdot \hat{\r})
+  (\S_{\r_2} \cdot \hat{\r}) - \S_{\r_1} \cdot \S_{\r_2})\:,
 \end{equation}
 %
-where~$\r = \r_2 - \r_1$ and~$\hat{\r} = \r / \norm{\r}$. The dipole-dipole
+where~$\r = \r_2 - \r_1$ and~$\hat{\r} = \r / \norm{\r}$ points from the
+location of the first spin to the location of the second one. The dipole-dipole
 interaction depends on the distance between the two lattice sites as well as the
 orientation of the two spins not only relative to each other, but also to the
-line connecting them. Moreover, the explicit dependense on the relative position
-already indicates that the dipole-dipole interaciton is relevant for each pair
+line connecting them. Moreover, the explicit dependence on the relative position
+already indicates that the dipole-dipole interaction is relevant for each pair
 of spin in the system, it is a long ranged interaction. In a system of~$N^3$
 lattice sites, the number of pairs scales like~$N^6$. Hence, most simulations do
 not take the dipole-dipole exchange into account purely due to limited
 computational resources. The same holds true for our example.
 
-In this work we are interested in chrial magnets, certain crystals that lack
+\subsubsection{Dzyaloshinskii-Moriya exchange}
+
+In this work we are interested in chiral magnets, certain crystals that lack
 inversion symmetry, \eg{} MnSi. This gives rise to the so called \newterm{weak
 Dzyaloshinskii-Moriya} (DM) coupling. In the continuum it is described by a term
-proportional to~$-\S(\r) \cdot (\nabla \times \S(\r)$. Just like the gradient,
+proportional to~$-\S(\r) \cdot (\nabla \times \S(\r))$. Just like the gradient,
 the curl of a vector field is a local property, thus the DM exchange only
 contributes for adjacent lattice sites. The discretized version for two
-spins~$\S_1, \S_2 \in S^2$ at neighbouring positions~$\r_1, \r_2 \in \bR^3$
-\todo{lattice instead of R3} reads~$- (\S_1 \times \S_2) \cdot (\r_2 - \r_1)$.
-Since the cross product is zero for parallel vectors and maximal for
-perpendicular vector, the DM coupling acts to some extent against the
-ferromagnetic interaction and favors constellations where adjacent spins are
-perpendicular to each other.
+spins~$\S_{\r_1}, \S_{\r_2} \in S^2$ at neighboring positions~$\r_1, \r_2 \in
+\Sigma$ reads~$- (\S_{\r_1} \times \S_{\r_2}) \cdot (\r_2 - \r_1)$.  Since the
+cross product is zero for parallel vectors and maximal for perpendicular vector,
+the DM coupling acts to some extent against the ferromagnetic interaction and
+favors constellations where adjacent spins are perpendicular to each other.
 
-\todo{Why is ferromagnetic exchange always canonically local (neighbouring only)
+\todo{Why is ferromagnetic exchange always canonically local (neighboring only)
 and dipole dipole interaction would be between all pairs?}
 
+\subsection{The Hamiltonian}
+
+Let us now combine the FM and DM interaction as well as an external magnetic
+field to compute the energy for the lattice~$\Sigma$. To this end we add up the
+contributions from each spin and for each interaction. For instance, the
+external field exchange term simply becomes
+%
+\begin{equation}\label{Bsum}
+  -\sum_{\r \in \Sigma} \S_{\r} \cdot \B\:.
+\end{equation}
+%
+
+Adding up the terms for the FM interaction with all direct neighbors naively as
+in
+%
+\begin{equation}\label{FMsumnaive}
+  -\sum_{\r \in \Sigma} \S_{\r} \cdot (\S_{\r + \hx} + \S_{\r - \hx} +
+    \S_{\r + \hy} + \S_{\r - \hx} + \S_{\r + \hz} + \S_{\r - \hz})\:,
+\end{equation}
+%
+poses two problems. First, apparently in this fashion we count the interaction
+between some pairs of spins multiple times. If~$\Sigma$ was an infinite grid,
+\ie{}~$\Sigma=\bZ^3$, we would count every pair exactly twice and could simply
+divide the above expression by two. However,~$\Sigma$ is finite, which leads as
+to the second, more subtle, issue. Not every lattice site has a neighbor in each
+direction~$\hx, \hy, \hz$. Consider the spin in the lower right corner of a
+lattice in figure \todo{figref}. The sum in our first naive expression for the FM
+interaction~\eqref{FMsumnaive} suggests that we need its right and lower
+neighbor, which apparently do not exist. As a consequence, we need to define
+some \newterm{boundary conditions}. There are several ways to do this and a
+plausible treatment of boundaries is a central aspect of many different areas in
+scientific computing. It is important to realize that this is not simply an
+implementation nuisance that we can get rid off by any means that make the
+code work. Various boundary conditions represent different physical systems and
+significantly alter the results of a simulation.
+
+In many cases the desired simulation volume is an infinite space such
+as~$\bR^3$. A common choice to get as close as possible on our inherently finite
+computers is to introduce \newterm{periodic boundary conditions}. We
+approximate~$\bR^3$ by a finite box of volume~$L^3$ for~$L\in \bRp$ and simply
+replicate that box infinitely many times to fill the whole space, see
+\todo{fig:periodic} for a two-dimensional illustration. In practice, we will
+access the lattice sites by indexing a three-dimensional array with
+indices~$(i,j,k)\in\Sigma$. Whenever the algorithm tries to index out of bounds,
+\eg{}~$j=N_y + 1$, we simply use~$j=1$ again. For~$i=0$ we use~$i=N_x$,
+for~$k=N_z+2$ we use~$k=2$ and so on. In general, this behavior can be achieved
+by always working with the indices
+%
+\begin{equation}\label{periodicindices}
+  ((i-1 \mod N_x) + 1, (j-1 \mod N_y) + 1, (k-1 \mod N_z) + 1) \in \Sigma
+\end{equation}
+%
+whenever the algorithm requests data at position~$(i,j,k) \in \bZ^3$. By
+construction, those new indices always lie in~$\Sigma$. We can now
+unproblematically include spins at officially non-existing positions in our
+mathematical expressions, implicitly assuming that those are being wrapped
+around periodically to positions within the lattice. In our first simulations,
+we will employ periodic boundary conditions in all three directions
+using~\eqref{periodicindices}. For other scenarios we opened up the boundaries
+in one direction. \newterm{Open boundaries} can be realized by setting~$\S_\r =
+0$ for all~$\r \in \bZ^3 \setminus \Sigma$. While periodic boundary conditions
+try to mimic an infinite space, open boundaries clearly represent a finite
+extension of the simulation volume in the respective direction. We will come
+back to open boundaries later. This solves the second issue.
+
+Now that we have a well defined boundary behavior, we can also tackle the first
+problem of counting interactions multiple times. Indeed we could now divide the
+whole expression by~$2$, or, even simpler, write it as
+%
+\begin{equation}\label{FMsum}
+  -\sum_{\r \in \Sigma} \S_{\r} \cdot
+    (\S_{\r + \hx} + \S_{\r + \hy} + \S_{\r + \hz})\:.
+\end{equation}
+%
+It is worth convincing oneself that in this expression with periodic boundary
+conditions every pair of neighboring lattice sites is included exactly once.
+
+Finally, the DM term for the whole lattice is
+%
+\begin{equation}\label{DMsum}
+  -\sum_{\r \in \Sigma} ((\S_{\r} \times \S_{\r + \hx}) \cdot \hx +
+    (\S_{\r} \times \S_{\r + \hy}) \cdot \hy +
+    (\S_{\r} \times \S_{\r + \hz}) \cdot \hz)\:.
+\end{equation}
+%
+Everything we discussed about boundary conditions for the FM exchange also holds
+true for the DM interaction.
+
+Ultimately adding up all interactions~\eqref{Bsum},~\eqref{FMsum}
+and~\eqref{DMsum}, we obtain the Hamiltonian, \ie{} the energy of the system in
+a given configuration~$\pi \in \Pi$
+%
+\begin{align}\label{hamiltonian}
+  H(\pi) = &-\sum_{\r \in \Sigma} (\S_{\r} \cdot
+          (\B + \S_{\r+\hx} + \S_{\r+\hy} + \S_{\r+\hz}) \\
+      &+ K (\S_{\r} \times \S_{\r+\hx} \cdot \hx +
+            \S_{\r} \times \S_{\r+\hy} \cdot \hy +
+            \S_{\r} \times \S_{\r+\hz} \cdot \hz))\:.
+\end{align}
+%
+The parameters~$J$,~$K$ and~$\B$ are sometimes used synonymously for the
+ferromagnetic, the Dzyaloshinskii-Moriya and the external field interaction
+terms. As we will see in the simulation results in \chapref{chap:3}, the
+physical behavior of the system strongly depends on these freely adjustable
+parameters. For a given set of parameters and at zero temperature we typically
+define the physical configuration to be the
+%
+\begin{equation}\label{objective}
+  \argmin_{\pi \in \Pi} H(\pi)\:.
+\end{equation}
+
+\subsection{A note on parameter values}
+
+Recall that there is a great conflict of interest between the FM and
+the DM interactions. While the FM term in the Hamiltonian is minimal when all
+spins are parallel to each other, the DM term favors a configuration where
+neighboring spins are orthogonal. The specific compromise between those effects
+depends mostly on their respective strength~$J$ and~$K$. In reality the direct
+interaction~$J$ is much stronger and one typically encounters helical
+structures with long modulation periods, see \todo{figref}. For example in MnSi
+the spins wind around a given modulation axis only once per roughly~$40$ lattice
+spacings. By tuning the ratio~$J/K$ we can set the periodicity. For a
+periodicity of~$N$ lattice sites, we have to set~$J/K$ to~$\tan(2\pi / N)$. In
+all our simulations we chose~$J=1$ and~$K=\tan(2\pi / 10)$. Moreover, we choose
+the external magnetic field to point in the~$\hz$ direction~$\B=(0,0,B)$.
+
+We can fix one of the parameters, in this case~$J$, arbitrarily and then work in
+abstract lattice units. A computer can only deal with dimensionless numbers and
+in numerical simulations one often makes some convenient, but arbitrary choices.
+It is then sometimes quite difficult to translate the results to physically
+meaningful values.
+
+The alert reader might have realized that so far our model does not contain any
+thermal energy. When talking about magnetism temperature typically has a strong
+influence on the physical properties of various materials. However, given the
+challenge to incorporate a temperature dependent term into the Hamiltonian that
+accounts for the thermal energy, we quickly realize that it is not that simple.
+Any additive term that depends solely on the temperature will not have any
+effect on~\eqref{objective}. On the other hand there is no physical reason for
+complex interaction terms that actually yield different configurations for
+different temperatures. Our intuition tells us that thermal energy is
+intrinsically of dynamic nature, thus cannot be captured in a single static spin
+configuration. In fact we will account for temperature in the optimization
+algorithm itself and clearly see the dynamic nature of it in \secref{mctheory}.
+
+\subsection{Summary}
+
+In this section we have set up our model, which we will briefly summarize here.
+We work on the lattice
+%
+\begin{equation}
+  \Sigma := \numlist{1}{N_x} \times \numlist{1}{N_y} \times
+  \numlist{1}{N_z} \subset \bN^3 \subset \bR^3\:
+\end{equation}
+%
+and attach a spin~$\S_{\r} \in S^2$ to each lattice site~$\r \in \Sigma$. This
+yields the configuration space
+%
+\begin{equation}
+  \Pi := \prod_{\r \in \Sigma} S^2\:.
+\end{equation}
+%
+On~$\Pi$ we define the Hamiltonian~\eqref{hamiltonian} where we implement
+periodic (and sometimes partially open) boundary conditions. We fix the
+parameters~$J=1$ and~$K=\tan(2\pi / 10)$ of the FM and DM interaction, which
+leaves us only with the magnetic field in the~$\hz$ direction~$B$. In the next
+section we will introduce the temperature as a second parameter. Very
+roughly speaking, for given values of~$B$ and~$T$ we then seek to
+minimize~$H(\pi)$. The minimizing configuration is considered to be the physical
+one.
+
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    \periodic{}
+  \end{tikzpicture}
+  \caption{We illustrate periodic boundary conditions for a
+  two-dimensional~$4\times4$ grid. The actually implemented simulation value is
+  given by the shaded square in the middle. This square is copied over and over
+  again in all directions as indicated by the surrounding lattice sites. Note
+  how the four boundaries of the square keep their orientation throughout that
+  copying procedure. While it appears like we have filled an infinite space, all
+  red squares are identified, because they are represented internally by only
+  one lattice site in the central square. The same holds true for the green
+  pentagons of course. If our code needs the value of the right neighbor of the
+  green pentagon in the central square for example, we can instead pick the
+  right neighbor of \emph{any} green pentagon. One of those will always lie in
+  the center square again and thus be available in memory.}
+\label{fig:periodic}
+\end{figure}
 
 \begin{figure}
   \centering
@@ -166,15 +371,15 @@ and dipole dipole interaction would be between all pairs?}
 \begin{figure}
   \centering
   \begin{tikzpicture}
-    \latticeselect{3}
-    \begin{scope}[xshift=5cm]
-      \latticeinter{3}
+    \latticeselect{5}
+    \begin{scope}[xshift=6cm]
+      \latticeinter{5}
     \end{scope}
-    \begin{scope}[xshift=10cm, yshift=-1cm]
+    \begin{scope}[xshift=12cm]
       \latticeinternn{5}
     \end{scope}
   \end{tikzpicture}%
-  \caption{\todo{}}
+  \caption{\todo{explain what neighbors are, what next neighbor interaction is, etc.}}
 \label{fig:interact}
 \end{figure}
 %
@@ -182,4 +387,5 @@ and dipole dipole interaction would be between all pairs?}
 \section{Monte Carlo Methods}\label{sec:mctheory}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-\todo{}
+Now that we have clearly stated the model, let us dive into the numerical
+methods we will use to find physical states.
