@@ -1,5 +1,7 @@
 % tikz drawing commands
 
+% drawing spins
+
 \newcommand{\arrtwo}[3]{% coordinate, color, symbol
   \coordinate (S) at #1;
   \pgfmathsetmacro{\vx}{rand}
@@ -28,6 +30,25 @@
 
 \newcommand{\arrnn}[1]{% coordinate
   \arrtwo{#1}{\nneigh}{3}}
+
+% drawing lines
+
+\newcommand{\linep}[3]{% coordinate, length, color
+  \coordinate (S) at #1;
+  \pgfmathsetmacro{\l}{2*#2}
+  \draw[thick, #3] ($(S) - (#2,0)$) -- +(\l,0);
+  \draw[thick, #3] ($(S) - (0,#2)$) -- +(0,\l);
+}
+
+\newcommand{\linen}[1]{%
+  \pgfmathsetmacro{\d}{1}
+  \linep{#1}{\d}{\inter}}
+
+\newcommand{\linenn}[1]{%
+  \pgfmathsetmacro{\d}{1}
+  \linep{#1}{2*\d}{\inter}}
+
+% drawing lattices
 
 \newcommand{\latticeflat}[1]{%
   \pgfmathsetmacro{\d}{1}
@@ -66,11 +87,10 @@
   \pgfmathsetmacro{\nm}{\n-1}
   \pgfmathsetmacro{\s}{int(\nm/2)}
   \foreach \x in {0,...,\nm}{
-    \ifthenelse{\x=\s}{\def\mycol{\inter}}{\def\mycol{black!50}}
-    \ifthenelse{\x=\s}{\def\mythi{thick}}{\def\mythi{thin}}
-    \draw[\mycol, \mythi,  dashed] (\x*\d,0) -- ++(0,\nm*\d);
-    \draw[\mycol, \mythi,  dashed] (0,\x*\d) -- ++(\nm*\d,0);
+    \draw[black!50, dashed] (\x*\d,0) -- ++(0,\nm*\d);
+    \draw[black!50, dashed] (0,\x*\d) -- ++(\nm*\d,0);
   }
+  \linen{(\d*\s,\d*\s)}
   \foreach [evaluate={\xx=int(abs(\x-\s));}] \x in {0,...,\nm}{
     \foreach [evaluate={\yy=int(abs(\y-\s));}] \y in {0,...,\nm}{
       \ifthenelse{\x=\s \AND \y=\s}{\arrs{(\d*\x, \d*\y)}}{%
@@ -85,11 +105,10 @@
   \pgfmathsetmacro{\nm}{\n-1}
   \pgfmathsetmacro{\s}{int(\nm/2)}
   \foreach \x in {0,...,\nm}{
-    \ifthenelse{\x=\s}{\def\mycol{\inter}}{\def\mycol{black!50}}
-    \ifthenelse{\x=\s}{\def\mythi{thick}}{\def\mythi{thin}}
-    \draw[\mycol, \mythi, dashed] (\x*\d,0) -- ++(0,\nm*\d);
-    \draw[\mycol, \mythi, dashed] (0,\x*\d) -- ++(\nm*\d,0);
+    \draw[black!50, dashed] (\x*\d,0) -- ++(0,\nm*\d);
+    \draw[black!50, dashed] (0,\x*\d) -- ++(\nm*\d,0);
   }
+  \linenn{(\d*\s,\d*\s)}
   \foreach [evaluate={\xx=int(abs(\x-\s));}] \x in {0,...,\nm}{
     \foreach [evaluate={\yy=int(abs(\y-\s));}] \y in {0,...,\nm}{
       \ifthenelse{\x=\s \AND \y=\s}{\arrs{(\d*\x, \d*\y)}}{%
@@ -101,17 +120,25 @@
 }
 
 \newcommand{\lattice}[1]{%
-  \pgfmathsetmacro{\r}{0.05}
+  \pgfmathsetmacro{\r}{0.04}
   \pgfmathsetmacro{\d}{1}
   \pgfmathsetmacro{\n}{#1}
   \pgfmathsetmacro{\nm}{\n-1}
   \foreach \x in {0,...,\nm}{
     \foreach \y in {0,...,\nm}{
-      \draw[black!50, dashed] (\x*\d,\y*\d,0) -- ++(0,0,\nm*\d);
-      \draw[black!50, dashed] (\x*\d,0,\y*\d) -- ++(0,\nm*\d,0);
-      \draw[black!50, dashed] (0,\x*\d,\y*\d) -- ++(\nm*\d,0,0);
+      \draw[black!50, dashed, opacity=0.4] (\x*\d,\y*\d,0) -- ++(0,0,\nm*\d);
+      \draw[black!50, dashed, opacity=0.4] (\x*\d,0,\y*\d) -- ++(0,\nm*\d,0);
+      \draw[black!50, dashed, opacity=0.4] (0,\x*\d,\y*\d) -- ++(\nm*\d,0,0);
     }
   }
+  % \draw[black!50, dashed, opacity=0.4] (0,0,0) -- ++(0,0,\nm*\d)
+  %   -- ++(0,\nm*\d,0) -- ++(0,0,-\nm*\d) -- cycle;
+  % \draw[black!50, dashed, opacity=0.4] (\nm*\d,0,0) -- ++(0,0,\nm*\d)
+  %   -- ++(0,\nm*\d,0) -- ++(0,0,-\nm*\d) -- cycle;
+  % \draw[black!50, dashed, opacity=0.4] (0,0,0) -- ++(\nm*\d,0,0);
+  % \draw[black!50, dashed, opacity=0.4] (0,\nm*\d,0) -- ++(\nm*\d,0,0);
+  % \draw[black!50, dashed, opacity=0.4] (0,0,\nm*\d) -- ++(\nm*\d,0,0);
+  % \draw[black!50, dashed, opacity=0.4] (0,\nm*\d,\nm*\d) -- ++(\nm*\d,0,0);
   \foreach \x in {0,...,\nm}{
     \foreach \y in {0,...,\nm}{
       \foreach \z in {0,...,\nm}{
@@ -119,9 +146,9 @@
         \pgfmathsetmacro{\vx}{rand}
         \pgfmathsetmacro{\vy}{rand}
         \pgfmathsetmacro{\vz}{rand}
-        \pgfmathsetmacro{\nn}{2.5*sqrt(\vx * \vx + \vy * \vy + \vz * \vz)}
-        \draw[thick, >=latex, ->, black!50] (S) -- +(\vx / \nn, \vy / \nn, \vz / \nn);
-        \shade[ball color=black!50] (S) circle (\r + \z / 60);
+        \pgfmathsetmacro{\nn}{2*sqrt(\vx * \vx + \vy * \vy + \vz * \vz)}
+        \draw[>=latex, ->, black!50] (S) -- +(\vx / \nn, \vy / \nn, \vz / \nn);
+        \shade[ball color=black!50] (S) circle (\r + \z / 200);
       }
     }
   }
@@ -143,7 +170,7 @@
 }
 
 \newcommand{\periodic}{%
-  \pgfmathsetmacro{\d}{0.7}
+  \pgfmathsetmacro{\d}{1}
   \shaderec{2}{2}{3}{3}
   \shaderec{0}{0}{1}{1}
   \shaderec{0}{6}{1}{1}
