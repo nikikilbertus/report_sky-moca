@@ -6,9 +6,12 @@ FILE = project
 TEMP = compproject
 
 DEPENDENCIES = $(FILE).tex \
+	project.cls \
 	references.bib \
 	titleinfo.tex \
 	mycolors.tex \
+	commands.tex \
+	tikzcommands.tex \
 	chapters/chapter_1.tex \
 	chapters/chapter_2.tex \
 	chapters/chapter_3.tex \
@@ -33,6 +36,5 @@ clean:
 clear:
 	rm -f $(FILE).pdf
 
-clearall:
-	rm -f $(FILE).pdf
+clearall: clean clear
 	rm -f cache/*
