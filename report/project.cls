@@ -70,7 +70,7 @@
 %
 % Plotting and Drawing
 \RequirePackage{tikz}
-\usetikzlibrary{calc, fadings, decorations.pathreplacing}
+\usetikzlibrary{calc, fadings, decorations.pathreplacing, shapes}
 \RequirePackage{pgfplots}
 \RequirePackage{pgfplotstable}
 \usetikzlibrary{external}
