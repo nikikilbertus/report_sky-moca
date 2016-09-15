@@ -49,6 +49,26 @@ draw on a two-dimensional surface. Each lattice sites typically represents a
 nucleus, hence the whole lattice can be interpreted as a regular atomic
 structure of a solid.
 
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    \latticeinter{4}
+    \begin{scope}[xshift=8cm,yshift=1cm]
+      \lattice{4}
+    \end{scope}
+  \end{tikzpicture}%
+  \caption{On the left side we show a two-dimensional spin lattice. Each lattice
+  site carries a magnetic moment or spin, represented by an arrow of unit
+  length, \ie{}, in the two-dimensional picture, by an element of~$S^1$. The
+  neighbors of a lattice site are the ones above, below, left and right in
+  two-dimensional case. The blue squares are the neighbors of the red circle.
+  The three-dimensional picture on the right side becomes unclear in a
+  two-dimensional drawing rather quickly. Note that the magnetic moments are now
+  also three-dimensional, \ie{} elements of the two-dimensional unit
+  sphere~$S^2$. In the three-dimensional a lattice site can have six neighbors.}
+\label{fig:lattice}
+\end{figure}
+
 We work with a simple cubic lattice
 %
 \begin{equation}
@@ -182,17 +202,17 @@ in
 poses two problems. First, apparently in this fashion we count the interaction
 between some pairs of spins multiple times. If~$\Sigma$ was an infinite grid,
 \ie{}~$\Sigma=\bZ^3$, we would count every pair exactly twice and could simply
-divide the above expression by two. However,~$\Sigma$ is finite, which leads as
+divide the above expression by two. However,~$\Sigma$ is finite, which leads us
 to the second, more subtle, issue. Not every lattice site has a neighbor in each
 direction~$\hx, \hy, \hz$. Consider the spin in the lower right corner of a
-lattice in figure \todo{figref}. The sum in our first naive expression for the FM
-interaction~\eqref{FMsumnaive} suggests that we need its right and lower
+lattice in figure \todo{figref}. The sum in our first naive expression for the
+FM interaction~\eqref{FMsumnaive} suggests that we need its right and lower
 neighbor, which apparently do not exist. As a consequence, we need to define
 some \newterm{boundary conditions}. There are several ways to do this and a
 plausible treatment of boundaries is a central aspect of many different areas in
 scientific computing. It is important to realize that this is not simply an
-implementation nuisance that we can get rid off by any means that make the
-code work. Various boundary conditions represent different physical systems and
+implementation nuisance that we can get rid off by any means that make the code
+work. Various boundary conditions represent different physical systems and
 significantly alter the results of a simulation.
 
 In many cases the desired simulation volume is an infinite space such
@@ -200,7 +220,7 @@ as~$\bR^3$. A common choice to get as close as possible on our inherently finite
 computers is to introduce \newterm{periodic boundary conditions}. We
 approximate~$\bR^3$ by a finite box of volume~$L^3$ for~$L\in \bRp$ and simply
 replicate that box infinitely many times to fill the whole space, see
-\todo{fig:periodic} for a two-dimensional illustration. In practice, we will
+\figref{fig:periodic} for a two-dimensional illustration. In practice, we will
 access the lattice sites by indexing a three-dimensional array with
 indices~$(i,j,k)\in\Sigma$. Whenever the algorithm tries to index out of bounds,
 \eg{}~$j=N_y + 1$, we simply use~$j=1$ again. For~$i=0$ we use~$i=N_x$,
@@ -223,6 +243,26 @@ in one direction. \newterm{Open boundaries} can be realized by setting~$\S_\r =
 try to mimic an infinite space, open boundaries clearly represent a finite
 extension of the simulation volume in the respective direction. We will come
 back to open boundaries later. This solves the second issue.
+
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    \periodic{}
+  \end{tikzpicture}
+  \caption{We illustrate periodic boundary conditions for a
+  two-dimensional~$4\times4$ grid. The actually implemented simulation value is
+  given by the shaded square in the middle. This square is copied over and over
+  again in all directions as indicated by the surrounding lattice sites. Note
+  how the four boundaries of the square keep their orientation throughout that
+  copying procedure. While it appears like we have filled an infinite space, all
+  red squares are identified, because they are represented internally by only
+  one lattice site in the central square. The same holds true for the green
+  pentagons of course. If our code needs the value of the right neighbor of the
+  green pentagon in the central square for example, we can instead pick the
+  right neighbor of \emph{any} green pentagon. One of those will always lie in
+  the center square again and thus be available in memory.}
+\label{fig:periodic}
+\end{figure}
 
 Now that we have a well defined boundary behavior, we can also tackle the first
 problem of counting interactions multiple times. Indeed we could now divide the
@@ -269,6 +309,14 @@ define the physical configuration to be the
 \begin{equation}\label{objective}
   \argmin_{\pi \in \Pi} H(\pi)\:.
 \end{equation}
+
+\subsubsection{Finite size effects}
+
+\todo{just include extra terms of finite size effects, note that it is not
+really a next neighbor interaction, but just a correction, draw picture, make
+distinction between boundary effects and finite size effects clearer: rewrite
+discussion about trying to mimic infinite space and instead say that boundary
+can do weird things otherwise}
 
 \subsection{A note on parameter values}
 
@@ -330,43 +378,16 @@ roughly speaking, for given values of~$B$ and~$T$ we then seek to
 minimize~$H(\pi)$. The minimizing configuration is considered to be the physical
 one.
 
-\begin{figure}
-  \centering
-  \begin{tikzpicture}
-    \periodic{}
-  \end{tikzpicture}
-  \caption{We illustrate periodic boundary conditions for a
-  two-dimensional~$4\times4$ grid. The actually implemented simulation value is
-  given by the shaded square in the middle. This square is copied over and over
-  again in all directions as indicated by the surrounding lattice sites. Note
-  how the four boundaries of the square keep their orientation throughout that
-  copying procedure. While it appears like we have filled an infinite space, all
-  red squares are identified, because they are represented internally by only
-  one lattice site in the central square. The same holds true for the green
-  pentagons of course. If our code needs the value of the right neighbor of the
-  green pentagon in the central square for example, we can instead pick the
-  right neighbor of \emph{any} green pentagon. One of those will always lie in
-  the center square again and thus be available in memory.}
-\label{fig:periodic}
-\end{figure}
 
-\begin{figure}
-  \centering
-  \begin{tikzpicture}
-    \latticeflat{4}
-    \begin{scope}[xshift=8cm,yshift=1cm]
-      \lattice{4}
-    \end{scope}
-  \end{tikzpicture}%
-  \caption{On the left side we show a two-dimensional spin lattice. Each lattice
-  site represents a magnetic moment or spin, represented by an arrow of unit
-  length, \ie{}, in the two-dimensional picture, by an element of~$S^1$. The
-  three-dimensional picture on the right side becomes unclear in a
-  two-dimensional drawing rather quickly. Note that the magnetic moments are now
-  also three-dimensional, \ie{} elements of the two-dimensional unit
-  sphere~$S^2$.}
-\label{fig:lattice}
-\end{figure}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Monte Carlo Methods}\label{sec:mctheory}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+Now that we have clearly stated the model, let us dive into the numerical
+methods we will use to find physical states.
+
+
 
 \begin{figure}
   \centering
@@ -382,10 +403,3 @@ one.
   \caption{\todo{explain what neighbors are, what next neighbor interaction is, etc.}}
 \label{fig:interact}
 \end{figure}
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Monte Carlo Methods}\label{sec:mctheory}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-Now that we have clearly stated the model, let us dive into the numerical
-methods we will use to find physical states.
