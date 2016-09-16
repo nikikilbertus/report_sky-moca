@@ -82,8 +82,7 @@
 \def\largeplotwidth{10}
 \pgfplotsset{%
   width=\singleplotwidth cm,
-  compat=newest,
-  enlargelimits=false}
+  compat=newest}
 %
 % Provide better cycle lists, add them as default
 % by using "cycle list name=..." to pgfplotsset
