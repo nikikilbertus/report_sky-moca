@@ -292,11 +292,11 @@ and~\eqref{DMsum}, we obtain the Hamiltonian, \ie{} the energy of the system in
 a given configuration~$\pi \in \Pi$
 %
 \begin{align}\label{hamiltonian}
-  H(\pi) = &-\sum_{\r \in \Sigma} (\S_{\r} \cdot
-          (\B + \S_{\r+\hx} + \S_{\r+\hy} + \S_{\r+\hz}) \\
+  H(\pi) = &-\sum_{\r \in \Sigma}\biggl(\S_{\r} \cdot \B +
+      J \S_{\r} \cdot (\S_{\r+\hx} + \S_{\r+\hy} + \S_{\r+\hz}) \\
       &+ K (\S_{\r} \times \S_{\r+\hx} \cdot \hx +
             \S_{\r} \times \S_{\r+\hy} \cdot \hy +
-            \S_{\r} \times \S_{\r+\hz} \cdot \hz))\:.
+            \S_{\r} \times \S_{\r+\hz} \cdot \hz)\biggr)\:.
 \end{align}
 %
 The parameters~$J$,~$K$ and~$\B$ are sometimes used synonymously for the
@@ -385,21 +385,155 @@ one.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 Now that we have clearly stated the model, let us dive into the numerical
-methods we will use to find physical states.
+methods. Monte Carlo methods is a very broad term that is generally used for
+numerical algorithms that are based on some sort of repeated random sampling. It
+is hard to formulate a more specific feature that all Monte Carlo algorithms
+have in common. Most often, Monte Carlo techniques are used for optimization,
+integration or sampling probability distributions. Since we are interested in
+optimization, we will restrict our discussion of Monte Carlo methods entirely to
+this subfield. Before we describe our algorithm of choice in detail, we have to
+issue a warning. While Monte Carlo methods are generally easy to implement and
+can be applied blindly to virtually any problem, they are almost always
+hopelessly inferior to specialized optimization techniques in terms of accuracy
+and efficiency. They should be the last resort after everything else has failed.
 
+In a typical optimization problem we seek to find the minimum of a real-valued
+function~$f$ over some subset of its domain~$\Omega \subset \bR^n$. Depending
+on~$f$ and~$\Omega$ this can be anything from trivial to practically infeasible.
+This gives rise to numerous possible classification schemes. Let us briefly
+mention two important properties. First, we distinguish optimization techniques
+by whether they use Hessians, gradients or only function values. Apparently the
+degree of differentiability of the objective function~$f$ plays a crucial role.
+If~$f$ is sufficiently smooth and we have access to gradients (and Hessians)
+either analytically or numerically, we can build a first order (second order)
+approximation to the function at a given point~$x \in \Omega$. This leads to so
+called local methods, where we have to specify a start point, approximate the
+function around this point, proceed in the downward direction and repeat the
+procedure. Numerous gradient-descent and (Quasi-)Newton methods fall into that
+category of iterative methods. The convergence rate and also the complexity
+depend on how much information we have about the derivatives of the function,
+but most iterative methods are guaranteed to converge to a minimum for
+sufficiently well behaved functions and wisely chosen parameters.
 
+The major caveat with local methods is precisely that they find \emph{a}
+minimum, but potentially not \emph{the} minimum. If a function has several local
+minima, depending on the start point, we might end up in any of them and
+potentially overlook a global minimum somewhere else hidden to our descent
+method by a barrier. In this case we could either still employ iterative methods
+with multiple starting points and hope that one of them guides us to the global
+minimum, or switch to heuristics. Heuristics are not mathematically guaranteed
+to find the solution, in fact very little can be proven about how well
+heuristics will do in general. However, they often prove very useful, especially
+if we do not have an applicable finitely terminating or at least provably
+convergent iterative algorithm. Interestingly, many heuristics have been
+inspired by natural processes like the genetic algorithms, bee or ant colony
+optimization, evolutionary algorithms or simulated annealing.
+
+The domain of our optimization problem is a~$2 N_x N_y N_z$-dimensional space.
+Even for relatively small lattices optimization in such a high-dimensional space
+is generically hard. Unfortunately, it appears completely hopeless to compute
+the gradient or even Hessian of the Hamiltonian~\eqref{hamiltonian}
+analytically. Moreover, it is hard to develop intuition about how the energy
+landscape looks like, not only because we can barely visualize anything in more
+than three dimensions. It appears certain, however, that it will include a vast
+number of local minima. All of this is bad news for efficient iterative methods
+and we have to fall back to heuristics. Our only option is to sample the search
+space preferably in a smart and structured way and hope to capture the minimum
+within reasonable computation time. This is precisely what Monte Carlo methods
+do. They consist of a sampling strategy that involves some randomness.
+Obviously, this sounds horrifically inefficient, which it is. Now we understand
+why Monte Carlo techniques should only be considered once everything else failed
+or proved intractable.
+
+We are going to use \newterm{simulated annealing}. The name already hints
+towards thermodynamic processes, which we already identified as a key feature of
+our system, but were not yet able to bake it into our model. \todo{describe it
+generally, think about how and when to link to our concrete use case}
+
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=5cm,
+        height=5cm,
+        title={(a)},
+        % label style={font=\small},
+        % xlabel={$x$},
+        % ylabel={$f(x)$},
+        yticklabels={,,},
+        xticklabels={,,},
+      ]
+      \addplot[domain=-1:1] {x^2};
+    \end{axis}
+  \end{tikzpicture}%
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=5cm,
+        height=5cm,
+        title={(b)},
+        % label style={font=\small},
+        % xlabel={$x$},
+        % ylabel={$f(x)$},
+        yticklabels={,,},
+        xticklabels={,,},
+      ]
+      \addplot[domain=-1:1] {x - 5*x^3 + 5*x^4 + 1.6*x^5};
+    \end{axis}
+  \end{tikzpicture}%
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=5cm,
+        height=5cm,
+        title={(c)},
+        % label style={font=\small},
+        % xlabel={$x$},
+        % ylabel={$f(x)$},
+        yticklabels={,,},
+        xticklabels={,,},
+      ]
+      \addplot[domain=-1:1, samples=1000] {sin(deg(7*x))*(x^4 - x^2 + x)};
+    \end{axis}
+  \end{tikzpicture}%
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=5cm,
+        height=5cm,
+        title={(d)},
+        % label style={font=\small},
+        % xlabel={$x$},
+        % ylabel={$f(x)$},
+        yticklabels={,,},
+        xticklabels={,,},
+      ]
+      \addplot[solid, mark=none]
+        table[x expr=\coordindex+1, y index=0] {plots/energy_landscape.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \caption{Convex functions like the one shown in (a) can be minimized extremely
+  efficiently even on high-dimensional domains. While the second example (b) is
+  not convex anymore, it is smooth and has a unique minimum. Therefore local
+  iterative methods will do an excellent job and converge quickly to the
+  minimum. Function (c) is still smooth, but has several minima. Depending on
+  where we position the starting point, iterative gradient methods might get
+  stuck in one of the two local minima on the right and not find the global
+  minimum on the left. The fourth function (d) is not even once differentiable
+  and has numerous minima. We can only use heuristics and hope to get close to
+  the true minimum.}
+\label{fig:samplefunc}
+\end{figure}
 
 \begin{figure}
   \centering
   \begin{tikzpicture}
     \latticeselect{5}
-    \begin{scope}[xshift=6cm]
+    \begin{scope}[xshift=5.5cm]
       \latticeinter{5}
     \end{scope}
-    \begin{scope}[xshift=12cm]
+    \begin{scope}[xshift=11cm]
       \latticeinternn{5}
     \end{scope}
   \end{tikzpicture}%
-  \caption{\todo{explain what neighbors are, what next neighbor interaction is, etc.}}
+  \caption{\todo{explain what neighbors are, what next neighbor interaction is,
+  etc.}}
 \label{fig:interact}
 \end{figure}
