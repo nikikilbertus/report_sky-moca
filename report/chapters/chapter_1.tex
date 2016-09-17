@@ -425,30 +425,10 @@ minimum, or switch to heuristics. Heuristics are not mathematically guaranteed
 to find the solution, in fact very little can be proven about how well
 heuristics will do in general. However, they often prove very useful, especially
 if we do not have an applicable finitely terminating or at least provably
-convergent iterative algorithm. Interestingly, many heuristics have been
-inspired by natural processes like the genetic algorithms, bee or ant colony
-optimization, evolutionary algorithms or simulated annealing.
-
-The domain of our optimization problem is a~$2 N_x N_y N_z$-dimensional space.
-Even for relatively small lattices optimization in such a high-dimensional space
-is generically hard. Unfortunately, it appears completely hopeless to compute
-the gradient or even Hessian of the Hamiltonian~\eqref{hamiltonian}
-analytically. Moreover, it is hard to develop intuition about how the energy
-landscape looks like, not only because we can barely visualize anything in more
-than three dimensions. It appears certain, however, that it will include a vast
-number of local minima. All of this is bad news for efficient iterative methods
-and we have to fall back to heuristics. Our only option is to sample the search
-space preferably in a smart and structured way and hope to capture the minimum
-within reasonable computation time. This is precisely what Monte Carlo methods
-do. They consist of a sampling strategy that involves some randomness.
-Obviously, this sounds horrifically inefficient, which it is. Now we understand
-why Monte Carlo techniques should only be considered once everything else failed
-or proved intractable.
-
-We are going to use \newterm{simulated annealing}. The name already hints
-towards thermodynamic processes, which we already identified as a key feature of
-our system, but were not yet able to bake it into our model. \todo{describe it
-generally, think about how and when to link to our concrete use case}
+convergent iterative algorithm, see \figref{fig:samplefuncs}. Interestingly,
+many heuristics have been inspired by natural processes like the genetic
+algorithms, bee or ant colony optimization, evolutionary algorithms or simulated
+annealing.
 
 \begin{figure}
   \centering
@@ -519,8 +499,103 @@ generally, think about how and when to link to our concrete use case}
   minimum on the left. The fourth function (d) is not even once differentiable
   and has numerous minima. We can only use heuristics and hope to get close to
   the true minimum.}
-\label{fig:samplefunc}
+\label{fig:samplefuncs}
 \end{figure}
+
+The domain of our optimization problem is a~$2 N_x N_y N_z$-dimensional space.
+Even for relatively small lattices optimization in such a high-dimensional space
+is generically hard. Unfortunately, it appears completely hopeless to compute
+the gradient or even Hessian of the Hamiltonian~\eqref{hamiltonian}
+analytically. Moreover, it is hard to develop intuition about how the energy
+landscape looks like, not only because we can barely visualize anything in more
+than three dimensions. It appears certain, however, that it will include a vast
+number of local minima. All of this is bad news for efficient iterative methods
+and we have to fall back to heuristics. Our only option is to sample the search
+space preferably in a smart and structured way and hope to capture the minimum
+within reasonable computation time. This is precisely what Monte Carlo methods
+do. They consist of a sampling strategy that involves some randomness.
+Obviously, this sounds horrifically inefficient, which it is. Now we understand
+why Monte Carlo techniques should only be considered once everything else failed
+or proved intractable.
+
+For our use case we implemented \newterm{simulated annealing}. The name already
+hints towards thermodynamic processes, which we already identified as a key
+feature of our system, but were not yet able to bake it into our model. Clearly
+any real material at finite temperature is not completely static, \ie{} stuck in
+a fixed state~$\pi \in \Pi$, but it is constantly subject to thermal
+fluctuations. Apparently our current objective, finding a unique global minimum
+of the Hamiltonian for given parameters, is insufficient. Simulated annealing is
+designed to mimic real world systems at finite temperature and will take care of
+thermal fluctuations. That implies that we will not seek to find a single best
+state~$\pi \in \Pi$ anymore, but consider the physical state to be a thermal
+average of several configurations. To fully understand and appreciate simulated
+annealing, we need some basic concepts from statistical physics.
+
+In macroscopic complex many body systems such as gases or condensed matter at
+finite temperature, we are often not interested in every single detail of that
+system at a given moment in time.  For example, we do not want to know the
+position and velocity as well as rotational and vibrational modes of each single
+molecule in a piston. Sensible observables are typically some sort of
+macroscopic averages like the volume, temperature or pressure of the gas. For a
+solid we might be interested in its specific heat, conductivity or
+susceptibility. Of course, there is a sound and rigorous way to define those
+averages.
+
+Instead of working with the complete microstates, in our case the elements
+of~$\Pi$, directly, we only talk about the probability~$P_{\pi}(T)$ that the
+system is in a certain state~$\pi \in \Pi$ at temperature~$T$. To this end we
+imagine a large ensemble of replicas of the system and observe them all at the
+same time. Starting from the assumption that in a closed system in equilibrium
+each microstate~$\pi$ is equally likely, we can derive the so called canonical
+ensemble which states that for a non-closed system in equilibrium at finite
+temperature, \eg{} via contact to a large heat bath, we have
+%
+\begin{equation}\label{boltzmann}
+  P_{\pi}(T) = \frac{\exp \left(- \frac{H(\pi)}{k_B T}\right)}
+  {\sum_{\pi \in \Pi} \exp \left(- \frac{H(\pi)}{k_B T}\right)}\:.
+\end{equation}
+%
+This is also referred to as the \newterm{equilibrium Boltzmann distribution}.
+The normalizing factor in~\eqref{boltzmann}~$Z := \exp(-\beta H(\pi))$ is called
+partition function. Here we introduced the common shortcut~$\beta := {(k_B
+T)}^{-1}$, where~$k_B$ is the Boltzmann constant and~$T$ is the temperature of
+the system. The equilibrium Boltzmann distribution tells us that configurations
+with lower energy are exponentially more likely than configurations with a high
+energy. Moreover, this effect is most pronounced at low temperatures. If~$T$ is
+large, states with higher energy still occurr with a decent probability compared
+to the minimizing state. On the other hand for~$T \to 0$ basically only the
+state with minimal energy has a non-zero probability. Both facts completely
+match our intuition. At high temperatures, thermal fluctuations are large and
+the system can visit many different micro states. At zero temperature we expect
+the system to settle in the ground state.
+
+In a probabilistic description of states the energy or magnetization of one
+single specific configuration looses its significance. Instead we transition to
+expectations values of observables. For an observable~$\map{\cO}{\Pi}{\bR}$ we
+compute the so called \newterm{thermal average}
+%
+\begin{equation}
+  \avg{\cO} := \frac{1}{Z} \sum_{\pi \in \Pi} \cO(\pi) \exp(- \beta H(\pi))\:,
+\end{equation}
+%
+hence we average over all states weighted by their probability at a given
+temperature. One question immediately poses itself: How could be possibly
+compute this high-dimensional integral?
+
+\todo{clarify above that we could have finitely many states, but also a
+continuum and then carry the sum/integral+measure, distribution thing through
+(maybe example that ising would be finite, here it is infinite)}
+
+\todo{should I actually start with integration instead of optimization for monte
+carlo? if not, at least mention up front that the pure optimization thing is not
+what we are going to do. It's more a combination in some sense}
+
+\todo{the way we are sampling our space needs to contain detailed balance and
+ergodicity. But why? I think that comes next and once we posed them, we
+conclude that metropolis hastings might be a good idea}
+
+\todo{draw a picture when we try to integrate a steep exponential we should
+sample the ``lower energy'' boundary more often}
 
 \begin{figure}
   \centering
