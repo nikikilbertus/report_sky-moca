@@ -156,17 +156,17 @@
 
 \newcommand{\shaderec}[4]{%
   \pgfmathsetmacro{\d}{0.5}
-  \fill[\select, opacity=0.2] (#1*\d,#2*\d) rectangle ++(#3*\d,#4*\d);
+  \fill[black!25, opacity=0.3] (#1*\d,#2*\d) rectangle ++(#3*\d,#4*\d);
 }
 
 \newcommand{\squaremark}[2]{%
   \pgfmathsetmacro{\d}{0.5}
-  \filldraw[\neigh, xshift=-0.06cm, yshift=-0.06cm] (#1*\d, #2*\d) rectangle ++(0.12, 0.12);
+  \filldraw[\select, xshift=-0.06cm, yshift=-0.06cm] (#1*\d, #2*\d) rectangle ++(0.12, 0.12);
 }
 
 \newcommand{\pentmark}[2]{%
   \pgfmathsetmacro{\d}{0.5}
-  \node[\nneigh, fill=\nneigh,regular polygon, regular polygon sides=5,inner sep=0.06cm] at (#1*\d,#2*\d) {};
+  \node[\nneigh, fill=\neigh,regular polygon, regular polygon sides=5,inner sep=0.06cm] at (#1*\d,#2*\d) {};
 }
 
 \newcommand{\periodic}{%
@@ -199,7 +199,7 @@
   }
   \foreach \i in {0,...,7}{
     \foreach \j in {0,...,7}{
-      \filldraw[black!50] (\i*\d, \j*\d) circle (0.06cm);
+      \filldraw[black] (\i*\d, \j*\d) circle (0.06cm);
     }
   }
 
