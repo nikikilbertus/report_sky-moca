@@ -14,8 +14,7 @@ DEPENDENCIES = $(FILE).tex \
 	tikzcommands.tex \
 	chapters/chapter_1.tex \
 	chapters/chapter_2.tex \
-	chapters/chapter_3.tex \
-	chapters/chapter_4.tex
+	chapters/chapter_3.tex
 
 #	$(TEMP).cls \
 
