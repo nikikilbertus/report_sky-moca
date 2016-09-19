@@ -127,6 +127,9 @@
   {color=LightRed, mark=triangle},
 }
 %
+% xy matrix diagrams
+\RequirePackage[all]{xy}
+%
 % Tables
 \RequirePackage{tabularx}
 \newcolumntype{Y}{>{\centering\arraybackslash}X}
