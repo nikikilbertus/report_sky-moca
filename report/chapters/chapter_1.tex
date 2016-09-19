@@ -87,7 +87,7 @@ structure of a solid.
   The three-dimensional picture on the right side becomes unclear in a
   two-dimensional drawing rather quickly. Note that the magnetic moments are now
   also three-dimensional, \ie{} elements of the two-dimensional unit
-  sphere~$S^2$. In three dimensions each lattice site has up to six neighbors.}
+  sphere~$S^2$. In three dimensions each vertex has up to six neighbors.}
 \label{fig:lattice}
 \end{figure}
 
@@ -293,7 +293,7 @@ the same number of neighbors.
   how the four boundaries of the square keep their orientation throughout that
   copying procedure. While it appears like we have filled an infinite space, all
   red squares are identified, because they are represented internally by only
-  one lattice site in the central square. The same holds true for the green
+  one vertex in the central square. The same holds true for the green
   pentagons of course. If our code needs the value of the right neighbor of the
   green pentagon in the central square for example, we can instead pick the
   right neighbor of \emph{any} green pentagon. One of those will always lie in
@@ -405,8 +405,8 @@ exactly the same way.
   \end{tikzpicture}%
   \caption{We select a spin at position~$\r \in \Sigma$ (left), show the nearest
   neighbors (middle) and the next-nearest neighbors (right). Note that although
-  the diagonally neighboring vertices seem are closer to~$\r$ than the
-  next-nearest neighbors, they are not included in any interaction.}
+  the diagonally neighboring vertices are closer to~$\r$ than the next-nearest
+  neighbors, they are not included in any interaction.}
 \label{fig:interact}
 \end{figure}
 
@@ -492,82 +492,258 @@ optimization.
 
 \subsection{Integration}
 
-The most naive numerical integration methods like the trapezoidal rule simply
-samples the integration domain by a homogeneous grid and approximates the
-function by linear interpolation between the grid vertices, see
-\figref{fig:int}. Of course we know how to integrate a piecewise linear function
-simply by adding up the areas of the trapezoids underneath the curve.  The
-important aspect here is that the choice of nodal points in the domain is
-completely deterministic. Even more refined adaptive integration routines have
-strict deterministic rules on how to choose their base points. In contrast,
-Monte Carlo techniques sample the domain according to some probability
-distribution. This is based on
+\subsubsection{Overview and comparison of integration methods}
+
+The most naive numerical integration methods make use of interpolating
+functions. They sample the integrand at a fixed finite number of base points in
+the domain and approximate the integrand by an interpolation that is easy to
+integrate. Consider for example the trapezoidal rule. It samples the integrand
+on a homogeneous grid and approximates it by a piecewise linear function between
+the grid vertices, see \figref{fig:int}. The integral of a piecewise linear
+function is easily computed by adding up the areas of the trapezoids underneath
+the curve. The larger the number of base points, \ie{} the smaller the grid
+spacing, the more accurate the result for sufficiently well behaved integrands.
+The important aspect here is that for a given integration rule and a given
+number of base points the choice of nodal points in the domain is completely
+deterministic. More sophisticated routines choose refine the grid of base points
+iteratively in regions, where the error is above a certain accuracy and
+precision goal. But even such \newterm{adaptive} methods have fixed rules how
+the new samples have to be chosen. Typically that determinism brings great
+advantage, because one can prove optimality results and certain error bounds for
+the choice of base points.
+
+In contrast, Monte Carlo techniques draw the samples randomly from some
+probability distribution. The general idea is illustrated by the following
+example. From the definition of the expectation value we have
 %
-\begin{equation}
-  \int_a^b f(x) \sucd{x} = (b-a) E_{\cU[a,b]}(f)\:,
+\begin{equation}\label{mcsimple}
+  \int_a^b f(x) \sucd{x} = (b-a) E_{\cU_{[a,b]}}(f)\:,
 \end{equation}
 %
-where~$E_{\cU[a,b]}$ is simply the expectation value over the uniform
-distribution~$\cU$ on the interval~$[a,b]$. This expectation value can be
-approximated by averaging~$f$ over~$N \in \bN$ independent samples of~$\cU[a,b]$
+where~$E_{\cU_{[a,b]}}$ is simply the expectation value over the uniform
+distribution~$\cU$ on the interval~$[a,b]$. The expectation value can be
+approximated by averaging~$f$ over~$N \in \bN$ independent samples~${x_i}$
+of~$\cU_{[a,b]}$
 %
-\begin{equation}
+\begin{equation}\label{evapprox}
+  E_{\cU_{[a,b]}}(f) \approx \frac{1}{N} \sum_{i=1}^N f(x_i)
+\end{equation}
+%
+and thus
+%
+\begin{equation}\label{mcsapprox}
   \int_a^b f(x) \sucd{x} \approx \frac{b-a}{N} \sum_{i=1}^N f(x_i)\:.
 \end{equation}
-%
-Both paradigms are illustrated for a simple one-dimensional function in the top
-row of~\figref{fig:int}. In this scenario the Monte Carlo integration is
-absolutely not competitive. Even the crude trapezoidal rule will easily
-outperform it in terms of accuracy, precision and also efficiency for a given
-number of base points~$N$.
 
-There is one more interesting aspect to Monte Carlo integration. Let us
-specifically look at the integral in~\eqref{thermavgint}. The Boltzmann
-factor~$\exp(-\beta H(\pi))$ assigns almost no weight to configurations with
-high energy. As a consequence such configurations will not contribute much to
-the overall value of the integral. This is illustrated in the second row of
-\figref{fig:int}. The bulk of the area under the curve is on the left, while the
-long exponential tail can practically be neglected. The trapezoidal rule, by
-construction, samples the whole integration domain homogeneously, thus denotes
-as much attention to the small tail as to the bulk on the left. If we were to
-use Monte Carlo integration with a uniform distribution as in the top right plot
-in \figref{fig:int}, many samples would fall into the right half, where the
-function is basically zero. At the same time we would undersample the important
-region and heavily underestimate the integral. This can be mitigated by choosing
-a different probability distribution on the domain from which we draw the base
-points. If we draw from an exponential distribution, almost all samples fall
-within the important region and basically none are left in the insignificant
-exponential tail as shown in the bottom right plot of \figref{fig:int}.
+Both paradigms, the trapezoidal rule as well as the Monte Carlo sampling, are
+illustrated for a simple one-dimensional function in the top row
+of~\figref{fig:int}. In this one-dimensional scenario the Monte Carlo
+integration is absolutely not competitive. Even the crude trapezoidal rule will
+easily outperform it in terms of accuracy, precision and also efficiency for any
+given number of base points~$N$. It turns out that the error of the trapezoidal
+rule scales like~$1/N^2$. Piecewise quadratic approximation, called Simpon's
+rule or Kepler rule, already brings the error down to~$1/N^4$. Hence these
+methods converge extremely fast for suitable integrands. Keep in mind we are
+talking about the simplest rules imaginable which are hardly ever used in
+practice. State of the art integration methods are by far more sophisticated
+with still better convergence properties for a certain classes of functions.
+However, to exploit the full potential of specialized integration routines one
+still has to have some idea of what the integrand looks like. Periodic functions
+call for other routines than slightly singular functions with strongly localized
+features for instance.  Moreover even adaptive rules require to at least crudely
+sample the whole integration domain. In a ten-dimensional integral, even a
+coarse grid of ten base points in each direction requires~$10^{10}$ function
+evaluations. Let us contrast these insights with the errors in Monte Carlo
+integration.
 
-The thermal average~\eqref{thermavgint} that came up naturally in statistical
-physics, like many other high-dimensional integrals encountered in physical
-applications, happens to be of the form
+\subsubsection{Error of Monte Carlo integration}
+
+First of all, the law of large numbers ensures that the
+approximation~\eqref{evapprox} converges for large~$N$
 %
 \begin{equation}
-  \int_{\Omega \subset \bR^n} f(x) p(x) \sucd{\lambda}_{\Omega}(x) =
-  \int_{\Omega \subset \bR^n} f(x) \sucd{\mu}_{\Omega}(x)\:,
+  \lim_{N \to \infty} \frac{1}{N} \sum_{i = 1}^N f(x_i) = E_{\cU_{[a,b]}}(f)\:.
 \end{equation}
 %
-where~$p$ is the probability density function of some measure~$\mu$ on~$\bR^n$
-and~$\lambda$ is the~$n$-dimensional Lebesgue measure.
+Let us henceforth use~$I$ and~$\hat{I}$ for the exact and approximate values of
+the integral
+%
+\begin{equation}
+  I := \int_a^b f(x) \sucd{x} \qqtxtqq{and}
+  \hat{I} := \frac{b-a}{N} \sum_{i=1}^N f(x_i)\:.
+\end{equation}
+%
+As usual the variance of~$f$ is given by
+%
+\begin{equation}
+  \sigma^2(f) = \int_a^b (f(x) - I)^2 \sucd{x}\:.
+\end{equation}
+%
+To measure the error in~$\hat{I}$ we consider the~$x_i$ independently
+identically distributed random variables with distribution~$\cU_{[a,b]}$. One
+can then show that the squared error of the Monte Carlo approximation is
+%
+\begin{equation}\label{mcerror}
+  E_{x_1, \dots , x_N}\bigl((\hat{I} - I)^2\bigr) =
+  \frac{1}{(b-a)^N}\int_a^b \pred{x_1} \cdots \int_a^b \pred{x_N}
+  \biggl(\frac{b-a}{N} \sum_{i=1}^N f(x_i) - I\biggr)^2 =
+  \frac{\sigma^2(f)}{N}\:.
+\end{equation}
 
-\todo{all that integration stuff needs the fact that variance is decreased when
-sampling from better distribution, hence it should all be in the intro.}
+What this tells us is that the average error we make in the Monte Carlo
+integration is~$\sigma(f)/\sqrt{N}$. It is important to realize that with truly
+random numbers, each separate run of the same Monte Carlo integration will
+generally yield different results. For any single one of them the error could be
+much larger than, but for infinitely many runs the error would average to the
+standard deviation of~$f$ divided by~$\sqrt{N}$. In stark contrast,
+interpolation methods like the trapezoidal rule actually allow you to determine
+a strict upper bound of the error for any function meeting some
+differentiability criteria.
 
-\todo{guess i can leave the first section and talk about minimizing/optimizing
-the energy. Later I just have to say that instead of minimizing H itself
-completely on the configuration space, we minimize at certain temperature and
-then average out fluctuations to get an average minimum state.}
+The single most important result of Monte Carlo integration is that the factor
+of~$\sqrt{N}$ is independent of the dimension of the integration domain. This
+tells us that even in a~$10^3$ dimensional integration, where interpolation and
+adaptive methods would fail straightaway, we can be sure that the average error
+scales like~$1/\sqrt{N}$, where~$N$ is the number of samples. This is the key
+justification for the use of Monte Carlo methods. Keep in mind, however, that a
+convergence rate of~$1/\sqrt{N}$ is tantalizingly slow compared to what we are
+used from other numerical algorithms. For example, consider the integral
+%
+\begin{equation}
+  I := \int_0^1 e^{-x} \sucd{x}\:.
+\end{equation}
+%
+Assume we want the error~$\sigma (e^{-x}) / \sqrt{N}$ to be smaller
+than~$5 \cdot 10^{-4}$. We compute
+%
+\begin{equation}\label{sigmaexp}
+  \sigma (e^{-x}) =
+    \sqrt{E_{\cU_{[0,1]}}(e^{-2 x}) - E_{\cU_{[0,1]}}(e^{-x})^2} =
+    0.18098\ldots \:,
+\end{equation}
+%
+which leads to a minimal~$N$ of roughly~$2\cdot10^5$ to achieve our accuracy
+goal. We need a couple hundred thousand function evaluations for a moderate
+error in a very simple and well behaved integral. For comparison, the
+trapezoidal rule reaches the same accuracy for about~$15$ base points, see
+\figref{fig:int}.
+
+\subsubsection{Importance sampling}
+
+While the~$N$ dependence in the error of Monte Carlo integration is certainly
+more important, because it is the one we have full control over, it pays off to
+also elaborate on the standard deviation of the integrand~$\sigma(f)$. Although
+the integrand is usually fixed by the problem, there are some tricks to improve
+the error by decreasing the variance of the integrand. Let us start from a
+generic integral
+%
+\begin{equation}
+  \int_{\Omega \subset \bR^n} f(x) \sucd{\lambda}^n(x)\:,
+\end{equation}
+%
+where~$\lambda^n$ is the ordinary Lebesgue measure on~$\bR^n$. Next, let us
+rewrite this as
+%
+\begin{equation}
+  \int_{\Omega \subset \bR^n} f(x) \sucd{\lambda}^n(x) =
+    \int_{\Omega \subset \bR^n} \frac{f(x)}{p(x)} p(x) \sucd{\lambda}^n(x) =
+    \int_{\Omega \subset \bR^n} \frac{f(x)}{p(x)} \sucd{\mu}(x) =
+    E_{p}\biggl(\frac{f(x)}{p(x)}\biggr) \:,
+\end{equation}
+%
+where~$p$ is the probability density function of some measure~$\mu$ on~$\Omega$.
+Since we have changed the integration measure, we can now approximate the
+integral by
+%
+\begin{equation}
+  \int_{\Omega \subset \bR^n} f(x) \sucd{\lambda}^n(x) \approx
+  \frac{\lambda^3(\Omega)}{N} \sum_{i=1}^N \frac{f(x_i^p)}{p(x_i^p)}\:,
+\end{equation}
+%
+where the~$x_i^p$ are now independent samples from the probability distribution
+induced by~$p$. The key point is that the error estimate is unaffected by the
+measure and thus reads
+%
+\begin{equation}
+  \frac{\sigma(f/p)}{\sqrt{N}} \:.
+\end{equation}
+%
+While we can not change the standard deviation of~$f$, we can now try to
+minimize the variance of the ratio~$f/p$ by choosing~$p$ wisely. An optimal
+choice would mean~$f/p = \const$. This shows that~$p$ should be large/small
+where~$f$ is large/small, which makes sense intuitively. We concentrate the
+samples in regions where the contributions to the integral are large. Regions
+where~$f$ is insignificantly small will only be samples sparsely. Therefore we
+call the procedure \newterm{importance sampling}.
+
+For this method to work in practice, one needs to be able to efficiently sample
+the distribution induced by~$p$. In general this is a difficult task and a lot
+of research has gone into generating good pseudo random numbers following
+arbitrary probability distributions. Moreover, Monte Carlo integration is
+typically used precisely when we do not know much about~$f$, hence cannot
+choose~$p$ adequately upfront. There are algorithms based on importance
+sampling, for example VEGAS, that update~$p$ in real time during the integration
+to concentrate on important regions. However, it turns out that many integrals
+that come up in physics, particularly in statistical physics as we will see
+later, are of the form
+%
+\begin{equation}\label{probform}
+  \int_{\Omega \subset \bR^n} f(x) p(x) \sucd{\lambda}^n(x)\:,
+\end{equation}
+%
+where~$p$ is a probability density function of some measure~$\mu$ on~$\Omega$.
+In this case we can directly rewrite the integral as
+%
+\begin{equation}
+  \int_{\Omega \subset \bR^n} f(x) \sucd{\mu}(x) \approx
+  \frac{\lambda^3(\Omega)}{N} \sum_{i=1}^N {f(x_i^p)}\:.
+\end{equation}
+%
+Usually~$\sigma(f)$ is smaller than~$\sigma(f\cdot p)$ and as long as we can
+sample~$p$ efficiently, we can improve the error for the same~$N$.
+
+Let us illustrate importance sampling with an example. On the right side of the
+second row of \figref{fig:int} we plot the function~$e^{-x}$ and some
+uniformly distributed random sample points for ordinary Monte Carlo integration.
+The bulk of the area under the curve is on the left, while the long exponential
+tail can practically be neglected. However, many of our uniformly chosen samples
+fall into the right half, where the function is basically zero. At the same
+time we undersample the important region. The rather large variation
+of~$e^{-x}$ leads to rather large errors as we have discovered
+in~\eqref{sigmaexp}. Fortunately, with the right normalization~$e^{-x}$ is a
+probability density function that can be sampled efficiently on a computer. The
+integral~$\int_0^1 e^{-x} \sucd{x}$ is of the form~\eqref{probform} with
+%
+\begin{equation}
+  f(x) =\frac{e}{e-1} \qqtxtqq{and} p(x) =\frac{e^{1-x}}{e-1}\:.
+\end{equation}
+%
+In this case the Monte Carlo approximation becomes trivial
+%
+\begin{equation}
+  \frac{1}{N} \sum_{i=1}^N \frac{e}{e-1} = \frac{e}{e-1} \:,
+\end{equation}
+%
+which is the exact value of the integral, see last row of \figref{fig:int}. In
+this simplified case the integrand itself was up to normalization a probability
+distribution. Hence we already computed the integral exactly by finding the
+normalization constant for~$p$. In real use cases the function~$f$ would not be
+constant and we would have to collect more than just one sample for a reasonable
+estimate.
 
 \todo{figure out better display of axis and/or tick marks etc}
 \todo{second example in figure: integrate constant function with those weights}
 \begin{figure}
   \centering
-  \begin{tikzpicture}[declare function={f=150 - x - 6*x^2 + x^3;}]
+  \begin{tikzpicture}[declare function={f=100 - x - 6*x^2 + x^3;}]
     \begin{axis}[
         width=8cm,
         height=5cm,
-        yticklabels={,,},
+        ymin=0,
+        axis lines=left,
+        enlarge y limits=upper,
+        enlarge x limits,
+        ytick={0},
         xticklabels={,,},
         domain=-2.5:5.5,
         xtick={-2.5, -0.5, ..., 5.5},
@@ -583,7 +759,11 @@ then average out fluctuations to get an average minimum state.}
     \begin{axis}[
         width=8cm,
         height=5cm,
-        yticklabels={,,},
+        ymin=0,
+        axis lines=left,
+        enlarge y limits=upper,
+        enlarge x limits,
+        ytick={0},
         xticklabels={,,},
         domain=-2.5:5.5,
         xtick={-2.5, -0.5, ..., 5.5},
@@ -592,7 +772,7 @@ then average out fluctuations to get an average minimum state.}
       \addplot[thick, Crimson, smooth] {f};
       \addplot[dashed, mark=x, samples at={3.48308, 5.29824, 1.20917,-1.60499,
       3.03779, 1.46106, 3.22893, 4.07112, 2.2248, 4.15928, 5.2014,-2.25321,
-      5.30407, 0.19369,-1.81973, 2.46947,-2.27559, 3.11756, 5.36544, 0.529774},
+      5.30407, 0.19369,-1.81973, 2.46947,-2.07559, 3.11756, 5.36544, 0.529774},
       ycomb] {f};
     \end{axis}
   \end{tikzpicture}%
@@ -601,7 +781,11 @@ then average out fluctuations to get an average minimum state.}
     \begin{axis}[
         width=8cm,
         height=5cm,
-        yticklabels={,,},
+        ymin=0,
+        axis lines=left,
+        enlarge y limits=upper,
+        enlarge x limits,
+        ytick={0},
         xticklabels={,,},
         domain=0:6,
         xtick={0,...,6},
@@ -617,11 +801,37 @@ then average out fluctuations to get an average minimum state.}
     \begin{axis}[
         width=8cm,
         height=5cm,
-        yticklabels={,,},
+        ymin=0,
+        axis lines=left,
+        enlarge y limits=upper,
+        enlarge x limits,
+        ytick={0},
         xticklabels={,,},
         domain=0:6,
         xtick={0,...,6},
-        title={MC, exponential distribution},
+        title={MC, uniform distribution},
+      ]
+      \addplot[thick, Crimson, smooth] {f};
+      \addplot[dashed, mark=x, samples at={2.79019, 3.26148, 0.650803, 5.91188,
+      5.63303, 2.00519, 3.33023, 4.05605, 4.11961, 5.59612, 3.85836, 0.883656,
+      3.70697, 2.64962, 1.80842, 2.52199, 4.56677, 3.59437, 4.40159, 3.96445},
+      ycomb] {f};
+    \end{axis}
+  \end{tikzpicture}%
+  \\
+  \begin{tikzpicture}[declare function={f=exp(-x);}]
+    \begin{axis}[
+        width=8cm,
+        height=5cm,
+        ymin=0,
+        axis lines=left,
+        enlarge y limits=upper,
+        enlarge x limits,
+        ytick={0},
+        xticklabels={,,},
+        domain=0:6,
+        xtick={0,...,6},
+        title={samples from an exponential distribution},
       ]
       \addplot[thick, Crimson, smooth] {f};
       \addplot[dashed, mark=x, samples at={1.17301, 0.559973, 0.256368, 1.00665,
@@ -634,21 +844,15 @@ then average out fluctuations to get an average minimum state.}
   column and Monte Carlo integration in the right column. In the top row we
   consider some arbitrary function and draw from a uniform distribution in the
   Monte Carlo integration. In the bottom row we integrate the
-  function~$\exp(-x)$ and sample according to an exponential distribution in the
-  Monte Carlo part.}
+  function~$e^{-x}$. While sampling uniformly yields a big error due to the
+  large variation of the exponential function, we can instead draw our samples
+  according to an exponential distribution as shown in the bottom center plot.}
 \label{fig:int}
 \end{figure}
 
-\todo{should I actually start with integration instead of optimization for monte
-carlo? --> yes!! keep optimization stuff and declare that we will need both}
-
-\todo{the way we are sampling our space needs to contain detailed balance and
-ergodicity. But why? I think that comes next and once we posed them, we
-conclude that metropolis hastings might be a good idea}
-
-\todo{replace some occurrences of ``lattice site'' by vertex}
-
 \subsection{Optimization}
+
+\subsubsection{Overview}
 
 In a typical optimization problem we seek to find the minimum of a real-valued
 function~$f$ over some subset of its domain~$\Omega \subset \bR^n$. Depending
@@ -675,13 +879,13 @@ potentially overlook a global minimum somewhere else hidden to our descent
 method by a barrier. In this case we could either still employ iterative methods
 with multiple starting points and hope that one of them guides us to the global
 minimum, or switch to heuristics. Heuristics are not mathematically guaranteed
-to find the solution, in fact very little can be proven about how well
-heuristics will do in general. However, they often prove very useful, especially
-if we do not have an applicable finitely terminating or at least provably
-convergent iterative algorithm, see \figref{fig:samplefuncs}. Interestingly,
-many heuristics have been inspired by natural processes like the genetic
-algorithms, bee or ant colony optimization, evolutionary algorithms or simulated
-annealing.
+to find the solution. In fact, very little can be proven about how well
+heuristics will do in general. However, they often turn out to be very useful,
+especially if we do not have an applicable finitely terminating or at least
+provably convergent iterative algorithm, see \figref{fig:samplefuncs}.
+Interestingly, many heuristics have been inspired by natural processes like the
+genetic algorithms, bee or ant colony optimization, evolutionary algorithms or
+simulated annealing.
 
 \begin{figure}
   \centering
@@ -755,24 +959,25 @@ annealing.
 \label{fig:samplefuncs}
 \end{figure}
 
-The domain of our optimization problem is a~$2 N_x N_y N_z$-dimensional space.
-Even for relatively small lattices optimization in such a high-dimensional space
-is generically hard. Unfortunately, it appears completely hopeless to compute
-the gradient or even Hessian of the Hamiltonian~\eqref{hamiltonian}
-analytically. Moreover, it is hard to develop intuition about how the energy
-landscape looks like, not only because we can barely visualize anything in more
-than three dimensions. It appears certain, however, that it will include a vast
-number of local minima. All of this is bad news for efficient iterative methods
-and we have to fall back to heuristics. Our only option is to sample the search
-space preferably in a smart and structured way and hope to capture the minimum
-within reasonable computation time. This is precisely what Monte Carlo methods
-do. They consist of a sampling strategy that involves some randomness.
-Obviously, this sounds horrifically inefficient, which it is. Now we understand
-why Monte Carlo techniques should only be considered once everything else failed
-or proved intractable.
+The domain of our specific spin lattice optimization problem is a~$2 N_x N_y
+N_z$-dimensional space.  Even for relatively small lattices optimization in such
+a high-dimensional space is generically hard. Unfortunately, it appears
+completely hopeless to compute the gradient or even Hessian of the
+Hamiltonian~\eqref{hamiltonian} analytically. Moreover, it is hard to develop
+intuition about how the energy landscape looks like, not only because we can
+barely visualize anything in more than three dimensions. It appears certain,
+however, that it will include a vast number of local minima with rough hills and
+valleys. All of this is bad news for efficient iterative methods and we have to
+fall back to heuristics. Our only option is to sample the search space
+preferably in a smart and structured way and hope to capture the minimum within
+reasonable computation time. This is precisely what Monte Carlo methods do. They
+consist of a sampling strategy that involves some randomness. As was the case
+for integration, this is horrifically inefficient. By now we understand why
+Monte Carlo techniques should only be considered once everything else failed or
+proved intractable.
 
 For our use case we implemented \newterm{simulated annealing}. The name already
-hints towards thermodynamic processes, which we already identified as a key
+hints towards thermodynamic processes, which we identified to be a key
 feature of our system, but were not yet able to bake it into our model. Clearly
 any real material at finite temperature is not completely static, \ie{} stuck in
 a fixed state~$\pi \in \Pi$, but it is constantly subject to thermal
@@ -781,8 +986,12 @@ of the Hamiltonian for given parameters, is insufficient. Simulated annealing is
 designed to mimic real world systems at finite temperature and will take care of
 thermal fluctuations. That implies that we will not seek to find a single best
 state~$\pi \in \Pi$ anymore, but consider the physical state to be a thermal
-average of several configurations. To fully understand and appreciate simulated
-annealing, we need some basic concepts from statistical physics.
+average of several configurations. For precisely these averages our discussion
+of Monte Carlo integration will come in handy. To fully understand and
+appreciate simulated annealing, we need some basic concepts from statistical
+physics.
+
+\subsection{Statistical physics in a nutshell}
 
 In macroscopic complex many body systems such as gases or condensed matter at
 finite temperature, we are often not interested in every single detail of that
@@ -791,8 +1000,8 @@ position and velocity as well as rotational and vibrational modes of each single
 molecule in a piston. Sensible observables are typically some sort of
 macroscopic averages like the volume, temperature or pressure of the gas. For a
 solid we might be interested in its specific heat, conductivity or
-susceptibility. Of course, there is a sound and rigorous way to define those
-averages.
+susceptibility rather than the joint many body wavefunction of all electrons.
+Statistical physics provides a sound and rigorous way to define those averages.
 
 Instead of working with the complete microstates, in our case the elements
 of~$\Pi$, directly, we only talk about the probability~$P_{T}(\pi)$ that the
@@ -800,9 +1009,9 @@ system is in a certain state~$\pi \in \Pi$ at temperature~$T$. To this end we
 imagine a large ensemble of exact replicas of the system and observe them all at
 the same time figuratively counting how often each microstate occurs. Starting
 from the assumption that in a closed system in equilibrium each microstate~$\pi$
-is equally likely, we can derive the so called canonical ensemble which states
-that for a non-closed system in equilibrium at finite temperature~$T$, \eg{} via
-contact to a large heat bath, the probability of state~$\pi$ is
+is equally likely, we can derive the so called \newterm{canonical ensemble}. It
+states that for a non-closed system in equilibrium at finite temperature~$T$,
+\eg{} via contact to a large heat bath, the probability of state~$\pi$ is
 %
 \begin{equation}\label{boltzmann}
   P_{T}(\pi) = \frac{\exp \left(- \frac{H(\pi)}{k_B T}\right)}
@@ -812,22 +1021,33 @@ contact to a large heat bath, the probability of state~$\pi$ is
 This is also referred to as the \newterm{equilibrium Boltzmann distribution}
 with~$k_B$ being the Boltzmann constant. For a finite configuration space these
 are discrete probabilities that add up to one by construction.  The normalizing
-factor in~\eqref{boltzmann}~$Z := \sum_{\pi \in \Pi} \exp(-\beta H(\pi))$ is
-called partition function. Here we introduced the common shortcut~$\beta :=
-{(k_B T)}^{-1}$. In our case there are infinitely many states in~$\Pi$ and the
-summation in the partition function turns into an integral~$Z := \int_{\Pi}
-\exp(-\beta H(\pi)) \sucd{\mu}_{\Pi}(\pi)$, where the measure~$\mu_{\Pi}$
-depends on the configuration space. The mathematical details are not important
-for the further treatment here.
+factor in~\eqref{boltzmann}
+%
+\begin{equation}
+  Z := \sum_{\pi \in \Pi} \exp(-\beta H(\pi))
+\end{equation}
+%
+is called \newterm{partition function}. Here we introduced the common
+shortcut~$\beta := {(k_B T)}^{-1}$. In our case,~$\Pi$ consists of infinitely
+many states and the summation in the partition function has to be replaced by an
+integral
+%
+\begin{equation}
+  Z := \int_{\Pi} \exp(-\beta H(\pi)) \sucd{\mu}_{\Pi}(\pi)\:,
+\end{equation}
+%
+where the measure~$\mu_{\Pi}$ depends on the configuration space. In our case it
+is a product measure of the standard measure on~$S^2$, but the mathematical
+details are not important for the further treatment in this report.
 
 The equilibrium Boltzmann distribution~\eqref{boltzmann} tells us that
 configurations with lower energy are exponentially more likely than
 configurations with higher energy. Moreover, this effect is most pronounced at
 low temperatures. If~$T$ is large, states with higher energy still occur with a
 decent probability compared to the minimizing state. On the other hand, for~$T
-\to 0$, basically only the state with minimal energy has a non-zero probability.
+\to 0$ basically only the state with minimal energy has a non-zero probability.
 Both facts match our intuition. At high temperatures, thermal fluctuations are
-large and the system can visit many different micro states. At zero temperature
+large and the system can visit many different microstates. At zero temperature
 we expect the system to settle in the ground state.
 
 In a probabilistic description of states, the energy or magnetization of one
@@ -840,21 +1060,197 @@ compute the so called \newterm{thermal average}
 \end{equation}
 %
 hence we average over all states weighted by their probability at a given
-temperature. Again for a continuous state space this becomes
+temperature. For a continuous state space this becomes
 %
 \begin{equation}\label{thermavgint}
   \avg{\cO} := \frac{1}{Z} \int_{\Pi} \cO(\pi) \exp(- \beta H(\pi))
     \sucd{\mu}_{\Pi}(\pi)\:.
 \end{equation}
 %
-
 In our case the observables we are primarily interested in are the
 energy~$\avg{H}$ and the three components of the magnetization~$\avg{\M} =
-\avg{\sum_{\r \in \Sigma} \S_{\r}}$. One question immediately poses itself: How
-could be possibly compute the high-dimensional integral in~\eqref{thermavgint}
-for our specific situation? Even for finite configuration spaces the sum
-in~\eqref{thermavgsum} would contain extraordinarily many terms. If each lattice
-site could only be in two states, up or down, already on a small~$10^3$ lattice
-we would have to sum up~$2^{1000} \approx 10^{300}$ configurations. This is far
-beyond the possibilities of any machine imaginable today. The large
-dimensionality of the problem renders it a good fit for Monte Carlo methods.
+\avg{\sum_{\r \in \Sigma} \S_{\r}}$.
+
+One question immediately poses itself: How could be possibly compute the
+high-dimensional integral in~\eqref{thermavgint} for our specific situation?
+Even for finite configuration spaces the sum in~\eqref{thermavgsum} would
+contain extraordinarily many terms. If each lattice site could only be in two
+states, up or down, already on a small~$10^3$ lattice we would have to sum
+up~$2^{1000} \approx 10^{300}$ configurations. This is far beyond the
+possibilities of any machine imaginable today. The large dimensionality of the
+problem renders it a good fit for Monte Carlo methods.
+Indeed~\eqref{thermavgint} bears striking resemblance to~\eqref{probform}. The
+standard measure on~$S^2$ can be derived from the Lebesgue measure~$\lambda^3$
+on~$\bR^3$ and~\eqref{boltzmann} is the probability density function~$p$
+on~$\Pi$. It assigns almost no weight to configurations with high energy. As a
+consequence they will not contribute much to the integral and the thermal
+average calls for importance sampling
+%
+\begin{equation}
+  \avg{\cO} \approx \frac{1}{N} \sum_{i = 1}^N \cO(\pi_i)\:,
+\end{equation}
+%
+where~$\pi_i$ are independent samples drawn from the Boltzmann
+distribution~$P_T$. Finally we see how Monte Carlo integration enters the
+picture.
+
+\subsection{Generating random configurations}
+
+The challenge is to generate independent random samples following the Boltzmann
+distribution~\eqref{boltzmann}. Generating a uniformly random sample is
+relatively easy, although there is one major pitfall one has to look out for.
+The strategy is of course the pick a uniformly random spin at each vertex of the
+grid. Some implementations claim to generate uniformly random elements of~$S^2$
+in the following way. They generate three random numbers~$x,y,z \sim
+\cU_{[-1,1]}$ and then normalize the resulting vector~$(x,y,z) / \sqrt{x^2 + y^2
++ z^2}$. While~$(x,y,z)$ in this case is uniformly distributed on the
+cube~$[-1,1]^3$, by simply projecting all points onto the sphere~$S^2 \subset
+[-1,1]^2$, the points that were originally generated outside the sphere,
+\ie{}~$[-1,1]^3 \setminus B^3$, are unevenly distributed. Here the unit
+ball~$B^3$ is the interior of~$S^2$. The corners of the cube host more points
+than the areas where the sphere actually touches the boundary of the cube and
+thus we expect more points in a small neighborhood around~$3^{-1/2} (1,1,1)$
+than around~$(0,0,1)$.
+
+There are several ways to mitigate this effect. One is to discard all
+points~$(x,y,z)$ with length greater than one and redraw new points in the cube
+until they fall inside the sphere. We do not recommend this method, because of
+its inefficiency. In three dimensions we have~$\lambda^3([-1,1]^3) =
+8$,~$\lambda^3(B^3) = 4 \pi / 3$ and thus
+%
+\begin{equation}
+  \frac{\lambda^3([-1,1]^3 \setminus B^3)}{\lambda^3([-1,1]^3)} \approx 0.476\:,
+\end{equation}
+%
+\ie{} one would have to discard almost every second vector. The ratio becomes
+ever larger in higher dimensions. A slightly better way is make use of the fact
+that~$S^2$ is a two-dimensional manifold, thus can be parameterized by only two
+real numbers. One can independently draw~$x,y \sim \cU_{[-1,1]}$, discard and
+redraw them if~$x^2 + y^2 > 1$ and otherwise return
+%
+\begin{equation}
+  \begin{pmatrix}
+    2 x \sqrt{1 - x^2 - y^2} \\
+    2 y \sqrt{1 - x^2 - y^2} \\
+    1 - 2 (x^2 + y^2)
+  \end{pmatrix} \:,
+\end{equation}
+%
+which results in a uniform distribution on the sphere. This is a slight
+improvement, because we only discard the fraction
+%
+\begin{equation}
+  \frac{\lambda^2([-1,1]^2 \setminus B^2)}{\lambda^2([-1,1]^2)} \approx 0.215\:,
+\end{equation}
+%
+but still not optimal. Interestingly, the original
+method~$(x,y,z)/\norm{(x,y,z)}$ works if we draw~$x,y,z$ from a normal
+distribution with mean zero. The downside of this approach is that the
+generation of normally distributed random numbers is slightly slower than
+uniformly distributed ones.
+
+Finally, let us describe the method we used in our implementation. In the final
+implementation we prefer the redundant representation as three-dimensional
+vectors, because it simplifies the computation of dot and cross products as well
+as projections onto coordinate planes. Nevertheless for the generation of
+uniformly random spins on~$S^2$ it is advantageous to work in spherical
+coordinates~$(\phi, \theta) \in [0,2\pi) \times [0,\pi)$. The next pitfall is
+already waiting for us. Uniformly chosen~$\phi$ and~$\theta$ will also not
+result in a uniform distribution on~$S^2$, because the density of points would
+be larger near the north and south pole, \ie{} for~$\theta$ near~$0$ and~$\pi$
+than near the equator~$\theta=\pi/2$. One could also anticipate this from the
+fact that the coordinate transformation from spherical to Euclidean coordinates
+is not isometric. We have to take into account the Jacobian
+factor~$\sin(\theta)$ in the transformation. The correct procedure is hence the
+following:
+%
+\begin{enumerate}
+  \item Draw~$z \sim \cU_{[-1,1]}$ and~$\phi \sim \cU_{[0,2\pi)}$.
+  \item Compute~$r_{xy} = \sqrt{1 - z^2}$.
+  \item The vector~$(r_{xy} \cos(\phi), r_{xy} \sin(\phi), z)$ is a sample
+    from~$\cU_{S^2}$.
+\end{enumerate}
+%
+Here we make use of the fact that the~$z$ component, \ie{}~$\cos(\theta)$, of
+uniformly distributed points on~$S^2$ is uniformly distributed on~$[-1,1]$. The
+azimuthal angle~$\phi$ is also uniformly distributed on~$[0,2\pi)$. The~$x$
+and~$y$ components are then computed such that the resulting vector has unit
+length. Note that for all intervals above it does not matter whether we include
+the end points or not, because they constitute a null set with respect to the
+Lebesgue measure. In our benchmarks the latter method was almost a factor two
+faster than all other options.
+
+By now we have still only clarified how to generate a uniformly random
+configuration~$\pi \sim \cU_{\Pi}$. The whole purpose of the simulated annealing
+algorithm is to generate independent configurations from the Boltzmann
+distribution which we need to estimate the integral~\eqref{thermavgint}.
+Equation~\eqref{thermavgint} makes it very clear that we have to drop the notion
+of finding a minimizing state of the energy. The observable energy~$\avg{H}$ is
+a weighted average over all possible states. At finite temperature we can
+therefore impossibly speak of a single best one. Consequently the optimization
+aspect is an implicit feature of simulated annealing in the following sense.
+Because simulated annealing helps us to generate configurations drawn randomly
+from the Boltzmann distribution, most of its sample configurations will have
+rather low energy depending on the temperature. Hence it implicitly drives the
+system into states of low energy. Particularly as~$T \to 0$, it will inevitably
+end up in low energy states. As it is just a heuristic, we have no guarantee
+whether it will actually find a global minimum at~$T=0$, but that would be the
+desired outcome. Now let us finally explore how simulated annealing manages to
+sample the Boltzmann distribution.
+
+\subsection{Simulated annealing and Markov chains}
+
+The crucial idea is to not create each random sample completely from scratch,
+but to slowly work towards more likely configurations. If we simply pick a
+uniform random configuration, we can only evaluate its energy once it has been
+generated. It would take a huge number of samples to figure out which energies
+are relatively high and therefore unimportant, or relatively low and therefore
+contribute a lot. Even if we knew the energy range up front, we could not
+generate configurations in a certain energy range from scratch, but only decide
+after we have generated it.
+
+The cure for this problem are so called \newterm{Markov chains}. In a Markov
+chain we start at any configuration~$\pi_0$ and modify that configuration to
+transition to the next one~$\pi_1$. Then we continue from there, which yields
+the following picture
+%
+\begin{equation}
+  \xymatrix{\pi_0 \ar[r]^{\phi} &\pi_1 \ar[r]^{\phi} &\pi_2 \ar[r]^{\phi}
+  &\;\cdots \; \ar[r]^{\phi} &\pi_N}
+\end{equation}
+
+The transition procedure, which we denoted by~$\phi$, has to fulfill two
+requirements. First, it should produce configuration~$\pi$ with
+probability~$P_T(\pi)$, \ie{} it has to actually sample the Boltzmann
+distribution. The second requirement stems from the fact that for Monte Carlo
+integration to work we required the samples being independent. Since~$\pi_{i}$
+now clearly depends on all~$\pi_j$ with~$j < i$, we have to make sure
+that~$\phi$ modifies each state enough such that the next one is practically
+independent of its predecessor. We can characterize~$\phi$ by the probability
+with which it transforms state~$\pi$ into state~$\pi'$. For each pair of
+states~$\pi, \pi' \in \Pi$ we denote the transition probability by~$\T(\pi \to
+\pi')$. Moreover, let~$P_i(\pi)$ be the probability that at the~$i$-th step of
+the chain we are in state~$\pi$. This probability can be computed recursively.
+What is the probability that at step~$i+1$ we are in state~$\pi$? There are
+basically two ways we could end up there. Either we were in a different
+state~$\pi'$ at the~$i$-th step and hit the transition probability~$\T(\pi' \to
+\pi)$, or we have already been in~$\pi$ and stayed there, which happens with
+probability~$\T(\pi \to \pi)$. Those can be combined into
+%
+\begin{equation}
+  P_{i+1}(\pi) = \sum_{\pi' \in \Pi} P_i(\pi') \T(\pi' \to \pi)\:.
+\end{equation}
+%
+\todo{want to design transition probabilities such that we reach equilibrium
+boltzmann distribution, so everything is reversible and with the ratio we see
+that transition probabilities only depend on differences in energy and
+particularly not on the history of the chain, can always decide in the moment,
+this is called detailed balance in metropolis hastings is one that fulfills it}
+
+\todo{clarfiy somewhere that throughout all that sampling procedure~$T$ is fixed
+at first.}
+
+\todo{the way we are sampling our space needs to contain detailed balance and
+ergodicity. But why? I think that comes next and once we posed them, we
+conclude that metropolis hastings might be a good idea}
+
