@@ -471,7 +471,7 @@ speaking, for given values of~$B$ and~$T$ we then seek to minimize~$H(\pi)$. The
 minimizing configuration is considered to be the physical one.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Monte Carlo Methods}\label{sec:mctheory}
+\section{General Monte Carlo methods}\label{sec:mctheory}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 Now that we have clearly stated the model, let us dive into the numerics. Monte
@@ -550,9 +550,9 @@ with still better convergence properties for a certain classes of functions.
 However, to exploit the full potential of specialized integration routines one
 still has to have some idea of what the integrand looks like. Periodic functions
 call for other routines than slightly singular functions with strongly localized
-features for instance.  Moreover even adaptive rules require to at least crudely
-sample the whole integration domain. In a ten-dimensional integral, even a
-coarse grid of ten base points in each direction requires~$10^{10}$ function
+features for instance.  Furthermore even adaptive rules require to at least
+crudely sample the whole integration domain. In a ten-dimensional integral, even
+a coarse grid of ten base points in each direction requires~$10^{10}$ function
 evaluations. Let us contrast these insights with the errors in Monte Carlo
 integration.
 
@@ -731,8 +731,6 @@ normalization constant for~$p$. In real use cases the function~$f$ would not be
 constant and we would have to collect more than just one sample for a reasonable
 estimate.
 
-\todo{figure out better display of axis and/or tick marks etc}
-\todo{second example in figure: integrate constant function with those weights}
 \begin{figure}
   \centering
   \begin{tikzpicture}[declare function={f=100 - x - 6*x^2 + x^3;}]
@@ -975,7 +973,11 @@ consist of a sampling strategy that involves some randomness. As was the case
 for integration, this is horrifically inefficient. By now we understand why
 Monte Carlo techniques should only be considered once everything else failed or
 proved intractable.
-
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The Metropolis algorithm}\label{sec:metropolis}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 For our use case we implemented \newterm{simulated annealing}. The name already
 hints towards thermodynamic processes, which we identified to be a key
 feature of our system, but were not yet able to bake it into our model. Clearly
@@ -1020,7 +1022,7 @@ states that for a non-closed system in equilibrium at finite temperature~$T$,
 %
 This is also referred to as the \newterm{equilibrium Boltzmann distribution}
 with~$k_B$ being the Boltzmann constant. For a finite configuration space these
-are discrete probabilities that add up to one by construction.  The normalizing
+are discrete probabilities that add up to one by construction. The normalizing
 factor in~\eqref{boltzmann}
 %
 \begin{equation}
@@ -1038,13 +1040,15 @@ integral
 %
 where the measure~$\mu_{\Pi}$ depends on the configuration space. In our case it
 is a product measure of the standard measure on~$S^2$, but the mathematical
-details are not important for the further treatment in this report.
+details are not important for the further treatment in this report. Note that we
+will always consider the equilibrium Boltzmann distribution for a fixed
+temperature~$T$ and somtimes drop the subscript~$T$ and simply denote it by~$P$.
 
 The equilibrium Boltzmann distribution~\eqref{boltzmann} tells us that
 configurations with lower energy are exponentially more likely than
-configurations with higher energy. Moreover, this effect is most pronounced at
-low temperatures. If~$T$ is large, states with higher energy still occur with a
-decent probability compared to the minimizing state. On the other hand, for~$T
+configurations with higher energy. Furthermore, this effect is most pronounced
+at low temperatures. If~$T$ is large, states with higher energy still occur with
+a decent probability compared to the minimizing state. On the other hand, for~$T
 \to 0$ basically only the state with minimal energy has a non-zero probability.
 Both facts match our intuition. At high temperatures, thermal fluctuations are
 large and the system can visit many different microstates. At zero temperature
@@ -1086,7 +1090,7 @@ on~$\Pi$. It assigns almost no weight to configurations with high energy. As a
 consequence they will not contribute much to the integral and the thermal
 average calls for importance sampling
 %
-\begin{equation}
+\begin{equation}\label{thermavgapprox}
   \avg{\cO} \approx \frac{1}{N} \sum_{i = 1}^N \cO(\pi_i)\:,
 \end{equation}
 %
@@ -1094,7 +1098,7 @@ where~$\pi_i$ are independent samples drawn from the Boltzmann
 distribution~$P_T$. Finally we see how Monte Carlo integration enters the
 picture.
 
-\subsection{Generating random configurations}
+\subsection{Generating random configurations}\label{subsec:random}
 
 The challenge is to generate independent random samples following the Boltzmann
 distribution~\eqref{boltzmann}. Generating a uniformly random sample is
@@ -1198,7 +1202,7 @@ whether it will actually find a global minimum at~$T=0$, but that would be the
 desired outcome. Now let us finally explore how simulated annealing manages to
 sample the Boltzmann distribution.
 
-\subsection{Simulated annealing and Markov chains}
+\subsection{Markov chains}
 
 The crucial idea is to not create each random sample completely from scratch,
 but to slowly work towards more likely configurations. If we simply pick a
@@ -1216,20 +1220,75 @@ the following picture
 %
 \begin{equation}
   \xymatrix{\pi_0 \ar[r]^{\phi} &\pi_1 \ar[r]^{\phi} &\pi_2 \ar[r]^{\phi}
-  &\;\cdots \; \ar[r]^{\phi} &\pi_N}
+  &\;\cdots}
 \end{equation}
 
 The transition procedure, which we denoted by~$\phi$, has to fulfill two
-requirements. First, it should produce configuration~$\pi$ with
-probability~$P_T(\pi)$, \ie{} it has to actually sample the Boltzmann
+requirements. At some point we want configuration~$\pi$ to occur in the chain
+with probability~$P_T(\pi)$, \ie{} it has to actually sample the Boltzmann
 distribution. The second requirement stems from the fact that for Monte Carlo
-integration to work we required the samples being independent. Since~$\pi_{i}$
+integration to work we need independent samples. Since~$\pi_{i}$
 now clearly depends on all~$\pi_j$ with~$j < i$, we have to make sure
-that~$\phi$ modifies each state enough such that the next one is practically
+that~$\phi$ modifies each state enough to render the next one practically
 independent of its predecessor. We can characterize~$\phi$ by the probability
 with which it transforms state~$\pi$ into state~$\pi'$. For each pair of
 states~$\pi, \pi' \in \Pi$ we denote the transition probability by~$\T(\pi \to
-\pi')$. Moreover, let~$P_i(\pi)$ be the probability that at the~$i$-th step of
+\pi')$. Proper transition probabilities have to fulfil
+%
+\begin{equation}\label{probprop}
+  \sum_{\pi' \in \Pi} \T(\pi' \to \pi) = 1 \qqtxtqq{or}
+  \int_{\Pi} \T(\pi' \to \pi) \sucd{\mu}_{\Pi}(\pi') = 1
+\end{equation}
+%
+meaning that starting from~$\pi$ the system has to go to \emph{some} other state
+in the configuration space.
+
+\subsubsection{State transitions of a spin lattice}
+
+For illustration purposes let us explain what the transition process~$\phi$ will
+look like in our specific example. The simplest way to modify a state~$\pi \in
+\Pi$ is to pick one of the spins~$\S_{\r} \in S^2$ and change it. Since we have
+no indicators as to which spin we should change and how to modify it to bring
+the new state close to a sample from the Boltzmann distribution, we follow the
+Monte Carlo scheme and select the position~$\r \in \Sigma$ as well as the new
+spin~$\S'_{\r}\in S^2$ uniformly at random, respectively. Obviously flipping one
+spin out of many does not yet result in an independent state, in fact the
+correlation between the two configurations would be almost one. Thus~$\phi$ has
+to consist of a little more than just changing one spin, which we will
+henceforth call an \newterm{update}. Instead, we change many spins and we change
+them often. Successively updating~$|\Sigma| = N_x N_y N_z$ random vertices is
+called one \newterm{lattice sweep} or just \newterm{sweep}. The
+transition~$\phi$ from one configuration to the next will consist of~$\Nsweep
+\in \bN$ many lattice sweeps. Thus, between two successive configuration each
+lattice site has been updated~$\Nsweep$ many times on average, see
+\figref{fig:update}. The exact number~$\Nsweep$ has to be determined by careful
+analysis such that~$\pi_{i+1}$ is independent of~$\pi_i$. Apparently, if we
+simply keep updating spins in that fashion, each transition will have the same
+probability and we only generate uniformly random samples of~$\Pi$ instead of
+drawing from the Boltzmann distribution. By carefully selecting which updates
+actually are allowed to happen and which we reject without any changes to the
+current state, we can tune the transition probabilities to our liking. Before we
+go into that, however, we have to determine what the transition probabilities
+have to be.
+
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    \draw[thick] (0,0) -- +(0.5,0) node[pos=0, left] {$\pi_i$};
+    \draw[->,>=latex, thick] (13.3,0) -- +(0.5,0) node[pos=1, right] {$\pi_{i+1}$};
+    \begin{scope}[xshift=6cm]
+      \config{}
+    \end{scope}
+  \end{tikzpicture}
+  \caption{To render state~$\pi_{i+1}$ independent of state~$\pi$, we
+  perform~$\Nsweep$ sweeps, each consisting of~$|\Sigma|$ individual spin
+  random changes.}
+\label{fig:update}
+\end{figure}
+
+\subsubsection{Transition probabilities}
+
+Let~$P_i(\pi)$ be the probability that at the~$i$-th step of
 the chain we are in state~$\pi$. This probability can be computed recursively.
 What is the probability that at step~$i+1$ we are in state~$\pi$? There are
 basically two ways we could end up there. Either we were in a different
@@ -1237,20 +1296,338 @@ state~$\pi'$ at the~$i$-th step and hit the transition probability~$\T(\pi' \to
 \pi)$, or we have already been in~$\pi$ and stayed there, which happens with
 probability~$\T(\pi \to \pi)$. Those can be combined into
 %
-\begin{equation}
-  P_{i+1}(\pi) = \sum_{\pi' \in \Pi} P_i(\pi') \T(\pi' \to \pi)\:.
+\begin{equation}\label{master}
+  P_{i+1}(\pi) = \sum_{\pi' \in \Pi} P_i(\pi') \T(\pi' \to \pi) \qqtxtqq{or}
+  P_{i+1}(\pi) = \int_{\Pi} P_i(\pi') \T(\pi' \to \pi) \sucd{\mu}_{\Pi}(\pi')\:.
 \end{equation}
 %
-\todo{want to design transition probabilities such that we reach equilibrium
-boltzmann distribution, so everything is reversible and with the ratio we see
-that transition probabilities only depend on differences in energy and
-particularly not on the history of the chain, can always decide in the moment,
-this is called detailed balance in metropolis hastings is one that fulfills it}
+Let us refactor this expression, using only the summation notation, because it
+is simpler and can trivially be transformed into the continuous version.
+With~\eqref{probprop}, we find
+%
+\begin{align}\label{masterlong}
+  P_{i+1}(\pi) &= \sum_{\pi' \in \Pi} P_i(\pi') \T(\pi' \to \pi) +
+    P_i(\pi) (1 - \sum_{\pi' \in \Pi} \T(\pi \to \pi')) \\
+  &= P_i(\pi) + \sum_{\pi' \in \Pi}
+    (P_i(\pi') \T(\pi' \to \pi) - P_i(\pi) \T(\pi \to \pi'))\:.
+\end{align}
+%
+In this form we can interpret the first term of the sum as all the ways we can
+enter state~$\pi$ at step~$i+1$ and the second term as all the ways we can leave
+state~$\pi$ in step~$i+1$. This form will prove helpful in a moment.
 
-\todo{clarfiy somewhere that throughout all that sampling procedure~$T$ is fixed
-at first.}
+Now we aim at tuning the transition probabilities such that~$\lim_{i \to \infty}
+P_i = P$, \ie{} the probabilities in~\eqref{master} converge to a stationary
+distribution that agrees with the Boltzmann distribution~\eqref{boltzmann}. In a
+stationary distribution, the probability of entering a certain state has to be
+equal to the probability of leaving that state. If we entered a state more often
+than we left it or vice versa, the distribution would clearly not be stationary.
+Mathematically this signifies that we can tune the transition probabilities such
+that the terms of the sum in~\eqref{masterlong} cancel each other out. In the
+limit~$i \to \infty$, where~$P_i(\pi) = P(\pi)$ for all states~$\pi \in \Pi$, we
+find
+%
+\begin{equation}\label{detbal}
+  P(\pi') \T(\pi' \to \pi) = P(\pi) \T(\pi \to \pi')\:.
+\end{equation}
+%
+This condition is called \newterm{detailed balance} and is a key feature of
+Markov chains. We can interpret it as reversability of the transition
+process~$\phi$. Going from~$\pi$ to~$\pi'$ is equally likely as the other way
+round.
 
-\todo{the way we are sampling our space needs to contain detailed balance and
-ergodicity. But why? I think that comes next and once we posed them, we
-conclude that metropolis hastings might be a good idea}
+\subsubsection{The Metropolis algorithm}
 
+The ratio of the transition probabilities reveal another interesting
+aspect
+%
+\begin{equation}
+  \frac{\T(\pi \to \pi')}{\T(\pi' \to \pi)} = \frac{P(\pi')}{P(\pi)} =
+  e^{-\beta (H(\pi') - H(\pi))} =: e^{-\beta \Delta H}\:.
+\end{equation}
+%
+Thus the transition probabilities depend only on the energy difference of the
+two states in question. In particular it does not remember previous states. At
+each step we can decide  the transition probability purely from the current and
+the proposed successor configuration. This property is our main guidance in
+engineering the transition probabilities. One rather obvious choice is given by
+%
+\begin{equation}
+  \T(\pi \to \pi') = \min(1, e^{-\beta (H(\pi') - H(\pi))})\:.
+\end{equation}
+%
+Those are the so called \newterm{Metropolis} (or \newterm{Metropolis-Hastings})
+transition probabilities. The whole Markov chain Monte Carlo integration for
+thermodynamic systems like ours using the Metropolis transition probabilities is
+simply called \newterm{Metropolis algorithm} or \newterm{Metropolis-Hastings
+algorithm}. There are also other valid choices for the transition probabilities,
+for example the so called \newterm{Heatbath algorithm}, but we will only discuss
+and implement the Metropolis algorithm.
+
+Now that we know the transition probabilities we can bake them into our state
+transition procedure~$\phi$. Recall that~$\phi$ consists of~$\Nsweep$ lattice
+sweeps, each of which performs~$|\Sigma|$ random updates of single spins. Each
+time we have selected a spin~$\S_{\r}$ from the current configuration~$\pi$ for
+an update, we will first generate its potential replacement~$\S'_{\r} \sim
+\cU_{S^2}$, which would lead to state~$\pi'$. But now we only actually perform
+the update, if
+%
+\begin{equation}
+  T(\pi \to \pi') > \cU_{[0,1)}\:.
+\end{equation}
+%
+In this way we abide to the desired transition probabilities in each update,
+thus in each sweep and eventually also in each complete transition~$\phi$.
+
+For completeness, let us mention that the second key requirements for Markov
+chains to work properly besides detailed balance is \newterm{ergodicity}.
+Ergodicity says that each state must be reachable from every other state in a
+finite number of steps. We are not going to elaborate on the theoretical
+importance of this property. We point out, however, that ergodicity is clearly
+fulfilled in our specific model, because we have to change a maximum of~$N_x N_y
+N_z$ spins and each possible spin flip has non-zero probability.
+
+\subsubsection{Thermalization and the start configuration}
+
+Theoretically a Markov chain can go on forever, traversing through different
+states, each time choosing the successor configuration at random according to
+the transition probabilities. Given detailed balance and ergodicity, after
+sufficiently many steps, we have converged to a stationary distribution and each
+new state can be considered an independent sample from the Boltzmann
+distribution. Those initial steps before the distribution becomes stationary are
+called \newterm{thermalization}. The close ties to thermodynamics are obvious,
+where a system can only be treated statistically, if it is in thermal
+equilibrium, \ie{} after it has thermalized. Hence, before we can actually use
+the states~$\pi_i$ as independent samples of the Boltzmann distribution to
+estimate thermal averages via~\eqref{thermavgapprox}, we have to
+perform~$\Ntherm$ lattice sweeps to equilibrate the system. Henceforth the
+time~$t$ is measured by the number of lattice sweeps we have performed. While
+detailed balance and ergodicity guarantee that there is some finite~$\Ntherm \in
+\bN$, the precise value depends on a number of factors.
+
+First of all it depends on the start configuration. In lattice models like ours
+the two most commonly used options are a \newterm{hot start} or a \newterm{cold
+start}. In a hot start we initialize the first state uniformly at random~$\pi_0
+\sim \cU_{\Pi}$.  Practically that means that we initialize each spin~$\S_{\r}$
+for~$\r \in \Sigma$ independently uniformly at random~$\S_{\r} \sim \cU_{S^2}$
+as discussed in subsection~\ref{subsec:random}. It is called hot start, because
+in the limit~$T\to \infty$ the Boltzmann distribution becomes a uniform
+distribution and each state is equally likely. Hence at infinite temperature a
+hot start already follows the Boltzmann distribution and the system is in
+thermal equilibrium from the very beginning. In a cold start all spins are
+chosen the same into some direction, possibly parallel to the external magnetic
+field, which corresponds to a global minimum of the Hamiltonian  including only
+direct exchange and the Zeeman energy at zero temperature.
+
+Secondly, the thermalization time varies with temperature. We have already seen
+that at high temperatures almost all transitions have a decent probability and
+we can explore many states in a short time, guiding the system into equilibrium
+faster. At very low temperatures the Boltzmann distribution is highly localized,
+peaked at low energy states and we will have to reject many proposed successors
+before we discover the probable configurations. Generally this yields a long
+thermalization time for low temperatures.
+
+Thirdly, the system size plays a crucial role. The equilibration time
+unsurprisingly grows directly with the system size. This can be understood
+easily simply from the fact that in a large system it takes longer for all parts
+of it to communicate with each other and find a joint equilibrium state. We will
+discuss in the next section, how one can detect when the system is fully
+equilibrated. From here on we will consider~$\pi_0$ to be the initial
+configuration and~$\pi_1$ to be the first configuration after thermalization,
+\ie{} the first one that can actually be used to compute thermal averages.
+Afterwards all following configurations are separated by~$\Nsweep$ sweeps.
+
+\subsection{Summary and pseudocode}
+
+The ultimate goal of the Metropolis algorithm is to estimate observables such as
+the energy or the magnetization at fixed temperature~$T$ and external field~$B$.
+Therefore it has to output the collection of desired observables, which we
+denote generically by~$\cO$, for~$N$ independent samples of the Boltzmann
+distribution. Let us now put all the pieces together and lay out a pseudo code
+for the Metropolis algorithm at fixed temperature~$T$ and external field~$B$ in
+algorithm~\ref{alg:metropolis}. The full metropolis algorithm can be depicted
+schematically as
+
+\begin{equation}
+  \xymatrix{%
+    \text{initialize} \ar[d]
+      &\text{save } \cO(\pi_1)
+      &\text{save } \cO(\pi_2)
+      && \text{save } \cO(\pi_N) \\
+    \pi_0 \ar[r]^{\Ntherm}_{\text{sweeps}}
+    & \pi_1 \ar[r]^{\Nsweep}_{\text{sweeps}} \ar[u]
+    & \pi_2 \ar[r]^{\Nsweep}_{\text{sweeps}} \ar[u]
+    & \cdots \ar[r]^{\Nsweep}_{\text{sweeps}}
+    & \pi_N \:. \ar[u]
+  }
+\end{equation}
+
+\begin{algorithm}
+  \caption{Metropolis algorithm}\label{alg:metropolis}
+  \begin{algorithmic}[1]
+    \Require{Initialize the spin lattice, \eg{} with a hot start~$\pi_0 \sim
+    \cU_{\Pi}$.}
+    \Statex
+    \Procedure{metropolis}{$\pi_0$, $T$, $B$} \Comment{$T, B$ are fixed}
+      \For{$i$ from~$1$ to~$\Ntherm$} \Comment{thermalization}
+        \State \textsc{sweep}($\pi_0$)
+      \EndFor
+      \State set $\pi_1 := \pi_0$
+      \State save~$\cO(\pi_1)$
+      \For{$i$ from~$1$ to~$N-1$}
+        \State set $\pi_{i+1} :=$ \textsc{next\_config}($\pi_i$)
+        \State save~$\cO(\pi_{i+1})$
+      \EndFor
+    \EndProcedure
+    \Statex
+    \Function{next\_config}{$\pi$}
+      \For{$j$ from~$1$ to~$\Nsweep$}
+        \State \textsc{sweep}($\pi$)
+      \EndFor
+      \State \Return{$\pi$}
+    \EndFunction
+    \Statex
+    \Procedure{sweep}{$\pi$} \Comment{\textsc{sweep} modifies~$\pi$}
+      \For{$i$ from~$1$ to $N_x N_y N_z$}
+        \State draw $\r \sim \cU_{\Sigma}$
+        \State draw $\S' \sim \cU_{S^2}$
+        \If{$\min\bigl(1, \exp(- \beta \Delta H)\bigr) >
+          \mathrm{rand}(0,1)$}
+            \State replace~$\S_{\r} \in \pi$ by~$\S'_{\r}$
+        \EndIf
+      \EndFor
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Analysis and statistics}\label{sec:analysis}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+In the previous sections we discussed the Metropolis algorithm and provided a
+pseudocode which should make it fairly easy to implement. However, we issued
+quite a few warnings without giving specific instructions on how to stay on the
+safe side of things. How should one choose the thermalization time~$\Ntherm$ and
+how do we know whether the system is in equilibrium? How large does~$\Nsweep$
+have to be such that consecutive configurations of the Markov chain can be
+considered independent? In this section we try to answer this question or at
+least provide some practical guidelines.
+
+\subsection{Thermalization}
+
+Equilibration is a sensitive and often underestimated topic. It is by far not
+sufficient to let ``a few sweeps'' go by after a hot start, even at high
+temperatures. In the literature one can find guidelines that suggest that the
+thermalization time should be at least~$15-20$\% of the total runtime. The total
+runtime, as always measured in Monte Carlo time, \ie{} the number of lattice
+sweeps, is given by~$\Ntherm + N\cdot \Nsweep$. Such estimates, while helpful to
+get an idea of the order of magnitude, often lure scientists into blindly
+allocating~$20$\% of the overall runtime for equilibration and feel on the safe
+side. This is plain wrong and indefensible. Despite all the factors that go into
+the thermalization time, the number of sweeps in between configurations and the
+overall number of configurations one chooses to compute are not among them. How
+could one expect the thermalization time to decrease only because we stop the
+Markov chain after just a few configurations? Those are just the most obvious
+flaws in absolute recommendations. Besides the system size, the temperature and
+the start configuration the equilibration time also differs for various
+observables and of course for different systems and models. We cannot expect to
+find a solution without closely analyzing the specific final implementation of
+the model at hand.
+
+That being said, even then there is no~$100$\% foolproof recipe to
+determine~$\Ntherm$ in a fully satisfying fashion. The most common approach is
+to simply look at the observables one is interested in. After the implementation
+is finished and before we actually start to record states of the Markov chain,
+we write out \emph{all} observables we are interested in after every single
+sweep beginning right with the initialing state. If one is interested in the
+energy and the magnetization of the system, one would plot the energy and all
+three components of the magnetization over Monte Carlo time~$t$, \ie{} over the
+number of sweeps. In \figref{fig:thermalization} we see that all observables
+level out over time and then merely fluctuate around a constant value. This
+happens much later for the magnetization than for the energy. Thus it is vital
+to look at such plots for all observables one ever plans to look at. The point
+from which onwards all observables are basically constant is the minimal
+equilibration time for this specific system with those specific parameters.
+
+\todo{figure of thermalization}
+
+Keep in mind that in principle one has to repeat this analysis whenever one
+changes the temperature, the system size, the magnetic field or any other
+parameters of the model. Since hot start conditions are chosen at random, even
+the exact same simulation with a different start configuration could have a
+longer or shorter thermalization time. Therefore a generous additional cushion
+is mandatory. Analyzing and determining~$\Ntherm$ for the whole range of
+parameters one intends to simulate is the very first step after the Metropolis
+algorithm has been implemented and tested exhaustively for correctness.
+
+\subsection{Autocorrelation}
+
+Another pitfall we have emphasized several times already is the necessity of
+\emph{independent} samples for Monte Carlo integration to work properly. Our
+samples are the states of a Markov chain with the generic characteristic that
+each state is generated by modifying its predecessor. By definition the
+resulting samples are not independent. However, by separating subsequent
+configurations by sufficiently many Monte Carlo steps we can bring down their
+correlation until they can be considered independent for all practical purposes.
+We will now quantify how~$\Nsweep$ has to be chosen to guarantee such
+independence.  Again it does not seem too harmful to simply let a ``good amount
+of'' sweeps go by in between consecutive configurations of the Markov chain, but
+there is actually analytic evidence that one has to take correlations seriously.
+
+\newterm{Autocorrelation} is \emph{the} central tool to quantify correlations of
+individual states within a time series. Given an observable~$\cO$ at Monte Carlo
+times~$\numlist{1}{N}$, where we start counting once the system has thermalized,
+the autocorrelation function can be estimated
+%
+\begin{equation}
+  R_{\cO}(t) := \frac{1}{\sigma^2 (N-t} \sum_{i = t}^{N}
+    (\cO(i) - m) (\cO(i+t) - m)\:,
+\end{equation}
+%
+where~$\sigma^2$ is the variance and~$m$ the mean of the energy. Note that it
+only makes sense to talk about the mean and variance once we draw from a
+stationary distribution, \ie{} after the system has thermalized.  Since we do
+not have access to the true mean and variance of the entire system in thermal
+equilibrium at a fixed temperature we have to estimate those quantities too. We
+use the standard sample mean and sample variance of~$\numlist{\cO(1)}{\cO(N)}$
+%
+\begin{equation}\label{autocorr}
+  m = \frac{1}{N} \sum_{i=1}^N \cO(i) \qqtxtqq{and}
+  \sigma^2 = \frac{1}{M-1} \sum_{i=1}^N (\cO(i) - m)^2
+\end{equation}
+%
+which makes~$R_{cO}$ a biased estimate. A few remarks are in order. The
+autocorrelation can be understood as the covariance of the sequence with a
+shifted version of it. Since we want to measure the correlation of states at
+different time in the same chain this is entirely plausible. Like the
+covariance, the autocorrelation can become negative which is interpreted in the
+same way. Negative autocorrelation at time~$t$ means that large negative values
+of~$\cO$ at a certain time correlate with large positive values~$t$ steps later
+in the chain. The variance in the denominator normalizes the autocorrelation to
+lie in~$[-1,1]$. One major issue with the estimator~$R_{\cO}$ is due to the fact
+that we are dealing with a finite sequence of measurements. The sum
+in~\eqref{autocorr} runs over fewer and fewer terms the larger~$t$ becomes,
+because the possible overlap between the original and the time-shifted sequence
+decreases. However, we need a certain terms in the sum to average out random
+fluctuations and keep the variance of our estimate for the autocorrelation small
+enough. Therefore it only makes sense to look at~$R_{\cO}$ for~$t \ll N$.
+
+The autocorrelation function in Markov chain Monte Carlo simulations generically
+decays like~$\exp(-t/\tau)$, where~$\tau$ is called \newterm{autocorrelation
+time}.
+
+\todo{continue with autocorrelation analysis, show that autocorrelation alters
+error estimates, integrated autocorrelation time and plots}
+
+\subsection{Errors}
+
+
+\todo{what happened to simulated annealing? should i completely remove it from
+the whole thing? if not, where do I add it? I could make a section in between
+metropolis and analysis briefly explain it and write pseudocode wrapping the
+metropolis function from above}
+
+\subsection{General remarks}
+
+\todo{looking at acceptance rates can give valueable insights}
