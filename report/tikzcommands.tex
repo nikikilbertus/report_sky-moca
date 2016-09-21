@@ -213,3 +213,39 @@
   \pentmark{5}{0}
   \pentmark{1}{0}
 }
+
+% metropolis algorithm
+
+\newcommand{\update}[2]{%
+  \draw (#1 - 1.7, #2 - 0.7) rectangle ++(3.4,1.4);
+  \arrp{(#1-1,#2)}
+  \arrp{(#1+1,#2)}
+  \draw[->, thick, dashed] (#1-0.4,#2) -- ++(0.8,0);
+  \node[label=above:update] at (#1, #2 + 0.7) {};
+}
+
+\newcommand{\sweep}[2]{%
+  \pgfmathsetmacro{\hl}{2}
+  \pgfmathsetmacro{\hu}{1.6}
+  \pgfmathsetmacro{\w}{10}
+  \draw (#1 - \w/2, #2 - \hl) rectangle ++(\w,\hl + \hu);
+  \update{#1 - 3}{#2}
+  \update{#1 + 3}{#2}
+  \foreach \i in {-0.5,0,0.5}{%
+    \filldraw (#1 + \i, #2) circle (0.05cm);
+  }
+  \draw [thick, decorate, decoration={brace,amplitude=10pt,mirror}]
+  (#1 - \w/2 + 0.3, #2 - 1) -- ++(\w - 0.6, 0) node [black,midway,yshift=-0.7cm] {$N_x N_y N_z$ updates};
+  \node[label=above:sweep] at (#1, #2 + \hu) {};
+}
+
+\newcommand{\config}{%
+  \draw (-5.3, -3.5) rectangle ++(12.5,6);
+  \sweep{0}{0}
+  \foreach \i in {-0.5,0,0.5}{%
+    \filldraw (6 + \i, 0) circle (0.05cm);
+  }
+  \draw [thick, decorate, decoration={brace,amplitude=10pt,mirror}]
+  (-5, -2.3) -- ++(11.8,0) node [black,midway,yshift=-0.7cm] {$\Nsweep$ sweeps};
+  \node[label=above:{transition~$\phi$ between two configurations}] at (1,2.5) {};
+}
