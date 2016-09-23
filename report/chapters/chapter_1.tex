@@ -17,12 +17,12 @@ methods developed recently~\cite{skyrmionlattice}, allow us to compute the full
 finite temperature phase diagram and explore phase transitions. The goal of this
 project was to implement a simulated annealing Monte Carlo code with the
 discretized lattice Hamiltonian introduced in~\cite{skyrmionlattice} and
-basically reproduce the results discussed there.  In contrast to most work on
+basically reproduce the results discussed there. In contrast to most work on
 Monte Carlo methods for spin lattices with emerging skyrmions, we want to
 provide a detailed exposition of the algorithms and numerical aspects. The
 report can serve as an ab initio step-by-step introduction on how to write Monte
 Carlo methods and discusses associated pitfalls or caveats based on a concrete
-example.  All code is publicly available on GitHub under \todo{link} and we hope
+example. All code is publicly available on GitHub under \todo{link} and we hope
 that it will be useful to others.
 
 We introduce the model Hamiltonian in \secref{sec:model}. In
@@ -108,10 +108,10 @@ combinations of the standard basis vectors, thus starting at~$(1,1,1)$ does not
 have any physical meaning. It merely corresponds nicely to the numerical
 implementation in any~$1$-indexed programming language. At each point~$\r \in
 \Sigma$ we attach a spin~$\S_{\r} \in S^2$, which yields the overall
-configuration space~$\Pi := \prod_{\r \in \Sigma} S^2$.  Each element of~$\Pi$
+configuration space~$\Pi := \prod_{\r \in \Sigma} S^2$. Each element of~$\Pi$
 consists of~$\abs{\Sigma}=N_x N_y N_z$ spins, \ie{} elements of~$S^2$, thus
 describes one possible spin configuration of the whole lattice. We refer to the
-specific spin at position~$\r \in \Sigma$ with~$\S_{\r} \in S^2$.  Note that
+specific spin at position~$\r \in \Sigma$ with~$\S_{\r} \in S^2$. Note that
 only the positions of the spins are discretized, but not explicitly their
 directions. In any real implementation there is always a fine grained
 discretization caused by the finite number of representable of floating point
@@ -134,7 +134,7 @@ parameters of the system.
 \subsubsection{Ferromagnetic/direct exchange}
 
 The most obvious interaction is the \newterm{ferromagnetic} or \newterm{direct}
-exchange.  Pictorially speaking, it favors constellations where spins that are
+exchange. Pictorially speaking, it favors constellations where spins that are
 close to each other point into the same direction. A system only interacting
 this way will end up in a state where all spins are parallel to each other. The
 measure for parallelism of two neighboring spins~$\S_{\r_1}, \S_{\r_2} \in S^2$
@@ -147,7 +147,7 @@ can be expressed as
 %
 where~$\alpha$ is the angle between~$\S_{\r_1}$ and~$\S_{\r_2}$. The minus sign
 ensures that the energy of two parallel spins is actually smaller than the
-energy of two perpendicular or even antiparallel ones.  In the continuum theory
+energy of two perpendicular or even antiparallel ones. In the continuum theory
 of magnetic moments, the direct exchange term consists of a gradient, which is a
 local quantity, \ie{} the gradient at a point only depends on an arbitrarily
 small neighborhood of the point. Thus we will always consider the ferromagnetic
@@ -169,7 +169,7 @@ field,~$\B$ itself is the parameter of the interaction.
 \subsubsection{Dipole-dipole interaction}
 
 The \newterm{dipole-dipole interaction} is somewhat more complex, but also
-weaker.  For two spins~$\S_{\r_1}, \S_{\r_2} \in S^2$, it is given by
+weaker. For two spins~$\S_{\r_1}, \S_{\r_2} \in S^2$, it is given by
 %
 \begin{equation}
   - {\norm{\r}^{-3}} (3 (\S_{\r_1} \cdot \hat{\r})
@@ -395,18 +395,12 @@ exactly the same way.
 \begin{figure}
   \centering
   \begin{tikzpicture}
-    \latticeselect{5}
-    \begin{scope}[xshift=5cm]
-      \latticeinter{5}
-    \end{scope}
-    \begin{scope}[xshift=10cm]
-      \latticeinternn{5}
-    \end{scope}
+    \latticeinternn{5}
   \end{tikzpicture}%
-  \caption{We select a spin at position~$\r \in \Sigma$ (left), show the nearest
-  neighbors (middle) and the next-nearest neighbors (right). Note that although
-  the diagonally neighboring vertices are closer to~$\r$ than the next-nearest
-  neighbors, they are not included in any interaction.}
+  \caption{We select a spin at position~$\r \in \Sigma$ and show its nearest
+  neighbors as blue squares and the next-nearest neighbors as green pentagons.
+  Note that although the diagonally neighboring vertices are closer to~$\r$ than
+  the next-nearest neighbors, they are not included in any interaction.}
 \label{fig:interact}
 \end{figure}
 
@@ -436,7 +430,7 @@ The alert reader might have realized that so far our model does not contain any
 thermal energy. When talking about magnetism, temperature typically has a strong
 influence on the physical properties of various materials. However,
 incorporating a temperature dependent term into the Hamiltonian that accounts
-for the thermal energy is quite a challenge.  Any additive term that depends
+for the thermal energy is quite a challenge. Any additive term that depends
 solely on the temperature will not have any effect on~\eqref{objective}. On the
 other hand there is no physical reason for complex interaction terms that
 actually yield different configurations for different temperatures. Our
@@ -550,7 +544,7 @@ with still better convergence properties for a certain classes of functions.
 However, to exploit the full potential of specialized integration routines one
 still has to have some idea of what the integrand looks like. Periodic functions
 call for other routines than slightly singular functions with strongly localized
-features for instance.  Furthermore even adaptive rules require to at least
+features for instance. Furthermore even adaptive rules require to at least
 crudely sample the whole integration domain. In a ten-dimensional integral, even
 a coarse grid of ten base points in each direction requires~$10^{10}$ function
 evaluations. Let us contrast these insights with the errors in Monte Carlo
@@ -774,7 +768,7 @@ estimate.
       ycomb] {f};
     \end{axis}
   \end{tikzpicture}%
-  \\
+  \\[1cm]
   \begin{tikzpicture}[declare function={f=exp(-x);}]
     \begin{axis}[
         width=8cm,
@@ -816,7 +810,7 @@ estimate.
       ycomb] {f};
     \end{axis}
   \end{tikzpicture}%
-  \\
+  \\[1cm]
   \begin{tikzpicture}[declare function={f=exp(-x);}]
     \begin{axis}[
         width=8cm,
@@ -958,7 +952,7 @@ simulated annealing.
 \end{figure}
 
 The domain of our specific spin lattice optimization problem is a~$2 N_x N_y
-N_z$-dimensional space.  Even for relatively small lattices optimization in such
+N_z$-dimensional space. Even for relatively small lattices optimization in such
 a high-dimensional space is generically hard. Unfortunately, it appears
 completely hopeless to compute the gradient or even Hessian of the
 Hamiltonian~\eqref{hamiltonian} analytically. Moreover, it is hard to develop
@@ -997,7 +991,7 @@ physics.
 
 In macroscopic complex many body systems such as gases or condensed matter at
 finite temperature, we are often not interested in every single detail of that
-system at a given moment in time.  For example, we do not want to know the
+system at a given moment in time. For example, we do not want to know the
 position and velocity as well as rotational and vibrational modes of each single
 molecule in a piston. Sensible observables are typically some sort of
 macroscopic averages like the volume, temperature or pressure of the gas. For a
@@ -1348,7 +1342,7 @@ aspect
 %
 Thus the transition probabilities depend only on the energy difference of the
 two states in question. In particular it does not remember previous states. At
-each step we can decide  the transition probability purely from the current and
+each step we can decide the transition probability purely from the current and
 the proposed successor configuration. This property is our main guidance in
 engineering the transition probabilities. One rather obvious choice is given by
 %
@@ -1373,7 +1367,8 @@ an update, we will first generate its potential replacement~$\S'_{\r} \sim
 the update, if
 %
 \begin{equation}
-  T(\pi \to \pi') > \cU_{[0,1)}\:.
+  T(\pi \to \pi') > p, \quad \text{where } p
+    \text{ is a sample from} \cU_{[0,1)}\:.
 \end{equation}
 %
 In this way we abide to the desired transition probabilities in each update,
@@ -1408,7 +1403,7 @@ detailed balance and ergodicity guarantee that there is some finite~$\Ntherm \in
 First of all it depends on the start configuration. In lattice models like ours
 the two most commonly used options are a \newterm{hot start} or a \newterm{cold
 start}. In a hot start we initialize the first state uniformly at random~$\pi_0
-\sim \cU_{\Pi}$.  Practically that means that we initialize each spin~$\S_{\r}$
+\sim \cU_{\Pi}$. Practically that means that we initialize each spin~$\S_{\r}$
 for~$\r \in \Sigma$ independently uniformly at random~$\S_{\r} \sim \cU_{S^2}$
 as discussed in subsection~\ref{subsec:random}. It is called hot start, because
 in the limit~$T\to \infty$ the Boltzmann distribution becomes a uniform
@@ -1416,7 +1411,7 @@ distribution and each state is equally likely. Hence at infinite temperature a
 hot start already follows the Boltzmann distribution and the system is in
 thermal equilibrium from the very beginning. In a cold start all spins are
 chosen the same into some direction, possibly parallel to the external magnetic
-field, which corresponds to a global minimum of the Hamiltonian  including only
+field, which corresponds to a global minimum of the Hamiltonian including only
 direct exchange and the Zeeman energy at zero temperature.
 
 Secondly, the thermalization time varies with temperature. We have already seen
@@ -1561,7 +1556,7 @@ is mandatory. Analyzing and determining~$\Ntherm$ for the whole range of
 parameters one intends to simulate is the very first step after the Metropolis
 algorithm has been implemented and tested exhaustively for correctness.
 
-\subsection{Autocorrelation}
+\subsection{Autocorrelation and errors}
 
 Another pitfall we have emphasized several times already is the necessity of
 \emph{independent} samples for Monte Carlo integration to work properly. Our
@@ -1571,7 +1566,7 @@ resulting samples are not independent. However, by separating subsequent
 configurations by sufficiently many Monte Carlo steps we can bring down their
 correlation until they can be considered independent for all practical purposes.
 We will now quantify how~$\Nsweep$ has to be chosen to guarantee such
-independence.  Again it does not seem too harmful to simply let a ``good amount
+independence. Again it does not seem too harmful to simply let a ``good amount
 of'' sweeps go by in between consecutive configurations of the Markov chain, but
 there is actually analytic evidence that one has to take correlations seriously.
 
@@ -1580,54 +1575,198 @@ individual states within a time series. Given an observable~$\cO$ at Monte Carlo
 times~$\numlist{1}{N}$, where we start counting once the system has thermalized,
 the autocorrelation function can be estimated
 %
-\begin{equation}
-  R_{\cO}(t) := \frac{1}{\sigma^2 (N-t} \sum_{i = t}^{N}
-    (\cO(i) - m) (\cO(i+t) - m)\:,
+\begin{equation}\label{autocorr}
+  R_{\cO}(t) := \frac{1}{\sigma^2 (N-t)} \sum_{i = 1}^{N-t}
+    \cO(i) \cO(i+t) - m^2
 \end{equation}
 %
-where~$\sigma^2$ is the variance and~$m$ the mean of the energy. Note that it
-only makes sense to talk about the mean and variance once we draw from a
-stationary distribution, \ie{} after the system has thermalized.  Since we do
-not have access to the true mean and variance of the entire system in thermal
-equilibrium at a fixed temperature we have to estimate those quantities too. We
-use the standard sample mean and sample variance of~$\numlist{\cO(1)}{\cO(N)}$
+for~$t \in \numlist{0}{N-1}$, where~$\sigma^2$ is the variance and~$m$ the mean
+of the observable~$\cO$. Note that it only makes sense to talk about the mean
+and variance once we draw from a stationary distribution, \ie{} after the system
+has thermalized. Since we do not have access to the true mean and variance of
+observables when the entire system is in thermal equilibrium at a fixed
+temperature we have to estimate those quantities too. We use the standard sample
+mean and sample variance of~$\numlist{\cO(1)}{\cO(N)}$
 %
-\begin{equation}\label{autocorr}
+\begin{equation}\label{samplemeanvar}
   m = \frac{1}{N} \sum_{i=1}^N \cO(i) \qqtxtqq{and}
   \sigma^2 = \frac{1}{M-1} \sum_{i=1}^N (\cO(i) - m)^2
 \end{equation}
 %
-which makes~$R_{cO}$ a biased estimate. A few remarks are in order. The
-autocorrelation can be understood as the covariance of the sequence with a
-shifted version of it. Since we want to measure the correlation of states at
-different time in the same chain this is entirely plausible. Like the
-covariance, the autocorrelation can become negative which is interpreted in the
-same way. Negative autocorrelation at time~$t$ means that large negative values
-of~$\cO$ at a certain time correlate with large positive values~$t$ steps later
-in the chain. The variance in the denominator normalizes the autocorrelation to
-lie in~$[-1,1]$. One major issue with the estimator~$R_{\cO}$ is due to the fact
-that we are dealing with a finite sequence of measurements. The sum
-in~\eqref{autocorr} runs over fewer and fewer terms the larger~$t$ becomes,
-because the possible overlap between the original and the time-shifted sequence
-decreases. However, we need a certain terms in the sum to average out random
-fluctuations and keep the variance of our estimate for the autocorrelation small
-enough. Therefore it only makes sense to look at~$R_{\cO}$ for~$t \ll N$.
+which makes~$R_{\cO}$ a biased estimate. A few remarks are in order. Note that
+the sum in~\eqref{autocorr} at~$t=0$ with the normalizing factor is just the
+variance~$\sigma^2$, which results in~$R_{\cO}(0) = 1$. The autocorrelation can
+be understood as the covariance of the sequence with a shifted version of it.
+Since we want to measure the correlation of states at different time in the same
+chain this is entirely plausible. Like the covariance, the autocorrelation can
+become negative which is interpreted in the same way. Negative autocorrelation
+at time~$t$ means that large negative values of~$\cO$ at a certain time
+correlate with large positive values~$t$ steps later in the chain. The variance
+in the denominator normalizes the autocorrelation to lie in~$[-1,1]$. One major
+issue with the estimator~$R_{\cO}$ is due to the fact that we are dealing with a
+finite sequence of measurements. The sum in~\eqref{autocorr} runs over fewer and
+fewer terms the larger~$t$ becomes, because the possible overlap between the
+original and the time-shifted sequence decreases. However, we need a certain
+terms in the sum to average out random fluctuations and keep the variance of our
+estimate for the autocorrelation small enough. Therefore it only makes sense to
+look at~$R_{\cO}$ for~$t \ll N$. Our goal is to find the time after which the
+new states are not correlated with the starting configuration anymore, \ie{} the
+time after which the autocorrelation has dropped to zero or at least beneath
+some threshold close to zero.
 
-The autocorrelation function in Markov chain Monte Carlo simulations generically
-decays like~$\exp(-t/\tau)$, where~$\tau$ is called \newterm{autocorrelation
-time}.
+It can be shown that the autocorrelation function in Markov chain Monte Carlo
+simulations generically decays like~$\exp(-t/\tau_{\cO})$, where~$\tau_{\cO}$ is
+called \newterm{autocorrelation time}. Technically this exponential behavior
+only holds for~$N \to \infty$ and~$t \to \infty$ with~$t/N \ll 1$. However, for
+the random walk the Markov chain performs in the configuration space this
+asymptotic behavior is also approximated for small~$t$ such that we
+assume~$R_{\cO}(t) \approx \exp(-t/\tau_{\cO})$. The simplest way to
+determine~$\tau_{\cO}$ is to plot the autocorrelation function and find the time
+after which it has dropped to~$1/e$.  Alternatively one can use the integrated
+autocorrelation time
+%
+\begin{equation}\label{tauint}
+  \tauint_{\cO} = \frac{1}{2} + \sum_{t=1}^{N-1} R_{\cO}(t)
+\end{equation}
+%
+for error analysis which is typically easier to compute. As the name suggests
+this definition stems from the continuous case where for a purely exponential
+autocorrelation function~$R_{\cO}(t) = \exp(t/\tau_{\cO})$ one finds
+%
+\begin{equation}
+  \int_0^{\infty} R_{\cO}(t) \sucd{t} = \tau_{\cO}\:.
+\end{equation}
+%
+For all practical purposes the integrated autocorrelation time and the
+autocorrelation time agree if~$N$ is sufficiently large~$\tau_{\cO} \approx
+\tauint_{\cO}$, although in most applications one finds~$\tauint_{\cO} <
+\tau_{\cO}$. The importance of the autocorrelation time becomes obvious when one
+rederives the error of Monte Carlo integration without the assumptions that the
+samples are independent. Recall that for independent measurements we found that
+the error is given by~$\sigma/\sqrt{N}$, with the variance~$\sigma$
+from~\eqref{samplemeanvar}. If we set~$\Nsweep$ to one, \ie{} if we used every
+configuration after each sweep to estimate the thermal average, the error with
+correlations becomes
+%
+\begin{equation}\label{correrror}
+  \text{error} = \sqrt{\frac{\sigma^2}{N}(1 + 2\tauint_{\cO})}\:.
+\end{equation}
+%
+Thus we have to perform sufficiently many sweeps in between two usable
+configurations such that each two samples are uncorrelated and thus the
+autocorrelation function and the integrated autocorrelation time are also zero.
+The number of sweeps in between two configurations~$\Ntherm$ should be at
+least~$5 \tauint_{\cO}$ to~$6 \tauint_{\cO}$ to confidently use the uncorrelated
+error estimate. Note that all this delicate business of choosing independent
+configurations only affects the errors and not the expectation values of
+observables.
 
-\todo{continue with autocorrelation analysis, show that autocorrelation alters
-error estimates, integrated autocorrelation time and plots}
+Let us spend a few more words on the delicacy of determining the autocorrelation
+time in practice. The finite number of measurements limits both the computation
+of the autocorrelation function as well as the sum in~\eqref{tauint} to compute
+the integrated autocorrelation time. This issue could in principle be overcome
+by using more datapoints and extrapolating to~$N\to \infty$. However, there is
+another even bigger problem. The values of~$R_{\cO}$ become statistically
+unreliable even for large~$N$ and~$t\ll N$. This typically spoils exponential
+fits to determine~$\tau_{\cO}$ directly from~$R_{\cO}$. One has to find a
+sensitive balance between taking into account enough values to capture the
+asymptotic decay of the exponential, but not too many to avoid statistically
+unreliable values spoiling the fit. The same holds true for the sum in the
+integrated autocorrelation time. In theory the sum needs to run over infinitely
+many values, but due the exponential decay one can truncate it with clear
+conscience.  Alternatively one can use values at small~$t$ to extrapolate to
+subsequent values by an exponential fit. However, their contribution is
+typically small enough to be neglected.  Again, one has to choose the truncation
+carefully to leave out noisy values at late times~$t$. Usually one tries to
+truncate the series self-consistently such that
+%
+\begin{equation}\label{tauinttrunc}
+  \tauint_{\cO} = \frac{1}{2} + \sum_{t=1}^{m \tauint_{\cO}} R_{\cO}\:,
+\end{equation}
+%
+where~$m$ should be roughly~$5$ or~$6$. Even then the values for the
+autocorrelation time~$\tau_{\cO}$ from an exponential fit and the integrated
+autocorrelation time~$\tauint_{\cO}$ while estimating the same quantity can
+differ significantly in practice. One should always use the more conservative of
+the two.
 
-\subsection{Errors}
+Let us summarize how to set~$\Nsweep$. We initialize the system and discard the
+first~$\Ntherm$ sweeps completely. Then we record every observable of interest
+after every single sweep for as many sweeps as we can in reasonable computation
+time. A rule of thumb says that one should use at least~$1000 \tau_{\cO}$ values
+to properly estimate~$\tau_{\cO}$. Note the recursiveness of this  and keep in
+mind that every rule of thumb should be met with a lot of scepticism. With these
+values we compute the autocorrelation function~\eqref{autocorr} for each
+observable and plot them for small values of~$t \lesssim N/5$. From the plots
+one typically gets a rough idea when the autocorrelation functions have
+basically dropped to zero and when it becomes noisy. For each observable
+independently one then finds a consistent truncation~\eqref{tauinttrunc}
+typically by a systematic search of~$m$. One then uses
+%
+\begin{equation}
+  \tauint := \max_{\cO} \tauint_{\cO}
+\end{equation}
+%
+to determine~$\Nsweep \in  [5 \tauint, 6 \tauint]$.
 
+\subsection{Additional remarks}
+
+It is important to realize that for Monte Carlo methods in general and the
+Metropolis algorithm in particular one has to spend quite some time on analyzing
+the system before we even start the first simulation runs. Only if~$\Ntherm$
+and~$\Nsweep$ are chosen properly, can we be sure that our results make sense.
+One has to carefully monitor autocorrelations starting with small systems and
+high statistic and slowly transition to larger systems constantly supervising
+thermalization and correlations between states.
+
+The Metropolis algorithm is typically rather inefficient. First of all, Monte
+Carlo methods are implicitly slow. Secondly permanently accessing random lattice
+sites their neighbors and next-nearest neighbors prohibits efficient caching of
+data. One can render the algorithm more cache friendly by updating one lattice
+site after the other as they are stored in memory instead of choosing them at
+random. However, for some systems this destroys ergodicity, \ie{} some states
+might be unreachable from certain configurations. Despite the long computation
+times we consistently used random updates.
+
+Low acceptance rates might be another performance drawback. Imagine our lattice
+model at low temperature and a high magnetic field. We expect the system to
+settle in a fully polarized state with little thermal fluctuations. Imagine we
+have reached a state where most spins are already parallel to the external
+field, but just a few are still misaligned. Whenever an aligned spin is selected
+the update is almost certainly rejected, because the proposal is almost
+certainly misaligned, would therefore increase the energy and due to the small
+temperature such moves are likely to be rejected. We might need several sweeps
+until one of the still misaligned spins is selected for an update and even then
+the probability that the random proposal is parallel to the magnetic field is
+tiny. Thus we will have to perform many sweeps to properly align just a few
+lattice sites. This will also have an impact on the autocorrelation time. There
+are several alternatives and improvements to the Metropolis algorithm. Besides
+choosing different acceptance probabilities like in the \newterm{heatbath},
+\newterm{Glauber} or \newterm{overrelaxation} algorithms, there are also
+fundamentally different approaches such as cluster algorithms or parallel
+tempering Monte Carlo (PTMC) methods. We only implemented the most primitive
+Metropolis algorithm possible. Even with such a simple setup one can observe
+interesting phenomena and find physically relevant results. It should be a good
+starting point for more sophisticated and more efficient algorithms.
+
+Furthermore there is a phenomenon called \newterm{critical slowing}, which
+implies that at certain parameter values, for example close to phase transitions
+or at very low temperatures, the acceptance rate will plummet, the
+autocorrelation time diverges and the evolution of the system will become
+excruciatingly slow, while the statistics break down due to highly correlated
+states. This phenomenon is directly linked to interesting physical properties of
+the system and hence often leads to difficulties precisely where we want to
+observe it. We will not go into more detail about how to efficiently deal with
+critical slowing in this report.
+
+It can be insightful to monitor the acceptance rate, \ie{} the number of
+accepted updates divided by the number of all proposed updates throughout the
+simulation, for example separately for~$\Nsweep$ sweeps between two consecutive
+configurations in the Markov chain. This way we can detect critical slowing and
+when error estimates might break down due to slow evolution of the system which
+increases the correlation between consecutive configurations.
 
 \todo{what happened to simulated annealing? should i completely remove it from
 the whole thing? if not, where do I add it? I could make a section in between
 metropolis and analysis briefly explain it and write pseudocode wrapping the
 metropolis function from above}
-
-\subsection{General remarks}
-
-\todo{looking at acceptance rates can give valueable insights}
