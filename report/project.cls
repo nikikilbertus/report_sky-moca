@@ -24,13 +24,13 @@
   DIV=12,
   titlepage=firstiscover,
   ]{scrreprt}
-%
+
 % General stuff
 \RequirePackage[utf8]{inputenc}
-%
+
 % Setup Hyperref
 \RequirePackage{hyperref}
-\hypersetup{
+\hypersetup{%
   pdfusetitle,
   bookmarksnumbered,
   pdfstartview={FitH},
@@ -42,32 +42,35 @@
   urlcolor=SteelBlue,
   pdfpagemode={UseOutlines},
 }
-%
+
+\setcounter{tocdepth}{1}
+\setcounter{secnumdepth}{2}
+
 % For the creation of an index
 % \RequirePackage{makeidx}
 % \makeindex
-%
+
 % Include Images
 \RequirePackage{graphicx}
 \RequirePackage{float}
 % \RequirePackage{epstopdf}
-%
+
 % Colors
 \RequirePackage{xcolor}
 \include{mycolors}
-%
+
 % Fonts and symbols
 \RequirePackage{amsmath}
 \RequirePackage{amssymb}
 \RequirePackage{bbm}
-%
+
 % User defined Theorems
 \RequirePackage{amsthm}
-%
+
 % bibliography, references with (References as title)
 %\RequirePackage[square, comma, numbers, sort&compress]{natbib}
 \renewcommand\bibname{References}
-%
+
 % Plotting and Drawing
 \RequirePackage{tikz}
 \usetikzlibrary{calc, fadings, decorations.pathreplacing, shapes}
@@ -75,18 +78,29 @@
 \RequirePackage{pgfplotstable}
 \usetikzlibrary{external}
 \tikzexternalize[prefix=cache/]
-%
+
 \pgfplotstableset{col sep=comma, header=false}
 \def\sharedplotwidth{8}
+\def\sharedplotheight{5}
 \def\singleplotwidth{9}
+\def\singleplotheight{6}
 \def\largeplotwidth{10}
 \pgfplotsset{%
   width=\singleplotwidth cm,
   compat=newest}
-%
+
+% choose a certain row range of table:
+% example: \addplot [select coords between index={1}{5}] table {data.txt};
+\pgfplotsset{select coords between index/.style 2 args={%
+  x filter/.code={%
+    \ifnum\coordindex<#1\def\pgfmathresult{}\fi
+    \ifnum\coordindex>#2\def\pgfmathresult{}\fi
+  }
+}}
+
 % Provide better cycle lists, add them as default
 % by using "cycle list name=..." to pgfplotsset
-\pgfplotscreateplotcyclelist{custom}{
+\pgfplotscreateplotcyclelist{custom}{%
   {color=DarkRed},
   {color=LightRed},
   {color=DarkOrange},
@@ -97,7 +111,7 @@
   {color=SkyBlue},
   {color=SeaBlue},
 }
-\pgfplotscreateplotcyclelist{rdbu}{
+\pgfplotscreateplotcyclelist{rdbu}{%
   {color=RdBu-11-1},
   {color=RdBu-11-2},
   {color=RdBu-11-3},
@@ -109,7 +123,7 @@
   {color=RdBu-11-10},
   {color=RdBu-11-11},
 }
-\pgfplotscreateplotcyclelist{set2}{
+\pgfplotscreateplotcyclelist{set2}{%
   {color=Set2-8-1},
   {color=Set2-8-2},
   {color=Set2-8-3},
@@ -126,34 +140,34 @@
   {color=MidYellow, mark=square},
   {color=LightRed, mark=triangle},
 }
-%
+
 % xy matrix diagrams
 \RequirePackage[all]{xy}
-%
+
 % Tables
 \RequirePackage{tabularx}
 \newcolumntype{Y}{>{\centering\arraybackslash}X}
 \RequirePackage{booktabs}
-%
+
 % Algorithms
 \RequirePackage{algorithm}
 \RequirePackage{algpseudocode}
-%
+
 % Ifthenelse decisions
 \RequirePackage{ifthen}
-%
+
 % Fix spacing with \left and \right
 \let\originalleft\left
 \let\originalright\right
 \renewcommand{\left}{\mathopen{}\mathclose\bgroup\originalleft}
 \renewcommand{\right}{\aftergroup\egroup\originalright}
-%
+
 % include package and the command for the titlepage
 \RequirePackage{titlepage}
 \include{titleinfo}
-%
+
 % include all mathematical definitions and commands
 \include{commands}
-%
+
 % include all tikz drawing commands
 \include{tikzcommands}
