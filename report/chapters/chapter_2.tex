@@ -1,6 +1,6 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Chapter 2}\label{chap:2}
+\chapter{Sky-MoCa}\label{chap:2}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
@@ -13,3 +13,402 @@
 \section{Results}\label{sec:results}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+In this section we perform the analysis described theoretically in
+\secref{sec:analysis} for the spin lattice model introduced in
+\secref{sec:model}. We show that determining~$\Ntherm$ and~$\Nsweep$ is a
+delicate task and that the Metropolis algorithm, while theoretically quite
+universal, might become infeasible in practice not only for pathological
+systems. One has to take great care in ensuring equilibrium and uncorrelated
+configurations, otherwise the simple error estimate~$\sigma/\sqrt{N}$ might
+significantly underpredict the true error.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% T=1.5 B=0.3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      xlabel={Monte Carlo time},
+      scaled y ticks={base 10:-3},
+      legend pos={north east},
+      legend entries={energy},
+    ]
+      \addplot[
+        mark=none,
+      ] table[x expr=\coordindex, y index=0] {plots/T1.5_B0.3/therm_energy.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      xlabel={Monte Carlo time},
+      cycle list name=rdbu,
+      legend style={at={(0.98,0.5)},anchor=east},
+      legend entries={$M_x$, $M_y$, $M_z$},
+    ]
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T1.5_B0.3/therm_mx.csv};
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T1.5_B0.3/therm_my.csv};
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T1.5_B0.3/therm_mz.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \\[0.5cm]
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\singleplotwidth cm},
+      height={\singleplotheight cm},
+      xlabel={time shift $t$},
+      ylabel={autocorrelation},
+      cycle list name=rdbu,
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={$R_{M_x}$, $R_{M_y}$, $R_{M_z}$, $R_{H}$},
+    ]
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T1.5_B0.3/auto_mx.csv};
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T1.5_B0.3/auto_my.csv};
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T1.5_B0.3/auto_mz.csv};
+      \addplot+[mark=none, black]
+        table[x expr=\coordindex, y index=0] {plots/T1.5_B0.3/auto_energy.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \\[0.5cm]
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={{$R_{H},\;\tauint \approx 7.4$} , {fit: $\exp(-t/6.5)$}},
+    ]
+      \addplot[mark=none, Crimson]
+        table[x expr=\coordindex, y index=0] {plots/T1.5_B0.3/autofit_energy.csv};
+      \addplot[mark=none, dashed, black]
+        table[x expr=\coordindex, y index=1] {plots/T1.5_B0.3/autofit_energy.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={{$R_{M_z},\;\tauint \approx 14.4$} , {fit: $\exp(-t/13.5)$}},
+    ]
+      \addplot[mark=none, Crimson]
+        table[x expr=\coordindex, y index=0] {plots/T1.5_B0.3/autofit_mz.csv};
+      \addplot[mark=none, dashed, black]
+        table[x expr=\coordindex, y index=1] {plots/T1.5_B0.3/autofit_mz.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \\[0.5cm]
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={{$R_{M_x},\;\tauint \approx 14.7$} , {fit: $\exp(-t/14.7)$}},
+    ]
+      \addplot[mark=none, Crimson]
+        table[x expr=\coordindex, y index=0] {plots/T1.5_B0.3/autofit_mx.csv};
+      \addplot[mark=none, dashed, black]
+        table[x expr=\coordindex, y index=1] {plots/T1.5_B0.3/autofit_mx.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={{$R_{M_y},\;\tauint \approx 16.7$} , {fit: $\exp(-t/16.8)$}},
+    ]
+      \addplot[mark=none, Crimson]
+        table[x expr=\coordindex, y index=0] {plots/T1.5_B0.3/autofit_my.csv};
+      \addplot[mark=none, dashed, black]
+        table[x expr=\coordindex, y index=1] {plots/T1.5_B0.3/autofit_my.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \caption{We show the thermalization and autocorrelation behavior for a system
+  with~$10^3$ lattice sites, periodic boundary conditions and a uniformly random
+  start configuration at~$T=1.5$ and~$B=0.3$. In this case we chose~$\Ntherm =
+  500$. The acceptance rate settles around~$40$\%. A detailed interpretation of
+  the plots is discussed in the text.}
+\label{fig:hot}
+\end{figure}
+
+% INFO: energy autocorrelation time: fit τ = 6.458405365541238, integrated τ = 7.397862228345494
+% INFO: Mx autocorrelation time: fit τ = 14.724579318546557, integrated τ = 14.673065094508395
+% INFO: My autocorrelation time: fit τ = 16.763387458492737, integrated τ = 16.658299614290883
+% INFO: Mz autocorrelation time: fit τ = 13.508949401610863, integrated τ = 14.386716847818926
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% T=0.7 B=0.3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      xlabel={Monte Carlo time},
+      scaled y ticks={base 10:-3},
+      legend pos={north east},
+      legend entries={energy},
+    ]
+      \addplot[
+        mark=none,
+      ] table[x expr=\coordindex, y index=0] {plots/T0.7_B0.3/therm_energy.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      xlabel={Monte Carlo time},
+      cycle list name=rdbu,
+      legend style={at={(0.98,0.5)},anchor=east},
+      legend entries={$M_x$, $M_y$, $M_z$},
+    ]
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.7_B0.3/therm_mx.csv};
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.7_B0.3/therm_my.csv};
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.7_B0.3/therm_mz.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \\[0.5cm]
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\singleplotwidth cm},
+      height={\singleplotheight cm},
+      xlabel={time shift $t$},
+      ylabel={autocorrelation},
+      xtick={0,400,800,1200,1600},
+      cycle list name=rdbu,
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={$R_{M_x}$, $R_{M_y}$, $R_{M_z}$, $R_{H}$},
+    ]
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.7_B0.3/auto_mx.csv};
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.7_B0.3/auto_my.csv};
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.7_B0.3/auto_mz.csv};
+      \addplot+[mark=none, black]
+        table[x expr=\coordindex, y index=0] {plots/T0.7_B0.3/auto_energy.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \\[0.5cm]
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={{$R_{H},\;\tauint \approx 16.5$} , {fit: $\exp(-t/14.3)$}},
+    ]
+      \addplot[mark=none, Crimson]
+        table[x expr=\coordindex, y index=0] {plots/T0.7_B0.3/autofit_energy.csv};
+      \addplot[mark=none, dashed, black]
+        table[x expr=\coordindex, y index=1] {plots/T0.7_B0.3/autofit_energy.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={{$R_{M_z},\;\tauint \approx 116.2$} , {fit: $\exp(-t/94.6)$}},
+    ]
+      \addplot[mark=none, Crimson]
+        table[x expr=\coordindex, y index=0] {plots/T0.7_B0.3/autofit_mz.csv};
+      \addplot[mark=none, dashed, black]
+        table[x expr=\coordindex, y index=1] {plots/T0.7_B0.3/autofit_mz.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \\[0.5cm]
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={{$R_{M_x},\;\tauint \approx 115.0$} , {fit: $\exp(-t/103.7)$}},
+    ]
+      \addplot[mark=none, Crimson]
+        table[x expr=\coordindex, y index=0] {plots/T0.7_B0.3/autofit_mx.csv};
+      \addplot[mark=none, dashed, black]
+        table[x expr=\coordindex, y index=1] {plots/T0.7_B0.3/autofit_mx.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={{$R_{M_y},\;\tauint \approx 146.7$} , {fit: $\exp(-t/150.2)$}},
+    ]
+      \addplot[mark=none, Crimson]
+        table[x expr=\coordindex, y index=0] {plots/T0.7_B0.3/autofit_my.csv};
+      \addplot[mark=none, dashed, black]
+        table[x expr=\coordindex, y index=1] {plots/T0.7_B0.3/autofit_my.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \caption{We show the thermalization and autocorrelation behavior for a system
+  with~$10^3$ lattice sites, periodic boundary conditions and a uniformly random
+  start configuration at~$T=0.7$ and~$B=0.3$. In this case we chose~$\Ntherm =
+  1500$. The acceptance rate settles around~$15$\%. A detailed interpretation of
+  the plots is discussed in the text.}
+\label{fig:warm}
+\end{figure}
+
+% INFO: energy autocorrelation time: fit τ = 14.302802759817167, integrated τ = 16.4810871797162
+% INFO: Mx autocorrelation time: fit τ = 103.7086885846073, integrated τ = 115.04788752286501
+% INFO: My autocorrelation time: fit τ = 150.15338442825083, integrated τ = 146.72520176024534
+% INFO: Mz autocorrelation time: fit τ = 94.5792317279391, integrated τ = 116.18768054047747
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% T=0.1 B=0.3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      xlabel={Monte Carlo time},
+      scaled y ticks={base 10:-3},
+      legend pos={north east},
+      legend entries={energy},
+    ]
+      \addplot[
+        mark=none,
+      ] table[x expr=\coordindex, y index=0] {plots/T0.1_B0.3/therm_energy.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      xlabel={Monte Carlo time},
+      xtick={0, 2000, 4000, 6000},
+      cycle list name=rdbu,
+      legend style={at={(0.98,0.5)},anchor=east},
+      legend entries={$M_x$, $M_y$, $M_z$},
+    ]
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.1_B0.3/therm_mx.csv};
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.1_B0.3/therm_my.csv};
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.1_B0.3/therm_mz.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \\[0.5cm]
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\singleplotwidth cm},
+      height={\singleplotheight cm},
+      xlabel={time shift $t$},
+      xtick={0, 1000, 2000, 3000},
+      ylabel={autocorrelation},
+      cycle list name=rdbu,
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={$R_{M_x}$, $R_{M_y}$, $R_{M_z}$, $R_{H}$},
+    ]
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.1_B0.3/auto_mx.csv};
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.1_B0.3/auto_my.csv};
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.1_B0.3/auto_mz.csv};
+      \addplot+[mark=none, black]
+        table[x expr=\coordindex, y index=0] {plots/T0.1_B0.3/auto_energy.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \\[0.5cm]
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={{$R_{H},\;\tauint \approx 199.9$} , {fit: $\exp(-t/161.4)$}},
+    ]
+      \addplot[mark=none, Crimson]
+        table[x expr=\coordindex, y index=0] {plots/T0.1_B0.3/autofit_energy.csv};
+      \addplot[mark=none, dashed, black]
+        table[x expr=\coordindex, y index=1] {plots/T0.1_B0.3/autofit_energy.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={{$R_{M_z},\;\tauint \approx 245.2$} , {fit: $\exp(-t/160.2)$}},
+    ]
+      \addplot[mark=none, Crimson]
+        table[x expr=\coordindex, y index=0] {plots/T0.1_B0.3/autofit_mz.csv};
+      \addplot[mark=none, dashed, black]
+        table[x expr=\coordindex, y index=1] {plots/T0.1_B0.3/autofit_mz.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \\[0.5cm]
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={{$R_{M_x},\;\tauint \approx 420.8$} , {fit: $\exp(-t/392.5)$}},
+    ]
+      \addplot[mark=none, Crimson]
+        table[x expr=\coordindex, y index=0] {plots/T0.1_B0.3/autofit_mx.csv};
+      \addplot[mark=none, dashed, black]
+        table[x expr=\coordindex, y index=1] {plots/T0.1_B0.3/autofit_mx.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={{$R_{M_y},\;\tauint \approx 411.3$} , {fit: $\exp(-t/419.8)$}},
+    ]
+      \addplot[mark=none, Crimson]
+        table[x expr=\coordindex, y index=0] {plots/T0.1_B0.3/autofit_my.csv};
+      \addplot[mark=none, dashed, black]
+        table[x expr=\coordindex, y index=1] {plots/T0.1_B0.3/autofit_my.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \caption{We show the thermalization and autocorrelation behavior for a system
+  with~$10^3$ lattice sites, periodic boundary conditions and a uniformly random
+  start configuration at~$T=0.1$ and~$B=0.3$. In this case we chose~$\Ntherm =
+  5000$. The acceptance rate settles around~$2$\%. A detailed interpretation of
+  the plots is discussed in the text.}
+\label{fig:cold}
+\end{figure}
+
+% INFO: energy autocorrelation time: fit τ = 161.41304402901636, integrated τ = 199.87537380804702
+% INFO: Mx autocorrelation time: fit τ = 392.46011826024284, integrated τ = 420.79108524886163
+% INFO: My autocorrelation time: fit τ = 419.82093950666643, integrated τ = 411.2568200497989
+% INFO: Mz autocorrelation time: fit τ = 160.22639277888916, integrated τ = 245.19970750692352
+
