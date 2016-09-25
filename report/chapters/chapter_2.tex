@@ -1,12 +1,32 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{Sky-MoCa}\label{chap:2}
+\chapter{Sky-MoCa -- A Specific Application}\label{chap:2}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The Code}\label{sec:code}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+We implemented the simulated annealing algorithm based on Markov chain Monte
+Carlo integration with Metropolis transition probabilities for a
+three-dimensional spin lattice, which we called \newterm{Sky-MoCa}, in
+Julia~\cite{julia}. Julia is a relatively young language which is advertised on
+the official \href{http://julialang.org/}{Julia homepage} as a \emph{high-level,
+high-performance dynamic programming language for technical computing}.
+Therefore, it is a perfect fit for rapid prototyping of numerical simulations,
+where we care most about developer time, but speed still matters a lot. Its
+syntax will be familiar to users of technical computing environments such as
+Matlab, Octave or also Python. Another nice feature of Julia is that it can be
+used in Jupyter notebooks which work precisely like IPython notebooks. This
+allows for nice presentation and even faster prototyping and testing. Of course
+one can always export a regular Julia \textsf{.jl} file that can subsequently be
+run on a remote machine. The code is available at GitHub under
+\todo{}. It has been written with readability and in mind and is fully
+documented such that we will not go into implementational details in this
+report. Each simulation run produces a single HDF5 file containing detailed
+information about the run down to the full configuration after every lattice
+sweep if desired. The repository also contains a Mathematica notebook with
+several visualization capabilities~\cite{mathematica}.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}\label{sec:results}
@@ -20,6 +40,88 @@ universal, might become infeasible in practice not only for pathological
 systems. One has to take great care in ensuring equilibrium and uncorrelated
 configurations, otherwise the simple error estimate~$\sigma/\sqrt{N}$ might
 significantly underpredict the true error.
+
+Recall that the first order of business is to determine the thermalization time.
+Let us start with a relatively small system of~$N_x = N_y = N_z = 10$, \ie{} a
+total of~$10^3$ vertices. In this first stage we want to determine the
+thermalization time and autocorrelation time for three different temperatures~$T
+\in \{1.5, 0.7, 0.1\}$ at a fixed magnetic field~$B=0.3$. Recall that~$J=1$
+and~$K=\tan(2 \pi / 10)$, thus all parameters are fixed. We initialize the
+system with a hot start and then perform~$N=10^4$ lattice sweeps, which runs on
+a mid 2014 MacBook Pro with a 2.2 GHz Intel Core i7 and 16 GB of 1600 MHz DDR3
+memory in less than a minute.
+
+\subsection{Reasonable analysis at high termperature}
+
+We expect the system to thermalize fastest at a high temperature. In
+\figref{fig:hot}, we simply plot the energy and magnetization in all three
+directions as a function of Monte Carlo steps. We do not show the whole region
+up to~$10^4$ steps, because apparently the system has thermalized after just a
+few hundred sweeps. As expected the energy drops rapidly and levels out at a
+constant value. The magnetization in z direction grows rapidly and levels out at
+a positive value, thereby following the external magnetic field in~$\hz$
+direction. The~$\hx$ and~$\hy$ components stay roughly at zero. The fluctuations
+are pretty large, which is expected at hight temperatures. We decided in this
+case that~$\Ntherm = 500$ is a reasonably long thermalization time. In the
+second row we show the autocorrelation functions for all four observables. Note
+that the maximal time shift~$t = 500$ is indeed much smaller than~$N = 10^4$.
+The autocorrelations drop quickly and then transition into noisy behavior even
+for small~$t$. Apparently already around~$t \approx 50$, the autocorrelation
+functions are completely unreliable.  In the last two rows of~\figref{fig:hot},
+we plot each of the four autocorrelation functions separately with an
+exponential fit. In the least square one parameter fit to~$\exp(-t/\tau)$ we
+have only used the values of the autocorrelation function also shown in the
+plot, \ie{} in this case~$t \le 80$.  At the same time we compute the integrated
+autocorrelation time~$\tauint$ according to~\eqref{tauinttrunc} with~$m$ such
+that we sum over all values shown in the plot. The fit parameter for~$\tau$
+and~$\tauint$ are shown in the plots.
+
+We immediately realize that they do not agree perfectly, but are reasonable
+close, given the statistical fluctuations in the autocorrelation functions.
+Whenever the autocorrelation lies above the exponential fit for a significant
+portion of the range as for the energy~$H$, the integrated autocorrelation is
+typically larger than the fit value. However, when it mostly runs below the fit
+as for~$M_z$ it is not necessarily smaller. Indeed we have
+altered~\eqref{tauinttrunc} slightly to only add up absolute values of the
+autocorrelation functions. Otherwise we could compensate large correlation by
+anticorrelation and thereby reach a smaller autocorrelation time. This is highly
+risky of couse, since negative correlation is correlation too and cannot cancel
+correlation.
+
+In the end we take the maximum over all autocorrelation times and settle with a
+value of~$17$. Had we just looked at the energy, we could have reasoned~$\tau
+\approx 8$, less than half. We realize that we used less than~$600 \tau$ sweeps
+to estimate~$\tau$, hence we should have already chosen~$N > 10^4$. At this
+temperature the acceptance rate qualitatively shows a similar behavior like the
+energy, dropping quickly and settling around~$40$\%. Thereby we are sure that
+the system is indeed evolving, sampling many different configurations.
+Eventually, for this situation we would recommend to skip~$\Nsweep \approx 100$
+sweeps between to configurations of the Markov chain.
+
+\subsection{Faulty and useless analysis at lower temperatures}
+
+To also give an example of faulty analysis, we repeat the same procedure
+for~$T=0.7$ and~$T=0.1$. All other parameters, in particular~$N=10^4$, have not
+been changed. In \figref{fig:warm} and \figref{fig:cold} we show the best
+results we could come up with. With the theoretical preparation from the
+previous chapter the issues become quite obvious. While we can still observe
+thermalization reasonably well and deduced~$\Ntherm=1500$ and~$\Ntherm=5000$
+respectively, the autocorrelation functions become statistically unreliable even
+above~$0.2$. Thus the autocorrelation times inferred from the exponential fit
+and the integrated autocorrelation time differ by a factor of up to~$1.5$.
+For~$N=10^4$ there are only~$8500$ and~$5000$ measurements left to compute the
+autocorrelation function and determine~$\tau$. Since~$\tau$ seems to be on the
+order of a few hundreds, we have only used roughly~$10 \tau$ sweeps to
+determine~$\tau$. We need at least one or two orders of magnitude more Monte
+Carlo steps for a reliable estimate of the autocorrelation time. The acceptance
+rate drops to approximately~$15$\% and only~$2$\% for~$T=0.7$ and~$T=0.1$
+respectively, which is a strong indicator for little evolution and results in
+long correlation times.
+
+If we increase~$N$ to~$2\cdot 10^5$ for the~$T=0.7$ case the picture improves a
+lot, see \figref{fig:warmlong}. The fits now look much better and agree better
+with the integrated autocorrelation time. We can now confidently deduce~$\tau
+\approx $\todo{} and thus~$\Nsweep \approx $\todo{}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % T=1.5 B=0.3
@@ -416,3 +518,16 @@ significantly underpredict the true error.
 \section{Conclusion}\label{sec:conclusion}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+Monte Carlo methods provide powerful tools for situations where specialized
+rapidly convergent numerical methods fail or become infeasible. However, their
+general applicability and relative simplicity often hide the complexity of how
+to properly apply them and seduce one to draw premature conclusions. Especially
+the preliminary analysis of equilibration and autocorrelation times is a
+tedious, but mandatory task.
+
+We motivated and introduced Monte Carlo methods with a special focus on a
+combination of simulated annealing and the Metropolis algorithm. In addition to
+pointing out common pitfalls in theory, we illustrated proper and improper
+analysis by the example of a three-dimensional spin lattice. While this report
+focuses purely on the algorithmic aspects, in an accompanying paper we also
+discuss physical results of simulations made with the Sky-MoCa code.
