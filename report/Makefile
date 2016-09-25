@@ -1,9 +1,7 @@
 # LaTeX Makefile
 TEX = pdflatex -shell-escape
 BIB = bibtex
-# IDX = makeindex
 FILE = project
-TEMP = compproject
 
 DEPENDENCIES = $(FILE).tex \
 	project.cls \
@@ -14,9 +12,6 @@ DEPENDENCIES = $(FILE).tex \
 	tikzcommands.tex \
 	chapters/chapter_1.tex \
 	chapters/chapter_2.tex \
-	chapters/chapter_3.tex
-
-#	$(TEMP).cls \
 
 .PHONY: all clean clear clearall
 
