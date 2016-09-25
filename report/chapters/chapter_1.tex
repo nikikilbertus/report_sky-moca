@@ -17,7 +17,7 @@ generally applicable and relatively simple to understand and implement, Monte
 Carlo methods must not be applied blindly. They are almost always inferior to
 more specialized methods and might fail altogether in certain situations. Hence,
 careful analysis is absolutely vital for any Monte Carlo method. In theory there
-are accurate  measures for the applicability of the methods, but in practice it
+are accurate measures for the applicability of the methods, but in practice it
 frequently proves quite delicate to apply those measures correctly.
 Unfortunately, those pitfalls are often overlooked or even ignored in the
 literature. Therefore this report focuses on an ab-initio introduction to Monte
@@ -45,8 +45,9 @@ algorithmic aspects and Monte Carlo methods in general, while the other one will
 go into more detail about the model itself and discuss the physical results. The
 present text can serve as a step-by-step introduction on how to write Monte
 Carlo codes and discusses associated pitfalls in detail based on a concrete
-example. All code is publicly available on GitHub under \todo{link} and we hope
-that it will be useful to others.
+example. All code is publicly available on GitHub under
+\href{https://github.com/nikikilbertus/Sky-MoCa}{https://github.com/nikikilbertus/Sky-MoCa}.
+and we hope that it will be useful to others.
 
 The report is structured as follows. We briefly introduce the model Hamiltonian
 in \secref{sec:model}. In \secref{sec:mctheory} we provide a first high level
@@ -55,7 +56,7 @@ properties and results mostly without proofs. \Secref{sec:metropolis} is the
 core part of this chapter. We derive and discuss properties of the so called
 \newterm{Metropolis algorithm} in quite some detail. Furthermore, practical
 verification strategies for Monte Carlo codes in general and the Metropolis
-algorithm in particular are treated in \secref{sec:analysis}.  \Chapref{chap:2}
+algorithm in particular are treated in \secref{sec:analysis}. \Chapref{chap:2}
 finally introduces our implementation, Sky-MoCa, in \secref{sec:code}. In
 \secref{sec:results}, we go through the theoretic verification strategies
 discussed earlier in a specific sample simulation using Sky-MoCa. This should
@@ -154,7 +155,7 @@ as the specific heat or magnetization. Necessarily, we need to define some
 notion of energy and also identify some possible parameters for the spin
 lattice. Apparently any physical measure of energy must be based on interactions
 between the spins within the system or with external fields. Let us elaborate on
-some possible interactions.  Each of them comes with a constant that can be
+some possible interactions. Each of them comes with a constant that can be
 interpreted as a weight, \ie{} how much the respective interaction contributes
 to the energy with respect to the others. Those material constants can be
 treated as free parameters in the simulation.
@@ -403,7 +404,7 @@ lowest energy configuration
 
 In~\eqref{hamiltonian} we have collected all interactions on the lattice. Those
 originally stem from a continuous model. Therefore we have to expect
-discretization errors.  In particular, the transition to a finite cubical
+discretization errors. In particular, the transition to a finite cubical
 lattice introduces anisotropies that are absent in the original continuum model.
 Buhrandt and Fritz show in~\cite{skyrmionlattice} that we can partly compensate
 for those disruptive anisotropies by adding next-nearest neighbor interactions
@@ -434,7 +435,7 @@ taken care of by~\eqref{periodicindices}.
   \end{tikzpicture}%
   \caption{We select a spin at position~$\r \in \Sigma$ (red circle) and show
   its nearest neighbors as blue squares and the next-nearest neighbors as green
-  pentagons.  Note that although the diagonally adjacent vertices are closer
+  pentagons. Note that although the diagonally adjacent vertices are closer
   to~$\r$ than the next-nearest neighbors, they are not included in any
   exchange terms of the Hamiltonian.}
 \label{fig:interact}
@@ -442,24 +443,22 @@ taken care of by~\eqref{periodicindices}.
 
 \subsection{A note on parameter values}
 
-Recall that there is a great conflict of interest between the FM and
-the DM interactions. While the FM term in the Hamiltonian is minimal when all
-spins are parallel to each other, the DM term favors a configuration where
-neighboring spins are orthogonal. The specific compromise between those effects
-depends mostly on their respective strengths~$J$ and~$K$. In reality the direct
-interaction~$J$ is much stronger and one typically encounters helical
-structures with long modulation periods, see \todo{figref}. \todo{If J is
-typically larger, why is here J smaller?} For example in MnSi the spins wind
-around a given modulation axis only once per roughly~$40$ lattice spacings. By
-tuning the ratio~$J/K$ we can set the periodicity. For a period of~$N$ lattice
-sites, we have to set~$J/K$ to~$1/\tan(2\pi / N)$. In all our simulations we
-chose~$J=1$ and~$K=\tan(2\pi / 10)$, \ie{} one full modulation every~$10$
-vertices. Because~$K=\tan(2\pi / 10)\approx 0.73$ is not much smaller than~$J=1$
-we cannot directly model known chiral magnets such as MnSi in our simulation.
-However, larger periodicities would require much larger grids and thus be
-computationally infeasible. Moreover, we let the external magnetic field point
-in the~$\hz$ direction~$\B=(0,0,B)$ and only keep~$B$ as a free scalar
-parameter.
+Recall that there is a great conflict of interest between the FM and the DM
+interactions. While the FM term in the Hamiltonian is minimal when all spins are
+parallel to each other, the DM term favors a configuration where neighboring
+spins are orthogonal. The specific compromise between those effects depends
+mostly on their respective strengths~$J$ and~$K$. In reality the direct
+interaction~$J$ is much stronger and one typically encounters helical structures
+with long modulation periods. For example in MnSi the spins wind around a given
+modulation axis only once per roughly~$40$ lattice spacings.  By tuning the
+ratio~$J/K$ we can set the periodicity. For a period of~$N$ lattice sites, we
+have to set~$J/K$ to~$1/\tan(2\pi / N)$. In all our simulations we chose~$J=1$
+and~$K=\tan(2\pi / 10)$, \ie{} one full modulation every~$10$ vertices.
+Because~$K=\tan(2\pi / 10)\approx 0.73$ is not much smaller than~$J=1$ we cannot
+directly model known chiral magnets such as MnSi in our simulation. However,
+larger periodicities would require much larger grids and thus be computationally
+infeasible. Moreover, we let the external magnetic field point in the~$\hz$
+direction~$\B=(0,0,B)$ and only keep~$B$ as a free scalar parameter.
 
 We can fix one of the parameters, in this case~$J$, arbitrarily and then work in
 abstract lattice units. A computer can only deal with dimensionless numbers and
@@ -526,8 +525,11 @@ issue a warning. While Monte Carlo methods are generally easy to implement and
 are sometimes even applied blindly to virtually any problem, they are almost
 always hopelessly inferior to specialized techniques in terms of accuracy and
 efficiency. They should be the last resort after everything else has failed. We
-will reason about this in the following subsections.  Let us start out with a
-general description of Monte Carlo integration and optimization.
+will reason about this in the following subsections. Let us start out with a
+general description of Monte Carlo integration and optimization. The remainder
+of this chapter is based on a collection of different overview articles on Monte
+Carlo methods~\cite{mc09, mc14, mc00} as well as comprehensive books on Monte
+Carlo methods in statistical physics~\cite{mcbook, optinphysics}.
 
 \subsection{Integration}
 
@@ -700,7 +702,7 @@ rewrite this as
 \end{equation}
 %
 where~$p$ is the probability density function of some measure~$\mu$ on~$\Omega$
-with respect to the Lebesgue measure.  Since we have changed the integration
+with respect to the Lebesgue measure. Since we have changed the integration
 measure, we can now approximate the integral by
 %
 \begin{equation}
@@ -910,7 +912,7 @@ be anything from trivial to practically infeasible. As a consequence there are
 numerous possible classification schemes. Let us briefly mention two important
 properties. First, we distinguish optimization techniques by whether they use
 Hessians, gradients or only function values. Apparently the degree of
-differentiability of the objective function~$f$ plays a crucial role.  If~$f$ is
+differentiability of the objective function~$f$ plays a crucial role. If~$f$ is
 sufficiently smooth and we have access to gradients (and Hessians) either
 analytically or numerically, we can build a first order (second order)
 approximation to the function at a given point~$x \in \Omega$. This leads to so
@@ -1380,7 +1382,7 @@ This condition is called \newterm{detailed balance} and is a key feature of
 Markov chains. We can interpret it as reversibility of the transition
 process~$\phi$. Going from~$\pi$ to~$\pi'$ is equally likely as the other way
 round. For completeness, let us mention that the second key requirement for
-Markov chains to work properly is \newterm{ergodicity}.  Ergodicity says that
+Markov chains to work properly is \newterm{ergodicity}. Ergodicity says that
 each state must be reachable from every other state in a finite number of steps.
 We are not going to elaborate on the theoretical importance of this property,
 but only point out that ergodicity is clearly fulfilled in our specific model,
@@ -1599,13 +1601,13 @@ instead of stopping right there and starting a whole new run, one changes~$T$
 or~$B$ by a tiny amount, discards some sweeps for thermalization and records
 another~$N$ configurations of the Markov chain. It is essentially a wrapper
 around the Metropolis algorithm that keeps building up the Markov chain with
-intermediate changes of the parameters.  This method allows us to trace out
+intermediate changes of the parameters. This method allows us to trace out
 paths within the phase space. It can be used to observe phase transitions or
 reach configurations that are hard to find by fixing the position in phase space
 from the very beginning.
 
 For completeness let us explain why simulated annealing was introduced as an
-optimization method.  Imagine our objective was actually to minimize the
+optimization method. Imagine our objective was actually to minimize the
 Hamiltonian. While there are no iterative or local methods to minimize it
 directly, we have found that the Metropolis algorithm efficiently samples the
 configuration space with a favor for low energy states, especially for low
@@ -1722,12 +1724,12 @@ thermalization, \emph{not} at subsequent configurations of a Markov chain.
 Furthermore, note that the sum in~\eqref{autocorr} at~$t=0$ with the normalizing
 factor is just the variance~$\sigma^2$, which results in~$R_{\cO}(0) = 1$. The
 autocorrelation can be understood as the covariance of the sequence with a
-shifted version of it.  Since we want to measure the correlation of states at
+shifted version of it. Since we want to measure the correlation of states at
 different times in the same chain this is entirely plausible. Like the
 covariance, the autocorrelation can become negative which is interpreted in the
-same way.  Negative autocorrelation at time~$t$ means that large negative values
+same way. Negative autocorrelation at time~$t$ means that large negative values
 of~$\cO$ at a certain time correlate with large positive values~$t$ steps later
-in the chain.  The variance in the denominator normalizes the autocorrelation to
+in the chain. The variance in the denominator normalizes the autocorrelation to
 lie in~$[-1,1]$. One major issue with the estimator~$R_{\cO}$ is due to the fact
 that we are dealing with a finite sequence of measurements. The sum
 in~\eqref{autocorr} runs over fewer and fewer terms the larger~$t$. However, we
@@ -1772,7 +1774,7 @@ The discrete version~\eqref{tauint} roots in the approximation
 \end{equation}
 %
 Already for~$\tau = 10$ the relative error dropped below~$0.1$\% and approaches
-zero quickly.  For all practical purposes~$\tau_{\cO} \approx \tauint_{\cO}$
+zero quickly. For all practical purposes~$\tau_{\cO} \approx \tauint_{\cO}$
 if~$N$ is sufficiently large. However, due to statistical fluctuations and the
 finite number of measurements they might disagree quite significantly in real
 applications. The importance of the autocorrelation time becomes obvious when
@@ -1808,9 +1810,9 @@ account enough values to capture the asymptotic decay of the exponential, but
 not too many to avoid statistically unreliable values spoiling the fit. The same
 holds true for the sum in the integrated autocorrelation time. In theory the sum
 needs to run over infinitely many values, but due to the exponential decay one
-can truncate it with clear conscience.  Alternatively one can use values at
+can truncate it with clear conscience. Alternatively one can use values at
 small~$t$ to extrapolate to subsequent values by an exponential fit. However,
-their contribution is typically small enough to neglect them.  Again, one has to
+their contribution is typically small enough to neglect them. Again, one has to
 choose the truncation carefully to leave out noisy values at late times~$t$.
 Usually one tries to truncate the series self-consistently such that
 %
@@ -1842,7 +1844,7 @@ cross check. Finally, we use
   \tauint := \max_{\cO} \tauint_{\cO}
 \end{equation}
 %
-to determine~$\Nsweep \in  [5 \tauint, 6 \tauint]$.
+to determine~$\Nsweep \in [5 \tauint, 6 \tauint]$.
 
 \subsection{Additional remarks}
 
