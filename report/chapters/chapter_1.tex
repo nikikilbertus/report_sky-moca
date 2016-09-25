@@ -1763,9 +1763,18 @@ autocorrelation function~$R_{\cO}(t) = \exp(t/\tau_{\cO})$ one finds
   \int_0^{\infty} R_{\cO}(t) \sucd{t} = \tau_{\cO}\:.
 \end{equation}
 %
-For all practical purposes~$\tau_{\cO} \approx \tauint_{\cO}$ if~$N$ is
-sufficiently large. However, due to statistical fluctuations and the finite
-number of measurements they might disagree quite significantly in real
+The discrete version~\eqref{tauint} roots in the approximation
+%
+\begin{equation}
+  \frac{1}{2} + \sum_{t=1}^{\infty} \exp \biggl( - \frac{t}{\tau} \biggr) =
+    \tau + \frac{1}{12 \tau} - \frac{1}{720 \tau^3} +
+    \cO\biggl( \frac{1}{\tau^5} \biggr)\:.
+\end{equation}
+%
+Already for~$\tau = 10$ the relative error dropped below~$0.1$\% and approaches
+zero quickly.  For all practical purposes~$\tau_{\cO} \approx \tauint_{\cO}$
+if~$N$ is sufficiently large. However, due to statistical fluctuations and the
+finite number of measurements they might disagree quite significantly in real
 applications. The importance of the autocorrelation time becomes obvious when
 one re-derives the error of Monte Carlo integration without the assumption that
 the samples are independent. Recall that for independent measurements we found
