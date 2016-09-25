@@ -21,12 +21,13 @@ used in Jupyter notebooks which work precisely like IPython notebooks. This
 allows for nice presentation and even faster prototyping and testing. Of course
 one can always export a regular Julia \textsf{.jl} file that can subsequently be
 run on a remote machine. The code is available at GitHub under
-\todo{}. It has been written with readability and in mind and is fully
-documented such that we will not go into implementational details in this
-report. Each simulation run produces a single HDF5 file containing detailed
-information about the run down to the full configuration after every lattice
-sweep if desired. The repository also contains a Mathematica notebook with
-several visualization capabilities~\cite{mathematica}.
+\href{https://github.com/nikikilbertus/Sky-MoCa}{https://github.com/nikikilbertus/Sky-MoCa}.
+It has been written with readability and in mind and is fully documented such
+that we will not go into implementational details in this report. Each
+simulation run produces a single HDF5 file containing detailed information about
+the run down to the full configuration after every lattice sweep if desired. The
+repository also contains a Mathematica notebook with several visualization
+capabilities~\cite{mathematica}.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results}\label{sec:results}
@@ -51,7 +52,7 @@ system with a hot start and then perform~$N=10^4$ lattice sweeps, which runs on
 a mid 2014 MacBook Pro with a 2.2 GHz Intel Core i7 and 16 GB of 1600 MHz DDR3
 memory in less than a minute.
 
-\subsection{Reasonable analysis at high termperature}
+\subsection{Reasonable analysis at high temperature}
 
 We expect the system to thermalize fastest at a high temperature. In
 \figref{fig:hot}, we simply plot the energy and magnetization in all three
@@ -67,11 +68,11 @@ second row we show the autocorrelation functions for all four observables. Note
 that the maximal time shift~$t = 500$ is indeed much smaller than~$N = 10^4$.
 The autocorrelations drop quickly and then transition into noisy behavior even
 for small~$t$. Apparently already around~$t \approx 50$, the autocorrelation
-functions are completely unreliable.  In the last two rows of~\figref{fig:hot},
+functions are completely unreliable. In the last two rows of~\figref{fig:hot},
 we plot each of the four autocorrelation functions separately with an
 exponential fit. In the least square one parameter fit to~$\exp(-t/\tau)$ we
 have only used the values of the autocorrelation function also shown in the
-plot, \ie{} in this case~$t \le 80$.  At the same time we compute the integrated
+plot, \ie{} in this case~$t \le 80$. At the same time we compute the integrated
 autocorrelation time~$\tauint$ according to~\eqref{tauinttrunc} with~$m$ such
 that we sum over all values shown in the plot. The fit parameter for~$\tau$
 and~$\tauint$ are shown in the plots.
@@ -103,20 +104,20 @@ sweeps between to configurations of the Markov chain.
 To also give an example of faulty analysis, we repeat the same procedure
 for~$T=0.7$ and~$T=0.1$. All other parameters, in particular~$N=10^4$, have not
 been changed. In \figref{fig:warm} and \figref{fig:cold} we show the best
-results we could come up with. With the theoretical preparation from the
-previous chapter the issues become quite obvious. While we can still observe
-thermalization reasonably well and deduced~$\Ntherm=1500$ and~$\Ntherm=5000$
-respectively, the autocorrelation functions become statistically unreliable even
-above~$0.2$. Thus the autocorrelation times inferred from the exponential fit
-and the integrated autocorrelation time differ by a factor of up to~$1.5$.
-For~$N=10^4$ there are only~$8500$ and~$5000$ measurements left to compute the
-autocorrelation function and determine~$\tau$. Since~$\tau$ seems to be on the
-order of a few hundreds, we have only used roughly~$10 \tau$ sweeps to
-determine~$\tau$. We need at least one or two orders of magnitude more Monte
-Carlo steps for a reliable estimate of the autocorrelation time. The acceptance
-rate drops to approximately~$15$\% and only~$2$\% for~$T=0.7$ and~$T=0.1$
-respectively, which is a strong indicator for little evolution and results in
-long correlation times.
+results achievable by varying the interval on which to fit autocorrelations.
+With the theoretical preparation from the previous chapter the issues become
+quite obvious. While we can still observe thermalization reasonably well and
+deduced~$\Ntherm=1500$ and~$\Ntherm=5000$ respectively, the autocorrelation
+functions become statistically unreliable even above~$0.2$. Thus the
+autocorrelation times inferred from the exponential fit and the integrated
+autocorrelation time differ by a factor of up to~$1.5$. For~$N=10^4$ there are
+only~$8500$ and~$5000$ measurements left to compute the autocorrelation function
+and determine~$\tau$. Since~$\tau$ seems to be on the order of a few hundreds,
+we have only used roughly~$10 \tau$ sweeps to determine~$\tau$. We need at least
+one or two orders of magnitude more Monte Carlo steps for a reliable estimate of
+the autocorrelation time. The acceptance rate drops to approximately~$15$\% and
+only~$2$\% for~$T=0.7$ and~$T=0.1$ respectively, which is a strong indicator for
+little evolution and results in long correlation times.
 
 If we increase~$N$ to~$2\cdot 10^5$ for the~$T=0.7$ case the picture improves a
 lot, see \figref{fig:warmlong}. The fits now look much better and agree better
