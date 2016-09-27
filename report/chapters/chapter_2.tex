@@ -21,12 +21,12 @@ used in Jupyter notebooks which work precisely like IPython notebooks. This
 allows for nice presentation and even faster prototyping and testing. Of course
 one can always export a regular Julia \textsf{.jl} file that can subsequently be
 run on a remote machine. The code is available at GitHub under
-\href{https://github.com/nikikilbertus/Sky-MoCa}{https://github.com/nikikilbertus/Sky-MoCa}.
-It has been written with readability and in mind and is fully documented such
-that we will not go into implementational details in this report. Each
-simulation run produces a single HDF5 file containing detailed information about
-the run down to the full configuration after every lattice sweep if desired. The
-repository also contains a Mathematica notebook with several visualization
+\href{https://github.com/nikikilbertus/Sky-MoCa}{\textsf{https://github.com/nikikilbertus/Sky-MoCa}}.
+It has been written with readability in mind and is fully documented such that
+we will not go into implementation details in this report. Each simulation run
+produces a single HDF5 file containing detailed information about the run down
+to the full configuration after every lattice sweep if desired. The repository
+also contains a Mathematica notebook with several visualization
 capabilities~\cite{mathematica}.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -45,59 +45,68 @@ significantly underpredict the true error.
 Recall that the first order of business is to determine the thermalization time.
 Let us start with a relatively small system of~$N_x = N_y = N_z = 10$, \ie{} a
 total of~$10^3$ vertices. In this first stage we want to determine the
-thermalization time and autocorrelation time for three different temperatures~$T
-\in \{1.5, 0.7, 0.1\}$ at a fixed magnetic field~$B=0.3$. Recall that~$J=1$
+thermalization and autocorrelation times for three different temperatures~$T \in
+\{1.5, 0.7, 0.1\}$ at a fixed magnetic field~$B=0.3$. Recall that~$J=1$
 and~$K=\tan(2 \pi / 10)$, thus all parameters are fixed. We initialize the
 system with a hot start and then perform~$N=10^4$ lattice sweeps, which runs on
-a mid 2014 MacBook Pro with a 2.2 GHz Intel Core i7 and 16 GB of 1600 MHz DDR3
-memory in less than a minute.
+a MacBook Pro with a 2.2 GHz Intel Core i7 and 16 GB of 1600 MHz DDR3 memory in
+less than a minute.
 
 \subsection{Reasonable analysis at high temperature}
 
-We expect the system to thermalize fastest at a high temperature. In
-\figref{fig:hot}, we simply plot the energy and magnetization in all three
-directions as a function of Monte Carlo steps. We do not show the whole region
+We expect the system to thermalize fastest at high temperatures. In
+\figref{fig:hot}, we simply plot the energy and all three components of the
+magnetization as a function of Monte Carlo time. We do not show the whole region
 up to~$10^4$ steps, because apparently the system has thermalized after just a
 few hundred sweeps. As expected the energy drops rapidly and levels out at a
-constant value. The magnetization in z direction grows rapidly and levels out at
-a positive value, thereby following the external magnetic field in~$\hz$
-direction. The~$\hx$ and~$\hy$ components stay roughly at zero. The fluctuations
-are pretty large, which is expected at hight temperatures. We decided in this
-case that~$\Ntherm = 500$ is a reasonably long thermalization time. In the
-second row we show the autocorrelation functions for all four observables. Note
-that the maximal time shift~$t = 500$ is indeed much smaller than~$N = 10^4$.
-The autocorrelations drop quickly and then transition into noisy behavior even
-for small~$t$. Apparently already around~$t \approx 50$, the autocorrelation
-functions are completely unreliable. In the last two rows of~\figref{fig:hot},
-we plot each of the four autocorrelation functions separately with an
-exponential fit. In the least square one parameter fit to~$\exp(-t/\tau)$ we
-have only used the values of the autocorrelation function also shown in the
-plot, \ie{} in this case~$t \le 80$. At the same time we compute the integrated
-autocorrelation time~$\tauint$ according to~\eqref{tauinttrunc} with~$m$ such
-that we sum over all values shown in the plot. The fit parameter for~$\tau$
-and~$\tauint$ are shown in the plots.
+constant value. The magnetization in~$\hz$ direction grows rapidly and levels
+out at a positive value, thereby following the external magnetic field, which
+also points the in~$\hz$ direction. The~$\hx$ and~$\hy$ components stay roughly
+at zero. The fluctuations are pretty large, which is expected at high
+temperatures. We decided in this case that~$\Ntherm = 500$ is a reasonably long
+thermalization time. In the second row we show the autocorrelation functions for
+all four observables. Note that the maximal time shift we are showing here is
+with~$t = 500$ much smaller than the number of configurations we have used for
+the autocorrelation, namely~$N - \Ntherm = 10^4 - 500 = 9500$.
 
-We immediately realize that they do not agree perfectly, but are reasonable
+For all observables the autocorrelations drop quickly and then transition into
+noisy behavior already at relatively small~$t$ compared to~$9500$. Apparently
+already around~$t \approx 50$, the autocorrelation functions are completely
+unreliable. In the last two rows of~\figref{fig:hot}, we plot each of the four
+autocorrelation functions separately with an exponential fit. In the least
+square one parameter fits to~$\exp(-t/\tau)$ we have only used the values of the
+autocorrelation functions shown in the plot, \ie{} in this case~$t \le 80$.  At
+the same time we compute the integrated autocorrelation time~$\tauint$ according
+to~\eqref{tauinttrunc} with~$m$ such that we sum over all values shown in the
+plot. The fit parameter for~$\tau$ as well as~$\tauint$ are shown in the plots.
+
+We immediately realize that they do not agree perfectly, but are reasonably
 close, given the statistical fluctuations in the autocorrelation functions.
 Whenever the autocorrelation lies above the exponential fit for a significant
 portion of the range as for the energy~$H$, the integrated autocorrelation is
 typically larger than the fit value. However, when it mostly runs below the fit
 as for~$M_z$ it is not necessarily smaller. Indeed we have
-altered~\eqref{tauinttrunc} slightly to only add up absolute values of the
+altered~\eqref{tauinttrunc} slightly to add up absolute values of the
 autocorrelation functions. Otherwise we could compensate large correlation by
 anticorrelation and thereby reach a smaller autocorrelation time. This is highly
-risky of couse, since negative correlation is correlation too and cannot cancel
-correlation.
+risky of course, since negative correlation is correlation too and cannot cancel
+positive correlation.
 
 In the end we take the maximum over all autocorrelation times and settle with a
 value of~$17$. Had we just looked at the energy, we could have reasoned~$\tau
-\approx 8$, less than half. We realize that we used less than~$600 \tau$ sweeps
-to estimate~$\tau$, hence we should have already chosen~$N > 10^4$. At this
-temperature the acceptance rate qualitatively shows a similar behavior like the
-energy, dropping quickly and settling around~$40$\%. Thereby we are sure that
-the system is indeed evolving, sampling many different configurations.
-Eventually, for this situation we would recommend to skip~$\Nsweep \approx 100$
-sweeps between to configurations of the Markov chain.
+\approx 8$, less than half. We realize that with~$9500$ configurations we used
+less than~$600 \tau$ sweeps to estimate~$\tau$ from the autocorrelation
+functions which is already at the edge of best practice. We should have
+chosen~$N \gtrsim 2\cdot 10^4$ for better statistics. At this temperature
+fluctuations are large and to some extent the choice of~$\Ntherm$ is still a
+matter of taste. Since the thermalization is only necessary once in the
+beginning, it is not a big computational setback to choose conservatively.  The
+large temperature is also reflected in the acceptance rate. It  qualitatively
+shows a similar behavior like the energy, dropping quickly and then flattening
+out at around~$40$\%. Thereby we are confident that the system is indeed
+evolving, sampling many different configurations. Eventually, for this situation
+we would recommend to skip~$\Nsweep 6 \cdot \tau \approx 100$ sweeps between two
+consecutive configurations of the Markov chain.
 
 \subsection{Faulty and useless analysis at lower temperatures}
 
@@ -105,24 +114,59 @@ To also give an example of faulty analysis, we repeat the same procedure
 for~$T=0.7$ and~$T=0.1$. All other parameters, in particular~$N=10^4$, have not
 been changed. In \figref{fig:warm} and \figref{fig:cold} we show the best
 results achievable by varying the interval on which to fit autocorrelations.
-With the theoretical preparation from the previous chapter the issues become
-quite obvious. While we can still observe thermalization reasonably well and
-deduced~$\Ntherm=1500$ and~$\Ntherm=5000$ respectively, the autocorrelation
-functions become statistically unreliable even above~$0.2$. Thus the
-autocorrelation times inferred from the exponential fit and the integrated
-autocorrelation time differ by a factor of up to~$1.5$. For~$N=10^4$ there are
-only~$8500$ and~$5000$ measurements left to compute the autocorrelation function
-and determine~$\tau$. Since~$\tau$ seems to be on the order of a few hundreds,
-we have only used roughly~$10 \tau$ sweeps to determine~$\tau$. We need at least
-one or two orders of magnitude more Monte Carlo steps for a reliable estimate of
-the autocorrelation time. The acceptance rate drops to approximately~$15$\% and
-only~$2$\% for~$T=0.7$ and~$T=0.1$ respectively, which is a strong indicator for
-little evolution and results in long correlation times.
+First of all, the amplitude of the fluctuations in the observables clearly
+decrease with decreasing temperature. To some extent this makes it easier to
+determine~$\Ntherm$.  However, with the theoretical preparation from the
+previous chapter the issues become quite obvious. While we can still observe
+thermalization reasonably well and deduced~$\Ntherm=1500$ and~$\Ntherm=5000$
+for~$T=0.7$ and~$T=0.1$ respectively, the autocorrelation functions become
+statistically unreliable even above~$0.2$. Thus the autocorrelation times
+inferred from the exponential fit and the integrated autocorrelation time differ
+by a factor of up to~$1.5$. The fits are a disaster and due to the large
+fluctuations in the autocorrelation functions we can not expect the integrated
+autocorrelation time to give reliable results.
 
-If we increase~$N$ to~$2\cdot 10^5$ for the~$T=0.7$ case the picture improves a
-lot, see \figref{fig:warmlong}. The fits now look much better and agree better
-with the integrated autocorrelation time. We can now confidently deduce~$\tau
-\approx $\todo{} and thus~$\Nsweep \approx $\todo{}.
+The cure of course lies in improving the statistics. For~$N=10^4$ and the chosen
+thermalization times there are only~$8500$ and~$5000$ measurements left to
+compute the autocorrelation functions.  Because~$\tau$ seems to be on the order
+of a few hundreds, we have only used roughly~$10 \tau$ sweeps to
+determine~$\tau$. We need at least one or two orders of magnitude more Monte
+Carlo steps for a reliable estimate of the autocorrelation time. The acceptance
+rate drops to approximately~$15$\% and only~$2$\% for~$T=0.7$ and~$T=0.1$
+respectively, which is a strong indicator for slow evolution and results in long
+autocorrelation times. Varying the temperature clearly shows that every point in
+parameter space requires its own analysis. Both the thermalization
+time~$\Ntherm=500$ and decorrelation length~$\Nsweep=100$ from the first example
+at~$T=1.5$ are far too small for lower temperatures.
+
+For those specifically chosen values, for example at~$T=0.7$ and~$B=0.3$ we are
+also close to a phase transition and thus might experience critical slowing.
+Redoing the analysis for a slightly different value of~$B$ might completely
+change the outcome and actually yield reasonable results. Of course, when
+inspecting a new system, there is no way of knowing where critical slowing might
+occur. Simulated annealing can be a valuable tool in the sense that we can start
+at a well understood, high temperature point in phase space and gradually change
+the magnetic field and/or the temperature. Note that technically the
+decorrelation length also has to be adjusted. Monitoring the acceptance rate can
+help to detect critical slowing.
+
+Finally, let us correct the faulty analysis by increasing~$N$ to~$2\cdot 10^5$
+for~$T=0.6$ and~$B=0.2$, see \figref{fig:warmlong}. The autocorrelation
+functions are much smoother for larger values of~$t$ and the fits seem to be
+reliable and agree better with the integrated autocorrelation time. We can now
+more confidently deduce~$\tau \approx 182$ and thus~$\Nsweep \approx 1000$. This
+shows that the previous analysis would have underestimated the autocorrelation
+length of~$M_z$ and also shows that with such a large decorrelation length a
+statistically proper simulation already becomes computationally challenging.
+These~$2\cdot 10^5$ sweeps already took about half an hour. For~$N=1000$
+configurations the runtime for this tiny system on a regular personal computer
+already goes into the hours. In practice one might settle with less sweeps in
+between configurations regardless. A thorough understanding of the
+autocorrelation at least tells us how this spoils the naive error estimates.
+
+We keep the actual results of full simulation runs for the second report, where
+we go into more details about the physics of the system, for example the phase
+diagram and especially the transitions into and out of the skyrmion phase.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % T=1.5 B=0.3
@@ -513,6 +557,136 @@ with the integrated autocorrelation time. We can now confidently deduce~$\tau
 % INFO: Mx autocorrelation time: fit τ = 392.46011826024284, integrated τ = 420.79108524886163
 % INFO: My autocorrelation time: fit τ = 419.82093950666643, integrated τ = 411.2568200497989
 % INFO: Mz autocorrelation time: fit τ = 160.22639277888916, integrated τ = 245.19970750692352
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% T=0.6 B=0.2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      xlabel={Monte Carlo time},
+      scaled y ticks={base 10:-3},
+      legend pos={north east},
+      legend entries={energy},
+    ]
+      \addplot[
+        mark=none,
+      ] table[x expr=\coordindex, y index=0] {plots/T0.6_B0.2/therm_energy.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      xlabel={Monte Carlo time},
+      cycle list name=rdbu,
+      legend style={at={(0.98,0.5)},anchor=east},
+      legend entries={$M_x$, $M_y$, $M_z$},
+    ]
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.6_B0.2/therm_mx.csv};
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.6_B0.2/therm_my.csv};
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.6_B0.2/therm_mz.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \\[0.5cm]
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\singleplotwidth cm},
+      height={\singleplotheight cm},
+      xlabel={time shift $t$},
+      ylabel={autocorrelation},
+      xtick={0,400,800,1200,1600},
+      cycle list name=rdbu,
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={$R_{M_x}$, $R_{M_y}$, $R_{M_z}$, $R_{H}$},
+    ]
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.6_B0.2/auto_mx.csv};
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.6_B0.2/auto_my.csv};
+      \addplot+[mark=none, cycle list name=rdbu]
+        table[x expr=\coordindex, y index=0] {plots/T0.6_B0.2/auto_mz.csv};
+      \addplot+[mark=none, black]
+        table[x expr=\coordindex, y index=0] {plots/T0.6_B0.2/auto_energy.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \\[0.5cm]
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={{$R_{H},\;\tauint \approx 16.0$} , {fit: $\exp(-t/14.8)$}},
+    ]
+      \addplot[mark=none, Crimson]
+        table[x expr=\coordindex, y index=0] {plots/T0.6_B0.2/autofit_energy.csv};
+      \addplot[mark=none, dashed, black]
+        table[x expr=\coordindex, y index=1] {plots/T0.6_B0.2/autofit_energy.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={{$R_{M_z},\;\tauint \approx 181.9$} , {fit: $\exp(-t/177.3)$}},
+    ]
+      \addplot[mark=none, Crimson]
+        table[x expr=\coordindex, y index=0] {plots/T0.6_B0.2/autofit_mz.csv};
+      \addplot[mark=none, dashed, black]
+        table[x expr=\coordindex, y index=1] {plots/T0.6_B0.2/autofit_mz.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \\[0.5cm]
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={{$R_{M_x},\;\tauint \approx 102.0$} , {fit: $\exp(-t/103.2)$}},
+    ]
+      \addplot[mark=none, Crimson]
+        table[x expr=\coordindex, y index=0] {plots/T0.6_B0.2/autofit_mx.csv};
+      \addplot[mark=none, dashed, black]
+        table[x expr=\coordindex, y index=1] {plots/T0.6_B0.2/autofit_mx.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={\sharedplotwidth cm},
+      height={\sharedplotheight cm},
+      legend pos={north east},
+      legend cell align={left},
+      legend entries={{$R_{M_y},\;\tauint \approx 100.2$} , {fit: $\exp(-t/100.3)$}},
+    ]
+      \addplot[mark=none, Crimson]
+        table[x expr=\coordindex, y index=0] {plots/T0.6_B0.2/autofit_my.csv};
+      \addplot[mark=none, dashed, black]
+        table[x expr=\coordindex, y index=1] {plots/T0.6_B0.2/autofit_my.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \caption{We show the thermalization and autocorrelation behavior for a system
+  with~$10^3$ lattice sites, periodic boundary conditions and a uniformly random
+  start configuration at~$T=0.6$ and~$B=0.2$. In this case we chose~$\Ntherm =
+  5000$. The acceptance rate settles around~$12$\%. A detailed interpretation of
+  the plots is discussed in the text.}
+\label{fig:warmlong}
+\end{figure}
+
+% INFO: energy autocorrelation time: fit τ = 14.793299102883838, integrated τ = 15.967395044037167
+% INFO: Mx autocorrelation time: fit τ = 103.15277100727441, integrated τ = 102.04232545115562
+% INFO: My autocorrelation time: fit τ = 100.26395989646923, integrated τ = 100.16079252634108
+% INFO: Mz autocorrelation time: fit τ = 177.33593054824476, integrated τ = 181.89913958032605
 
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
