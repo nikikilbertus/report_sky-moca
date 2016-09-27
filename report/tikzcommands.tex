@@ -146,7 +146,7 @@
         \pgfmathsetmacro{\vx}{rand}
         \pgfmathsetmacro{\vy}{rand}
         \pgfmathsetmacro{\vz}{rand}
-        \pgfmathsetmacro{\nn}{2*sqrt(\vx * \vx + \vy * \vy + \vz * \vz)}
+        \pgfmathsetmacro{\nn}{2.5*sqrt(\vx * \vx + \vy * \vy + \vz * \vz)}
         \draw[>=latex, ->, black!50] (S) -- +(\vx / \nn, \vy / \nn, \vz / \nn);
         \shade[ball color=black!50] (S) circle (\r + \z / 200);
       }
