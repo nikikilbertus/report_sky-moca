@@ -46,7 +46,7 @@ go into more detail about the model itself and discuss the physical results. The
 present text can serve as a step-by-step introduction on how to write Monte
 Carlo codes and discusses associated pitfalls in detail based on a concrete
 example. All code is publicly available on GitHub under
-\href{https://github.com/nikikilbertus/Sky-MoCa}{https://github.com/nikikilbertus/Sky-MoCa}.
+\href{https://github.com/nikikilbertus/Sky-MoCa}{\textsf{https://github.com/nikikilbertus/Sky-MoCa}}
 and we hope that it will be useful to others.
 
 The report is structured as follows. We briefly introduce the model Hamiltonian
@@ -393,14 +393,6 @@ lowest energy configuration
 %
 
 \subsubsection{Anisotropy}
-
-% While we have remedied the problem of unwanted boundary effects due to missing
-% neighbors, we are still working in a finite volume. While any real crystal also
-% has a finite volume, it can typically be considered infinite relative to the
-% lattice spacing. Due to computational limitations we can only simulate lattices
-% with roughly~$30^3$ vertices. Thus the whole lattice is only~$30$ orders of
-% magnitudes longer than the lattice spacing which leads to significant
-% \newterm{finite size effects}.
 
 In~\eqref{hamiltonian} we have collected all interactions on the lattice. Those
 originally stem from a continuous model. Therefore we have to expect
@@ -1572,10 +1564,10 @@ estimate
 %
 In \secref{sec:model} we formulated our initial goal as an optimization problem.
 However, in everything that followed the general introduction of Monte Carlo
-methods in \secref{mcctheory} was concerned with integration only. We discovered
-that a truly thermodynamic treatment does not allow us to distinguish a single
-energetically favored state, but necessitates in thermal averages which we
-approximate by Monte Carlo integration using importance sampling. Proper
+methods in \secref{sec:mctheory} was concerned with integration only. We
+discovered that a truly thermodynamic treatment does not allow us to distinguish
+a single energetically favored state, but necessitates in thermal averages which
+we approximate by Monte Carlo integration using importance sampling. Proper
 samples are provided by a Markov chain with Metropolis transition probabilities.
 Hence, we can now observe thermodynamic quantities such as the energy or
 magnetization of the spin lattice in equilibrium at fixed temperature~$T$ and
