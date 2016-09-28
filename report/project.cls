@@ -13,7 +13,7 @@
 %todo: delete draft option
 %todo: add correct BCOR
 \LoadClass[
-  draft=true,
+  % draft=true,
   a4paper,
   english,
   fontsize=12pt,
