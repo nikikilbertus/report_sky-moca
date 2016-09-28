@@ -19,51 +19,53 @@ more specialized methods and might fail altogether in certain situations. Hence,
 careful analysis is absolutely vital for any Monte Carlo method. In theory there
 are accurate measures for the applicability of the methods, but in practice it
 frequently proves quite delicate to apply those measures correctly.
-Unfortunately, those pitfalls are often overlooked or even ignored in the
-literature. Therefore this report focuses on an ab-initio introduction to Monte
-Carlo methods by reference to a specific real world example. After developing
-the theoretical concepts we actually apply them in great detail to illustrate
-some common difficulties.
+Unfortunately, pitfalls are often overlooked or even ignored in the literature.
+This report focuses on an ab-initio introduction to Monte Carlo methods by
+reference to a specific real world example. After developing the theoretical
+concepts we actually apply them in great detail to illustrate some common
+difficulties.
 
 The concrete physical model deals with a rather recently discovered magnetic
 phenomenon, called \newterm{skyrmions}. Since the theoretical prediction of
-skyrmions in \todo{year?} \todo{cite} and their experimental discovery in
-\todo{year} \todo{cite}, this configuration has been extensively investigated
-both by theorists and experimentalists \todo{some refs}. Skyrmions have caused a
-lot of excitement mostly due to their promising properties that might qualify
-them as fast and efficient memory. Three-dimensional non-perturbative classical
-Monte Carlo methods developed recently~\cite{skyrmionlattice}, allow us to
-compute the full finite temperature phase diagram and explore phase transitions.
-The goal of this project was to implement a Monte Carlo code with the
-discretized lattice Hamiltonian introduced in~\cite{skyrmionlattice} and
-basically reproduce the results discussed there. In contrast to most work on
-Monte Carlo methods for spin lattices, we found it worthwhile to provide a
-detailed exposition of the algorithms and numerical aspects.
+skyrmions in the eighties by Bogdanov~\cite{bogdanov} based on previous work in
+particle physics by Skyrme~\cite{skyrme} and the subsequent experimental
+discovery, this configuration has been extensively investigated both by
+theorists and experimentalists~\cite{skyrm1, skyrm2, skyrm3, skyrm4, skyrm5,
+skyrm6, Milde1076, skyrm8, skyrm9, skyrm10}. Skyrmions have caused a lot of
+excitement mostly due to their promising properties that might qualify them as
+fast and efficient memory~\cite{switching}. Three-dimensional non-perturbative
+classical Monte Carlo methods developed recently~\cite{skyrmionlattice,
+Milde1076}, allow us to compute the full finite temperature phase diagram and
+explore phase transitions.  The goal of this project was to implement a Monte
+Carlo code with the discretized lattice Hamiltonian introduced
+in~\cite{skyrmionlattice} and basically reproduce the results discussed there.
+In contrast to most work on Monte Carlo methods for spin lattices, we found it
+worthwhile to provide a detailed exposition of the algorithms and numerical
+aspects.
 
 As a consequence there will be two separate reports. This one focuses on the
 algorithmic aspects and Monte Carlo methods in general, while the other one will
-go into more detail about the model itself and discuss the physical results. The
-present text can serve as a step-by-step introduction on how to write Monte
-Carlo codes and discusses associated pitfalls in detail based on a concrete
-example. All code is publicly available on GitHub under
+go into more detail about the model and discuss physical results. The present
+text can serve as a step-by-step introduction on how to write Monte Carlo codes
+and discusses associated pitfalls in detail based on a concrete example. All
+code is publicly available on GitHub under
 \href{https://github.com/nikikilbertus/Sky-MoCa}{\textsf{https://github.com/nikikilbertus/Sky-MoCa}}
 and we hope that it will be useful to others.
 
 The report is structured as follows. We briefly introduce the model Hamiltonian
 in \secref{sec:model}. In \secref{sec:mctheory} we provide a first high level
 overview of Monte Carlo integration and optimization and state some important
-properties and results mostly without proofs. \Secref{sec:metropolis} is the
-core part of this chapter. We derive and discuss properties of the so called
-\newterm{Metropolis algorithm} in quite some detail. Furthermore, practical
-verification strategies for Monte Carlo codes in general and the Metropolis
-algorithm in particular are treated in \secref{sec:analysis}. \Chapref{chap:2}
-finally introduces our implementation, Sky-MoCa, in \secref{sec:code}. In
-\secref{sec:results}, we go through the theoretic verification strategies
-discussed earlier in a specific sample simulation using Sky-MoCa. This should
-give the reader a feeling for what to expect when writing their own Monte Carlo
-code. Since the main goal of this report is to illuminate the methods, we will
-safe physically interesting results for the second paper. Finally, we conclude
-in \chapref{chap:3}.
+results mostly without proofs. \Secref{sec:metropolis} is the core part of this
+chapter. We derive and discuss properties of the so called \newterm{Metropolis
+algorithm} in quite some detail. Furthermore, practical verification strategies
+for Monte Carlo codes in general and the Metropolis algorithm in particular are
+treated in \secref{sec:analysis}. \Chapref{chap:2} introduces our implementation
+of the algorithm, Sky-MoCa, in \secref{sec:code}. In \secref{sec:results}, we go
+through the theoretic verification strategies discussed earlier in a specific
+sample simulation using Sky-MoCa. This should give the reader a feeling for what
+to expect when writing their own Monte Carlo code. Since the main goal of this
+report is to illuminate the methods, we move physical results to the second
+paper. Finally, we conclude in \secref{sec:conclusion}.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The Spin Lattice Model}\label{sec:model}
@@ -79,7 +81,7 @@ sphere~$S^2$, see \figref{fig:s2}. In the following we will often resort to the
 two-dimensional model for illustration purposes, because it is easier to draw on
 a two-dimensional surface as illustrated in \figref{fig:lattice}. However, all
 computations solely concern the three-dimensional model. Each vertex of the
-lattice could for example represent a nucleus in a solid with a rigid crystal
+lattice could for example represent a atom in a solid with a rigid crystal
 like structure. Hence the whole lattice can be interpreted as the regular atomic
 structure of a cubical piece of solid material.
 
@@ -133,7 +135,7 @@ Note that we can translate the whole lattice by arbitrary integer linear
 combinations of the standard basis vectors, thus starting at~$(1,1,1)$ does not
 have any physical meaning. It merely corresponds nicely to the numerical
 implementation in any~$1$-indexed programming language. At each point~$\r \in
-\Sigma$ we attach a spin~$\S_{\r} \in S^2$, which yields the overall
+\Sigma$ we attach a spin~$\S_{\r} \in S^2$, resulting in the overall
 configuration space
 %
 \begin{equation}
@@ -146,7 +148,8 @@ specific spin at position~$\r \in \Sigma$ by~$\S_{\r} \in S^2$. Note that only
 the positions of the spins are discretized, but not explicitly their directions.
 In any real implementation there is always a fine grained discretization caused
 by the finite number of representable floating point numbers. Discrete vertices
-and continuous spins mirror nicely the natural crystal structure of solids.
+and continuous three-dimensional spins mirror nicely the natural crystal
+structure of solids.
 
 In a typical physical simulation one might want to find the ground state of this
 system, \ie{} the lowest energy state, for some given external and internal
@@ -178,13 +181,10 @@ can be expressed as
 %
 where~$\alpha$ is the angle between~$\S_{\r_1}$ and~$\S_{\r_2}$. The minus sign
 ensures that the energy of two parallel spins is actually smaller than the
-energy of two perpendicular or even antiparallel ones. In the continuum theory
-of magnetic moments, the direct exchange term consists of a gradient, which is a
-local quantity, \ie{} the gradient at a point only depends on an arbitrarily
-small neighborhood of the point. Thus we will always consider the ferromagnetic
-exchange to be \newterm{local} or \newterm{short ranged} in the sense that it
-only contributes to the energy for adjacent lattice sites, as shown in
-\figref{fig:lattice}.
+energy of two perpendicular or even antiparallel ones. We will always consider
+the ferromagnetic exchange to be \newterm{local} or \newterm{short ranged} in
+the sense that it only contributes to the energy for adjacent lattice sites, as
+shown in \figref{fig:lattice}.
 
 \subsubsection{Interaction with an external field}
 
@@ -220,18 +220,17 @@ of magnetic moments in the system, it is a long ranged interaction. For a
 lattice with~$N^3$ vertices the number of pairs scales like~$N^6$. Due to
 limited computational resources and its relative weakness, most simulations do
 not take the dipole-dipole exchange into account. We will also disregard it
-completely in our implementation.
+completely in our implementation and further discussion in this report.
 
 \subsubsection{Dzyaloshinskii-Moriya exchange}
 
-In this work we are interested in certain crystals that lack inversion symmetry,
-\eg{} MnSi, and thus exhibit chiral magnets. The missing inversion symmetry
-gives rise to the so called \newterm{weak Dzyaloshinskii-Moriya} (DM) coupling.
-In the continuum it is described by a term proportional to~$-\S(\r) \cdot
-(\nabla \times \S(\r))$. Just like the gradient, the curl of a vector field is a
-local property, thus the DM exchange only contributes for adjacent lattice
-sites. The discretized version for two spins~$\S_{\r_1}, \S_{\r_2} \in S^2$ at
-neighboring positions~$\r_1, \r_2 \in \Sigma$ reads
+In this work we are interested in crystals that lack inversion symmetry, \eg{}
+MnSi, and thus exhibit chiral magnets. The missing inversion symmetry gives rise
+to the so called \newterm{weak Dzyaloshinskii-Moriya} (DM) coupling. Like the FM
+interaction, the DM exchange only contributes for adjacent lattice sites. The
+discretized version for two spins~$\S_{\r_1}, \S_{\r_2} \in S^2$ at neighboring
+positions~$\r_1, \r_2 \in \Sigma$ reads
+%
 \begin{equation}
   - (\S_{\r_1} \times \S_{\r_2}) \cdot (\r_2 - \r_1)\:.
 \end{equation}
@@ -239,7 +238,8 @@ neighboring positions~$\r_1, \r_2 \in \Sigma$ reads
 Note that~$\r_2 - \r_1$ is normalized by definition for neighboring vertices.
 Since the cross product is zero for parallel vectors and maximal for
 perpendicular ones, the DM coupling acts against the ferromagnetic interaction
-and favors constellations where adjacent spins are perpendicular to each other.
+and favors constellations where adjacent spins are perpendicular to each other
+in the plane normal to their connecting line.
 
 \subsection{The Hamiltonian}
 
@@ -318,8 +318,9 @@ around periodically to positions within the original lattice. This way every
 vertex has the same number of neighbors and we do not observe spurious boundary
 effects. In this report, we will only employ periodic boundary conditions in all
 three directions using~\eqref{periodicindices}. For other scenarios we kept the
-possibility of opening up the boundaries in one direction. This solves the issue
-of missing neighbors, which we encountered in~\eqref{FMsumnaive}.
+possibility of opening up the boundaries in one direction in our implementation.
+This solves the issue of missing neighbors, which we encountered
+in~\eqref{FMsumnaive}.
 
 \begin{figure}
   \centering
@@ -344,8 +345,8 @@ of missing neighbors, which we encountered in~\eqref{FMsumnaive}.
 \subsubsection{Combining all interactions}
 
 Now that we have established a well defined behavior at the boundary, we can
-also tackle the first problem of counting interactions multiple times. For
-periodic boundary conditions we could divide the whole expression by~$2$. In the
+also tackle the problem of counting interactions multiple times. For periodic
+boundary conditions we could divide expression~\eqref{FMsumnaive} by~$2$. In the
 implementation we do not want to actually carry out redundant computations, thus
 we work with
 %
@@ -367,25 +368,25 @@ Finally, the overall DM energy is analogously
 \end{equation}
 %
 Everything we discussed about boundary conditions for the FM exchange also holds
-true for the DM interaction. Ultimately, adding up all
-interactions~\eqref{Bsum},~\eqref{FMsum} and~\eqref{DMsum}, we obtain the
+true for the DM interaction. Adding up all
+interactions~\eqref{Bsum}, \eqref{FMsum} and~\eqref{DMsum}, we obtain the
 Hamiltonian, \ie{} the energy of the system in a given configuration~$\pi \in
 \Pi$
 %
 \begin{align}\label{hamiltonian}
   H(\pi) = &-\sum_{\r \in \Sigma}\biggl(\S_{\r} \cdot \B +
-      J \S_{\r} \cdot (\S_{\r+\hx} + \S_{\r+\hy} + \S_{\r+\hz})\nonumber \\
-      &+ K (\S_{\r} \times \S_{\r+\hx} \cdot \hx +
+      J\; \S_{\r} \cdot (\S_{\r+\hx} + \S_{\r+\hy} + \S_{\r+\hz})\nonumber \\
+      &+ K\; (\S_{\r} \times \S_{\r+\hx} \cdot \hx +
             \S_{\r} \times \S_{\r+\hy} \cdot \hy +
             \S_{\r} \times \S_{\r+\hz} \cdot \hz)\biggr)\:.
 \end{align}
 %
 The parameters~$J$,~$K$ and~$\B$ are sometimes used synonymously for the
 ferromagnetic, the Dzyaloshinskii-Moriya and the external field interaction
-terms. The physical behavior of the system strongly depends on these freely
-adjustable parameters. For a given set of parameters and at zero temperature we
-expect the system to settle in the ground state, which can be defined as the
-lowest energy configuration
+terms respectively. The physical behavior of the system strongly depends on
+these freely adjustable parameters. For a given set of parameters and at zero
+temperature we expect the system to settle in the ground state, which can be
+defined as the lowest energy configuration
 %
 \begin{equation}\label{objective}
   \argmin_{\pi \in \Pi} H(\pi)\:.
@@ -440,21 +441,22 @@ interactions. While the FM term in the Hamiltonian is minimal when all spins are
 parallel to each other, the DM term favors a configuration where neighboring
 spins are orthogonal. The specific compromise between those effects depends
 mostly on their respective strengths~$J$ and~$K$. In reality the direct
-interaction~$J$ is much stronger and one typically encounters helical structures
-with long modulation periods. For example in MnSi the spins wind around a given
-modulation axis only once per roughly~$40$ lattice spacings.  By tuning the
-ratio~$J/K$ we can set the periodicity. For a period of~$N$ lattice sites, we
-have to set~$J/K$ to~$1/\tan(2\pi / N)$. In all our simulations we chose~$J=1$
-and~$K=\tan(2\pi / 10)$, \ie{} one full modulation every~$10$ vertices.
-Because~$K=\tan(2\pi / 10)\approx 0.73$ is not much smaller than~$J=1$ we cannot
-directly model known chiral magnets such as MnSi in our simulation. However,
-larger periodicities would require much larger grids and thus be computationally
-infeasible. Moreover, we let the external magnetic field point in the~$\hz$
+interaction~$J$ is much stronger and one typically encounters helical or conical
+structures with long modulation periods for zero or small external fields
+respectively. For example in MnSi the spins wind around a given modulation axis
+only once per roughly~$40$ lattice spacings. By tuning the ratio~$J/K$ we can
+set the periodicity. For a period of~$N$ lattice sites, we have to set~$J/K$
+to~$1/\tan(2\pi / N)$. In all our simulations we chose~$J=1$ and~$K=\tan(2\pi /
+10)$, \ie{} one full modulation every~$10$ vertices. Because~$K=\tan(2\pi /
+10)\approx 0.73$ is not much smaller than~$J=1$ we cannot directly model known
+chiral magnets such as MnSi in our simulation. However, larger periodicities
+would require much larger grids and thus be computationally infeasible.
+Moreover, we let the external magnetic field point in the~$\hz$
 direction~$\B=(0,0,B)$ and only keep~$B$ as a free scalar parameter.
 
 We can fix one of the parameters, in this case~$J$, arbitrarily and then work in
 abstract lattice units. A computer can only deal with dimensionless numbers and
-in numerical simulations one often makes some convenient, but arbitrary choices.
+in numerical simulations one often makes convenient, but arbitrary choices.
 It is then sometimes quite difficult to translate the results back to physically
 meaningful values.
 
@@ -465,13 +467,13 @@ energy cannot be accounted for by an additional term in the Hamiltonian. Our
 intuition tells us that thermal energy is intrinsically of dynamic nature, thus
 cannot be captured sensibly in a single static spin configuration. Thermodynamic
 observables are statistical properties of an ever evolving underlying system. In
-fact we will account for temperature not in the Hamiltonian buy via the
-Metropolis algorithm, which we will encounter in \secref{sec:metropolis}, where
-the dynamic and statistical nature of thermodynamics will become apparent.
+fact we will account for temperature not in the Hamiltonian but via the
+Metropolis algorithm, which we describe in \secref{sec:metropolis}, where the
+dynamic and statistical nature of thermodynamics will become apparent.
 
 \subsection{Summary}
 
-In this section we have set up our model, which we want to briefly summarize. We
+In this section we have set up our model, which we want to summarize briefly. We
 work on the lattice
 %
 \begin{equation}
@@ -486,8 +488,8 @@ yields the configuration space
   \Pi := \prod_{\r \in \Sigma} S^2\:.
 \end{equation}
 %
-On~$\Pi$ we define the Hamiltonian~$H+H'$ from~\eqref{hamiltonion}
-and~\eqref{hamiltonianfull} where we implement periodic (or partially open)
+On~$\Pi$ we define the Hamiltonian~$H+H'$ from~\eqref{hamiltonian}
+and~\eqref{hamiltonianfix} where we implement periodic (or partially open)
 boundary conditions. The parameters~$J=1$ and~$K=\tan(2\pi / 10)$ of the FM and
 DM interaction are fixed, which leaves us only with the magnetic field in
 the~$\hz$ direction~$B$ as a free parameter. In the next section we will
@@ -506,44 +508,49 @@ methods.
 %
 Now that we have clearly stated the model, let us start going into algorithmic
 techniques. Monte Carlo methods stand for a broad class of numerical algorithms
-that are based on some sort of repeated random sampling. The term actually stems
-from the casinos in Monte Carlo, where gamblers bet on the outcome of random
+that are based on some sort of repeated random sampling. The term was coined by
+the casinos in Monte Carlo, where gamblers bet on the outcome of random
 processes. It is hard to formulate a more specific feature that all Monte Carlo
 algorithms have in common. Most often, Monte Carlo techniques are used for
 optimization, integration or sampling probability distributions. Our specific
 problem contains a mixture of all three fields, arguably with the main focus on
-integration. Before we describe the Metropolis algorithm in detail, we have to
-issue a warning. While Monte Carlo methods are generally easy to implement and
-are sometimes even applied blindly to virtually any problem, they are almost
-always hopelessly inferior to specialized techniques in terms of accuracy and
+integration.
+
+Before we describe the Metropolis algorithm in detail, we have to issue a
+warning. While Monte Carlo methods are generally easy to implement and are
+sometimes even applied blindly to virtually any problem, they are almost always
+hopelessly inferior to specialized techniques in terms of accuracy and
 efficiency. They should be the last resort after everything else has failed. We
 will reason about this in the following subsections. Let us start out with a
-general description of Monte Carlo integration and optimization. The remainder
-of this chapter is based on a collection of different overview articles on Monte
-Carlo methods~\cite{mc09, mc14, mc00} as well as comprehensive books on Monte
-Carlo methods in statistical physics~\cite{mcbook, optinphysics}.
+general description of Monte Carlo integration and optimization.
 
-\subsection{Integration}
+The remainder of this chapter is based on a collection of different overview
+articles~\cite{mc09, mc14, mc00} as well as comprehensive books on Monte Carlo
+methods in statistical physics~\cite{mcbook, optinphysics}.
+
+\subsection{Integration}\label{integration}
 
 \subsubsection{Overview and comparison of integration methods}
 
-The most naive numerical integration methods make use of interpolating
-functions. They sample the integrand at a fixed finite number of base points in
-the domain and approximate the integrand by an interpolation that is easy to
-integrate. Consider for example the trapezoidal rule. It samples the integrand
-on a homogeneous grid and approximates it by a piecewise linear function between
-the grid vertices, see \figref{fig:int}. The integral of a piecewise linear
-function is easily computed by adding up the areas of the trapezoids underneath
-the curve. The larger the number of base points, \ie{} the smaller the grid
-spacing, the more accurate the result for sufficiently well behaved integrands.
-The important aspect here is that for a given integration rule and a given
-number of base points the choice of nodal points in the domain is completely
-deterministic. More sophisticated routines refine the grid of base points
-iteratively in regions, where the error is above a certain accuracy and
-precision goal. But even such \newterm{adaptive} methods have fixed rules how
-the new samples have to be chosen. Typically that determinism brings great
-advantage, because one can prove optimality results and certain error bounds for
-wise choices of base points.
+The oldest and most naive numerical integration methods make use of
+interpolating functions. They sample the integrand at a fixed finite number of
+base points in the domain and approximate the integrand by an interpolation that
+is easy to integrate. Consider for example the trapezoidal rule. It samples the
+integrand on a homogeneous grid and approximates it by a piecewise linear
+function between the grid vertices, see \figref{fig:int}. The integral of a
+piecewise linear function is easily computed by adding up the areas of the
+trapezoids underneath the curve. The larger the number of base points, \ie{} the
+smaller the grid spacing, the more accurate is the result for sufficiently well
+behaved integrands. The important aspect here is that for a given integration
+rule and a given number of base points the choice of nodal points in the domain
+is completely deterministic.
+
+More sophisticated routines refine the grid of base points iteratively in
+regions, where the error does not meet certain accuracy and precision goals. But
+even such \newterm{adaptive} methods have fixed rules how the new samples have
+to be chosen. Typically that determinism brings great advantage, because one can
+prove optimality results and certain error bounds for wise choices of base
+points.
 
 In contrast, Monte Carlo techniques draw the samples randomly from some
 probability distribution. The general idea is illustrated by the one-dimensional
@@ -557,7 +564,7 @@ the definition of the expectation value we have
 where~$E_{\cU_{[0,1]}}$ is simply the expectation value over the uniform
 distribution~$\cU$ on the interval~$[0,1]$. The expectation value can be
 approximated by averaging~$f$ over~$N \in \bN$ independent samples~${x_i}$
-of~$\cU_{[0,1]}$
+of a~$\cU_{[0,1]}$ distributed random variable
 %
 \begin{equation}\label{evapprox}
   E_{\cU_{[0,1]}}(f) \approx \frac{1}{N} \sum_{i=1}^N f(x_i)
@@ -581,6 +588,7 @@ methods converge extremely fast for suitable integrands. Keep in mind that we
 are talking about the simplest rules imaginable which are hardly ever used in
 practice. State of the art integration methods are far more sophisticated
 with still better convergence properties for a certain classes of functions.
+
 However, to exploit the full potential of specialized integration routines one
 still has to have some idea of what the integrand looks like. Periodic functions
 call for other routines than slightly singular functions with strongly localized
@@ -590,12 +598,12 @@ easily fall victim to the curse of dimension. For example, imagine we want to
 compute a ten-dimensional integral. Even a coarse first grid of ten base points
 in each direction requires~$10^{10}$ function evaluations. For a complex
 integrand that requires hundreds or thousands of floating point operations per
-evaluation even that initial sampling exceeds the capacities of a typical
-private computer. Once we try to refine the grid by say a factor of~$2$ in each
-dimension we get into real trouble, since the number of base points consequently
-increases by a factor of thousand, rendering most direct integration routines
-infeasible even for the fastest computers available. Let us contrast these
-insights with the workings and errors of Monte Carlo integration.
+evaluation, even that initial sampling exceeds the capacities of a typical
+privately owned computer. Once we try to refine the grid by say a factor of~$2$
+in each dimension we get into real trouble, since the number of base points
+consequently increases by a factor of thousand, rendering most direct
+integration routines infeasible even for the fastest computers available. Let us
+contrast these insights with the workings and errors of Monte Carlo integration.
 
 \subsubsection{Error of Monte Carlo integration}
 
@@ -606,15 +614,16 @@ approximation~\eqref{evapprox} converges for large~$N$
   \lim_{N \to \infty} \frac{1}{N} \sum_{i = 1}^N f(x_i) = E_{\cU_{[0,1]}}(f)\:.
 \end{equation}
 %
-Let us henceforth use~$I$ and~$\hat{I}$ for the exact and approximate values of
-the integral
+However, it is important to know how fast it converges, \ie{} how large the
+error is. Let us henceforth use~$I$ and~$\hat{I}$ for the exact and approximate
+values of the integral
 %
 \begin{equation}
   I := \int_0^1 f(x) \sucd{x} \qqtxtqq{and}
   \hat{I} := \frac{1}{N} \sum_{i=1}^N f(x_i)\:.
 \end{equation}
 %
-As usual, we define the variance of~$f$ by
+We define the variance of~$f$ by
 %
 \begin{equation}
   \sigma^2(f) = \int_0^1 (f(x) - I)^2 \sucd{x}\:.
@@ -666,9 +675,10 @@ than~$5 \cdot 10^{-4}$. We compute
 %
 which leads to a minimal~$N$ of roughly~$2\cdot10^5$ to achieve our accuracy
 goal. We need a couple hundred thousand function evaluations for a moderate
-error in a very simple and well behaved integral. For comparison, the
-trapezoidal rule reaches the same error for about~$15$ base points, see
-\figref{fig:int}.
+error in a simple and well behaved integral. For comparison, the
+trapezoidal rule reaches the same error for about~$15$ base points, see the
+second row of \figref{fig:int}, where we show only~$7$ base points for
+illustration purposes.
 
 \subsubsection{Importance sampling}
 
@@ -694,8 +704,9 @@ rewrite this as
 \end{equation}
 %
 where~$p$ is the probability density function of some measure~$\mu$ on~$\Omega$
-with respect to the Lebesgue measure. Since we have changed the integration
-measure, we can now approximate the integral by
+with respect to the Lebesgue measure. The expectation value~$E_p$ is with
+respect to this measure. Since we have changed the integration measure, we can
+now approximate the integral by
 %
 \begin{equation}
   \int_{\Omega \subset \bR^n} f(x) \sucd{\lambda}^n(x) \approx
@@ -704,7 +715,7 @@ measure, we can now approximate the integral by
 %
 where the~$x_i^p$ are now independent samples from the probability distribution
 induced by~$p$. The key point is that the error estimate is unaffected by the
-distribution we draw the samples from and is thus
+distribution we draw the samples from and is thus given by
 %
 \begin{equation}
   \frac{\sigma(f/p)}{\sqrt{N}} \:.
@@ -716,19 +727,20 @@ choice would mean~$f/p = \const$. This shows that~$p$ should be large/small
 where~$f$ is large/small, which makes sense intuitively. We concentrate the
 samples in regions where the contributions to the integral are large. Regions
 where~$f$ is insignificantly small will only be sampled sparsely. Therefore we
-call the procedure of drawing the samples form a distribution chosen to minimize
-the variance \newterm{importance sampling}.
+call this procedure \newterm{importance sampling}.
 
 For this method to work in practice, one needs to be able to efficiently sample
 the distribution induced by~$p$. In general this is a difficult task and a lot
 of research has gone into the development of good pseudo random number
 generators following arbitrary probability distributions. Moreover, Monte Carlo
 integration is typically used precisely when we do not know much about~$f$,
-hence cannot choose~$p$ adequately upfront. There are algorithms based on
-importance sampling, for example VEGAS, that update~$p$ in real time during the
-integration to concentrate on important regions. However, it turns out that many
-integrals that come up in physics, particularly in statistical physics as we
-will see later, already come in the form
+hence cannot choose~$p$ adequately upfront.
+
+There are algorithms based on importance sampling, for example VEGAS, that
+update~$p$ in real time during the integration to concentrate on important
+regions. However, it turns out that many integrals that come up in physics,
+particularly in statistical physics as we will see later, already come in the
+form
 %
 \begin{equation}\label{probform}
   \int_{\Omega \subset \bR^n} f(x) p(x) \sucd{\lambda}^n(x)\:,
@@ -743,7 +755,7 @@ In this case we can directly rewrite the integral as
 \end{equation}
 %
 Usually~$\sigma(f)$ is smaller than~$\sigma(f\cdot p)$ and as long as we can
-sample~$p$ efficiently, we can improve the error for the same~$N$.
+sample~$p$ efficiently, we can improve the error for fixed~$N$.
 
 Let us illustrate importance sampling with an example. On the right side of the
 second row of \figref{fig:int} we plot the function~$e^{-x}$ and some
@@ -771,13 +783,13 @@ In this case the Monte Carlo approximation becomes trivial
 which is the exact value of the integral, see last row of \figref{fig:int}. In
 this simplified case the integrand itself is up to a normalization constant a
 probability density function on~$[0,1]$. The function~$f$ that is left as an
-integrand is constant, thus as vanishing variance and a single sample is enough
+integrand is constant, thus has vanishing variance and a single sample is enough
 to get the error down to zero. Hence we already computed the integral exactly by
 finding the normalization constant for~$p$. In real use cases the function~$f$
 would not be constant and we would have to collect more than just one sample for
 a reasonable estimate.
 
-\begin{figure}
+\begin{figure}[H]
   \centering
   \begin{tikzpicture}[declare function={f=100 - x - 6*x^2 + x^3;}]
     \begin{axis}[
@@ -887,12 +899,46 @@ a reasonable estimate.
   \caption{We show the basic principle of the trapezoidal rule in the left
   column and Monte Carlo integration in the right column. In the top row we
   consider some arbitrary function and draw from a uniform distribution in the
-  Monte Carlo integration. In the bottom row we integrate the
+  Monte Carlo integration. In the second row we integrate the
   function~$e^{-x}$. While sampling uniformly yields a big error due to the
   large variation of the exponential function, we can instead draw our samples
   according to an exponential distribution as shown in the bottom center plot.}
 \label{fig:int}
 \end{figure}
+
+\subsubsection{Jackknife}
+
+While the theoretic prediction for the error in a Monte Carlo integration of the
+function~$f$ with~$N$ random samples is given by~$\sigma(f) / \sqrt{N}$, we
+cannot compute this quantity in practice. Usually one does not have access
+to~$\sigma(f)$. Instead, one typically employs a procedure called
+\newterm{jackknife} to estimate the error. Given the samples~$f_i$ for~$i \in
+\numlist{1}{N}$, we compute the mean
+%
+\begin{equation}
+  \overline{f} := \frac{1}{N} \sum_{i=1}^N f_i
+\end{equation}
+%
+and define
+%
+\begin{equation}
+  \overline{f}_i := \frac{1}{N-1} \sum_{j=1, j\ne i}^N f_j \:,
+\end{equation}
+%
+for all~$i \in \numlist{1}{N}$. The quantity~$\overline{f}_i$ is the mean of all
+samples except the~$i$-th one. An estimate of the variance of the original
+estimator is then given by
+%
+\begin{equation}
+  \sigma_{\mathrm{jk}}^2(f) =
+    \frac{N-1}{N} \sum_{i=1}^N (\overline{f}_i - \overline{f})^2\:.
+\end{equation}
+
+More specifically, this is the so called \newterm{leave one out} jackknife
+method. There are many more sophisticated resampling methods like
+\newterm{bootstrapping}~\cite{bootstrap}. The jackknife is a comparatively rough
+tool~\cite{jackknife}. However, because it is easy to use and implement, it is
+still widely used for error estimates in Monte Carlo methods.
 
 \subsection{Optimization}
 
@@ -912,29 +958,31 @@ called local iterative methods, where we have to specify a start point,
 approximate the function around this point, proceed a certain distance in the
 downward direction of the model and repeat the procedure from there. Numerous
 gradient-descent and (Quasi-)Newton methods fall into that category of iterative
-methods. The convergence rate and also the complexity depend on how much
-information we have about the derivatives of the function, but most iterative
-methods are guaranteed to converge to a minimum for sufficiently well behaved
-objectives and wisely chosen parameters.
+methods.
 
-The major trouble with local methods is precisely that they find \emph{a}
-minimum, but potentially not \emph{the} minimum. If a function has several local
-minima, depending on the start point, we might end up in any of them and
-potentially overlook a global minimum somewhere else hidden to our descent
-method by a barrier. In this case we could either still employ iterative methods
-with multiple starting points and hope that one of them guides us to the global
-minimum, or switch to heuristics. Heuristics are not mathematically guaranteed
-to find the solution. In fact, very little can be proven about how well
-heuristics will perform in general. However, they often turn out to be very
-useful, especially if we cannot apply a finitely terminating or at least
-provably convergent iterative algorithm, see \figref{fig:samplefuncs}.
-Interestingly, many heuristics have been inspired by natural processes the
-genetic algorithms, bee or ant colony optimization, evolutionary algorithms or
-simulated annealing. We will come back to simulated annealing in a slightly
-different setting in \secref{sec:siman}. Although we will not try to minimize
-the energy of our model in the strict sense, simulated annealing will enable us
-to reach configurations we might have missed otherwise. Therefore it is
-worthwhile to discuss Monte Carlo optimization for our application.
+The convergence rate and also the complexity depend on how much information we
+have about the derivatives of the function, but most iterative methods are
+guaranteed to converge to a minimum for sufficiently well behaved objectives and
+wisely chosen parameters. The major trouble with local methods is precisely that
+they find \emph{a} minimum, but potentially not \emph{the} minimum. If a
+function has several local minima, depending on the start point, we might end up
+in any of them and might overlook a global minimum somewhere else hidden to our
+descent method by a barrier. In this case we could either still employ iterative
+methods with multiple starting points and hope that one of them guides us to the
+global minimum, or switch to heuristics.
+
+Heuristics are not mathematically guaranteed to find the solution. In fact,
+little can be proven about how well heuristics will perform in general. However,
+they often turn out to be useful, especially if we cannot apply a finitely
+terminating or at least provably convergent iterative algorithm, see
+\figref{fig:samplefuncs}. Interestingly, many heuristics have been inspired by
+natural processes the genetic algorithms, bee or ant colony optimization,
+evolutionary algorithms or simulated annealing. We will come back to simulated
+annealing in a slightly different setting in \secref{sec:siman}. Although we
+will not try to minimize the energy of our model in the strict sense, simulated
+annealing will enable us to reach configurations we might have missed otherwise.
+Therefore it is worthwhile to discuss Monte Carlo optimization for our
+application.
 
 \begin{figure}
   \centering
@@ -984,8 +1032,8 @@ worthwhile to discuss Monte Carlo optimization for our application.
     \end{axis}
   \end{tikzpicture}%
   \caption{Convex functions like the one shown in (a) can be minimized extremely
-  efficiently even on high-dimensional domains. While the second example (b) is
-  not convex anymore, it is smooth and has a unique minimum. Therefore local
+  efficiently even over high-dimensional domains. While the second example (b)
+  is not convex anymore, it is smooth and has a unique minimum. Therefore local
   iterative methods will do an excellent job and converge quickly to the
   minimum. Function (c) is still smooth, but has several minima. Depending on
   where we position the starting point, iterative gradient methods might get
@@ -996,25 +1044,27 @@ worthwhile to discuss Monte Carlo optimization for our application.
 \label{fig:samplefuncs}
 \end{figure}
 
-The domain of our specific spin lattice optimization problem is a~$2 N_x N_y
+The domain of our spin lattice optimization problem is a~$2 N_x N_y
 N_z$-dimensional space. Even for relatively small lattices optimization in such
 a high-dimensional space is generically hard. Unfortunately, it appears
-completely hopeless to compute the gradient or even Hessian of the
-Hamiltonian~\eqref{hamiltonian} analytically. Moreover, it is hard to develop
-intuition about how the energy landscape looks like, not only because we can
-barely visualize anything in more than three dimensions. It appears certain,
-however, that it will include a vast number of local minima with rough hills and
-valleys. It is likely to be a higher-dimensional equivalent of plot~(d) in
+completely hopeless to efficiently implement the gradient or even Hessian of the
+Hamiltonian~\eqref{hamiltonian}. Moreover, it is hard to develop intuition about
+how the energy landscape looks like, not only because we can barely visualize
+anything in more than three dimensions. It appears certain, however, that it
+will include a vast number of local minima with rough hills and valleys. It is
+likely to be a higher-dimensional equivalent of plot~(d) in
 \figref{fig:samplefuncs}. All of this is bad news for efficient iterative
-optimization methods and we have to fall back to heuristics. Our only option is
-to sample the search space preferably in a smart and structured way and hope to
-capture the minimum within reasonable computation time. This is precisely what
-simulated annealing is about. It merely consist of a sampling strategy like the
-Metropolis algorithm that involves some randomness and makes use of
-thermodynamic properties which we will discover in the next section. As was the
-case for integration, this is horrifically inefficient. By now we understand why
-Monte Carlo techniques should only be considered once everything else failed or
-proved intractable.
+optimization methods and we have to fall back to heuristics.
+
+Our only option is to sample the search space preferably in a smart and
+structured way and hope to capture the minimum within reasonable computation
+time. This is precisely what simulated annealing is about. It merely consist of
+a sampling strategy like the Metropolis algorithm that involves some randomness
+and tries to gradually settle in states of lower and lower energy. We will
+discover the Metropolis algorithm in the next section. As was the case for
+integration, this is horrifically inefficient. By now we understand why Monte
+Carlo techniques should only be considered once everything else failed or proved
+intractable.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The Metropolis algorithm}\label{sec:metropolis}
@@ -1022,28 +1072,28 @@ proved intractable.
 %
 The name \newterm{simulated annealing} already hints towards thermodynamic
 processes, which we identified to be a key feature of our system, but were not
-yet able to bake it into the model. Clearly any real material at finite
+yet able to bake it into the model. Clearly any real system at finite
 temperature is not completely static, \ie{} stuck in a fixed state~$\pi \in
 \Pi$, but it is constantly subject to thermal fluctuations. The Metropolis
 algorithm, which is the core part of the simulated annealing algorithm we will
 describe later, is designed to mimic real world systems at finite temperature
 and will take care of thermal fluctuations. That implies that we will not seek
-to find a single best state~$\pi \in \Pi$ anymore, but consider only consider
-thermal averages of observables over several configurations. To fully understand
-and appreciate the Metropolis algorithm and its ties to physics, we need some
-basic concepts from statistical physics.
+to find a single best state~$\pi \in \Pi$, but only consider thermal averages of
+observables over many configurations. To fully understand and appreciate the
+Metropolis algorithm and its ties to physics, we need some basic concepts from
+statistical physics.
 
 \subsection{Statistical physics in a nutshell}
 
-In macroscopic complex many body systems such as gases or condensed matter at
-finite temperature, we are often not interested in every single detail of that
-system at a given moment in time. For example, we do not want to know the
-position and velocity as well as rotational and vibrational modes of each single
-molecule in a piston. Sensible observables are typically some sort of
-macroscopic averages like the volume, temperature or pressure of the gas. For a
-solid we might be interested in its specific heat, conductivity or
-susceptibility rather than the joint many body wave function of all electrons.
-Statistical physics provides a sound and rigorous way to define those averages.
+In macroscopic many body systems such as gases or condensed matter at finite
+temperature, we are often not interested in every single detail of that system
+at a given moment in time. For example, we do not want to know the position and
+velocity as well as rotational and vibrational modes of each single molecule in
+a piston. Sensible observables are typically some sort of macroscopic averages
+like the volume, temperature or pressure of the gas. For a solid we might be
+interested in its specific heat, conductivity or susceptibility rather than the
+joint many body wave function of all electrons. Statistical physics provides a
+sound and rigorous way to define those averages.
 
 Instead of working with the complete microstates, in our case the elements
 of~$\Pi$, directly, we only talk about the probability~$P_{T}(\pi)$ that the
@@ -1079,10 +1129,10 @@ replaced by an integral
   Z := \int_{\Pi} \exp(-\beta H(\pi)) \sucd{\mu}_{\Pi}(\pi)\:,
 \end{equation}
 %
-where the measure~$\mu_{\Pi}$ depends on the configuration space. It is a
-product measure of the standard measure on~$S^2$, but the mathematical details
-are not important for the further treatment in this report. Note that we will
-always consider the equilibrium Boltzmann distribution for a fixed
+where the measure~$\mu_{\Pi}$ depends on the configuration space. In our system
+it is a product measure of the standard measure on~$S^2$, but the mathematical
+details are not important for the further treatment in this report. Note that we
+will always consider the equilibrium Boltzmann distribution for a fixed
 temperature~$T$ and sometimes drop the subscript~$T$ and simply denote it
 by~$P$.
 
@@ -1097,7 +1147,7 @@ large and the system can visit many different microstates. At zero temperature
 we expect the system to settle in the ground state.
 
 In a probabilistic description, the energy or magnetization of one single
-specific configuration looses its significance. Instead we measure expectations
+specific configuration looses its significance. Instead we measure expectation
 values of observables. For an observable~$\map{\cO}{\Pi}{\bR}$ we compute the so
 called \newterm{thermal average}
 %
@@ -1117,7 +1167,7 @@ In our case the observables we are primarily interested in are the
 energy~$\avg{H}$ and the three components of the magnetization~$\avg{\M} =
 \avg{\sum_{\r \in \Sigma} \S_{\r} / \abs{\Sigma}}$.
 
-One question immediately poses itself: How could be possibly compute the
+One question immediately poses itself: How could we possibly compute the
 high-dimensional integral in~\eqref{thermavgint} for our specific situation?
 Even for finite configuration spaces the sum in~\eqref{thermavgsum} would
 contain extraordinarily many terms. If each lattice site could only be in two
@@ -1146,19 +1196,20 @@ The challenge is to generate independent random samples following the Boltzmann
 distribution~\eqref{boltzmann}. Generating a uniformly random configuration is
 relatively easy, although there is one major pitfall one has to look out for.
 The strategy is of course to pick a uniformly random spin at each vertex of the
-grid. We assume that the programming language has efficient built in routines
-for pseudo random numbers following common distributions such as the uniform,
-normal or exponential distribution. Some programmers claim to generate uniformly
-random elements of~$S^2$ in the following way. They generate three random
-numbers~$x,y,z \sim \cU_{[-1,1]}$ and then normalize the resulting
-vector~$(x,y,z) / \sqrt{x^2 + y^2 + z^2}$. While~$(x,y,z)$ in this case is
-uniformly distributed on the cube~$[-1,1]^3$, by simply projecting all points
-onto the sphere~$S^2 \subset [-1,1]^2$, the points that were originally
-generated outside the sphere, \ie{} in~$[-1,1]^3 \setminus B^3$, are unevenly
-distributed. Here the unit ball~$B^3$ is the interior of~$S^2$. The corners of
-the cube host more points than the areas where the sphere actually touches the
-faces of the cube and thus we expect more points in a small neighborhood
-around~$3^{-1/2} (1,1,1)$ than around~$(0,0,1)$.
+grid. We assume that the programming language of choice has efficient built in
+routines for pseudo random numbers following common distributions such as the
+uniform, normal or exponential distribution.
+
+Some programmers claim to generate uniformly random elements of~$S^2$ in the
+following way. They generate three random numbers~$x,y,z \sim \cU_{[-1,1]}$ and
+then normalize the resulting vector~$(x,y,z) / \sqrt{x^2 + y^2 + z^2}$.
+While~$(x,y,z)$ in this case is uniformly distributed on the cube~$[-1,1]^3$, by
+simply projecting all points onto the sphere~$S^2 \subset [-1,1]^2$, the points
+that were originally generated outside the sphere, \ie{} in~$[-1,1]^3 \setminus
+B^3$, are unevenly distributed. Here the unit ball~$B^3$ is the interior
+of~$S^2$. The corners of the cube host more points than the areas where the
+sphere actually touches the faces of the cube and thus we expect more points in
+a small neighborhood around~$(1,1,1)/\sqrt{3}$ than around~$(0,0,1)$.
 
 There are several ways to mitigate this effect. One is to discard all
 points~$(x,y,z)$ with length greater than one and redraw new points in the cube
@@ -1193,7 +1244,7 @@ improvement, because we only discard the fraction
 %
 but still not optimal. Interestingly, the original
 method~$(x,y,z)/\norm{(x,y,z)}$ works if we draw~$x,y,z$ independently from a
-normal distribution with mean zero. The downside of this approach is that the
+normal distribution with zero mean. The downside of this approach is that the
 generation of normally distributed random numbers is slightly slower than
 uniformly distributed ones.
 
@@ -1233,14 +1284,14 @@ Markov chains.
 
 \subsection{Markov chains}
 
-The crucial idea is to not create each random sample completely from scratch,
-but to slowly work towards more likely configurations. If we simply pick a
-uniform random configuration, we can only evaluate its energy once it has been
-generated. It would take a huge number of samples to figure out which energies
-are relatively high and therefore unimportant, or relatively low and therefore
-contribute a lot. Even if we knew the energy range up front, we could not
-generate configurations in a certain energy range from scratch, but only decide
-after we have generated them.
+The crucial idea is to not create each random sample of the equilibrium
+Boltzmann distribution completely from scratch, but to slowly work towards more
+likely configurations. If we simply pick a uniform random configuration, we can
+only evaluate its energy once it has been generated. It would take a huge number
+of samples to figure out which energies are relatively high and therefore
+unimportant, or relatively low and therefore contribute a lot. Even if we knew
+the energy range up front, we could not generate configurations in a certain
+energy range from scratch, but only decide after we have generated them.
 
 The cure for this problem are so called \newterm{Markov chains}. In a Markov
 chain we start at any configuration~$\pi_0$ and modify it to transition to the
@@ -1282,7 +1333,7 @@ no indicators yet as to which spin we should change and how to modify it to
 bring the new state close to a sample from the Boltzmann distribution, we follow
 the Monte Carlo scheme and select the position~$\r \in \Sigma$ as well as the
 new spin~$\S'_{\r}\in S^2$ uniformly at random, respectively. Obviously, flipping
-one spin out of many does not yet result in an independent state, in fact the
+one spin out of many does not yet result in an independent state. In fact the
 correlation between the two configurations would be almost one. Thus~$\phi$ has
 to consist of a little more than just changing one spin. Henceforth let us call
 the action of changing one spin an \newterm{update}.
@@ -1310,7 +1361,7 @@ carefully selecting which updates actually are allowed to happen and which we
 reject without any changes to the current state, we can tune the transition
 probabilities to our liking.
 
-\begin{figure}
+\begin{figure}[H]
   \centering
   \begin{tikzpicture}
     \draw[thick] (0,0) -- +(0.5,0) node[pos=0, left] {$\pi_i$};
@@ -1373,15 +1424,17 @@ thus find
 This condition is called \newterm{detailed balance} and is a key feature of
 Markov chains. We can interpret it as reversibility of the transition
 process~$\phi$. Going from~$\pi$ to~$\pi'$ is equally likely as the other way
-round. For completeness, let us mention that the second key requirement for
-Markov chains to work properly is \newterm{ergodicity}. Ergodicity says that
-each state must be reachable from every other state in a finite number of steps.
-We are not going to elaborate on the theoretical importance of this property,
-but only point out that ergodicity is clearly fulfilled in our specific model,
-because we have to change a maximum of~$N_x N_y N_z$ spins and each possible
-spin flip has non-zero probability at finite temperature. One can show that if
-detailed balance and ergodicity are fulfilled, the Markov chain is guaranteed to
-converge to a stationary distribution.
+round.
+
+For completeness, let us mention that the second key requirement for Markov
+chains to work properly is \newterm{ergodicity}. Ergodicity says that each state
+must be reachable from every other state in a finite number of steps. We are
+not going to elaborate on the theoretical importance of this property, but only
+point out that ergodicity is clearly fulfilled in our specific model, because we
+have to change a maximum of~$N_x N_y N_z$ spins and each possible spin flip has
+non-zero probability at finite temperature. One can show that if detailed
+balance and ergodicity are fulfilled, the Markov chain is guaranteed to converge
+to a stationary distribution.
 
 \subsubsection{The Metropolis algorithm}
 
@@ -1394,7 +1447,7 @@ another interesting aspect
 \end{equation}
 %
 Thus the transition probabilities depend only on the energy difference of the
-two states in question. In particular it does not remember previous states. At
+two states in question. In particular there is no memory of previous states. At
 each step we can decide the transition probability purely from the current and
 the proposed successor configuration. This property is our main guidance in
 engineering the transition probabilities. One rather obvious choice is given by
@@ -1408,25 +1461,25 @@ transition probabilities. The whole Markov chain Monte Carlo integration for
 thermodynamic systems like ours using the Metropolis transition probabilities is
 simply called \newterm{Metropolis algorithm} or \newterm{Metropolis-Hastings
 algorithm}. There are also other plausible choices for the transition
-probabilities, for example the so called \newterm{Heatbath, Glauber, or
-overrelaxation algorithms}, but we will only discuss and implement the
-Metropolis algorithm.
+probabilities, for example the so called \newterm{Heatbath}, \newterm{Glauber},
+or \newterm{overrelaxation} algorithms, but we will only discuss and implement
+the Metropolis algorithm.
 
-Now that we know the transition probabilities we can bake them into our state
+Now that we know the transition probabilities, we can bake them into our state
 transition procedure~$\phi$. Recall that~$\phi$ consists of~$\Nsweep$ lattice
-sweeps, each of which performs~$\abs{\Sigma}$ random updates of single spins. Each
-time we have selected a spin~$\S_{\r}$ from the current configuration~$\pi$ for
-an update, we will first generate its potential replacement~$\S'_{\r} \sim
+sweeps, each of which performs~$\abs{\Sigma}$ random updates of single spins.
+Each time we have selected a spin~$\S_{\r}$ from the current configuration~$\pi$
+for an update, we will first generate its potential replacement~$\S'_{\r} \sim
 \cU_{S^2}$, which would lead to state~$\pi'$. But now we only actually perform
 the update, if
 %
 \begin{equation}
-  T(\pi \to \pi') \ge p, \quad \text{where } p
+  \T(\pi \to \pi') \ge p, \quad \text{where } p
     \text{ is a sample from } \cU_{[0,1)}\:.
 \end{equation}
 %
-Note that this is the only time we consider configurations that are only
-separated by one update. We do not accept or reject full lattice sweeps or even
+Note that this is the only time we consider configurations that are separated by
+just one update. We do not accept or reject full lattice sweeps or even
 applications of~$\phi$ but every single update within every sweep. Thereby we
 abide to the desired transition probabilities in each update, thus in each sweep
 and eventually also in each complete transition~$\phi$.
@@ -1490,7 +1543,7 @@ Therefore it has to output the collection of desired observables, which we
 denote generically by~$\cO$, for~$N$ independent samples of the Boltzmann
 distribution. Let us now put all the pieces together and lay out a pseudo code
 for the Metropolis algorithm at fixed temperature~$T$ and external field~$B$ in
-algorithm~\ref{alg:metropolis}. The full metropolis algorithm can be depicted
+Algorithm~\ref{alg:metropolis}. The full metropolis algorithm can be depicted
 schematically as
 
 \begin{equation}
@@ -1508,16 +1561,19 @@ schematically as
 \end{equation}
 
 The starting configurations~$\pi_0$ can technically be chosen as one pleases, we
-always use a hot start~$\pi_0 \sim \cU_{\Pi}$. It is not used in computing
-thermal averages. We have to choose~$\Ntherm$ large enough for the system to
-equilibrate, \ie{} reach a stationary distribution, and~$\Nsweep$ large enough
-to render subsequent configurations of the Markov chain uncorrelated. The number
-of configurations~$N$ determines the error~$\sim 1/\sqrt{N}$ of the final
-estimate
+always use a hot start~$\pi_0 \sim \cU_{\Pi}$. The initial state~$\pi_0$ is not
+used in computing thermal averages. We have to choose~$\Ntherm$ large enough for
+the system to equilibrate, \ie{} reach a stationary distribution, and~$\Nsweep$
+large enough to render subsequent configurations of the Markov chain
+uncorrelated. The number of configurations~$N$ determines the error~$\sim
+1/\sqrt{N}$ of the final estimate
 %
 \begin{equation}
   \avg{\cO} = \frac{1}{N} \sum_{i=1}^N \cO(\pi_i) \:.
 \end{equation}
+%
+In practice the error estimate for this value~$\avg{\cO}$ is computed by the
+jackknife method as described earlier in subsection~\ref{integration}.
 
 \begin{algorithm}
   \caption{Metropolis algorithm}\label{alg:metropolis}
@@ -1577,23 +1633,23 @@ states. While we are now able to scan the whole phase space spanned by~$B$
 and~$T$ and partition it into regions with similar properties, we cannot
 dynamically observe phase transitions.
 
-Imagine a very rough energy landscape similar to the one depicted in plot~(d) of
+Imagine a rough energy landscape similar to the one depicted in plot~(d) of
 \figref{fig:samplefuncs}. If we fix~$T$ and~$B$ from the very beginning, even
 the Markov chain might get stuck in a certain region of the configuration space
 or is extremely unlikely to find specific parts of it. In physical systems such
 rare configurations that are hard to reach do indeed emerge. If we start at a
-high temperature however, the Markov chain will definitely sample most of the
+high temperature, however, the Markov chain will definitely sample most of the
 configuration space with a decent probability. If we then slowly decrease the
 temperature, it has a substantially better chance of annealing into such an
 interesting portion of~$\Pi$. This is the whole idea behind simulated annealing.
 Instead of fixing~$T$ and~$B$ once and for all, we might start at at fixed point
 in the phase space, wait until the system has thermalized and compute~$N$
 configurations of the Markov chain for the starting~$T$ and~$B$ like before. But
-instead of stopping right there and starting a whole new run, one changes~$T$
-or~$B$ by a tiny amount, discards some sweeps for thermalization and records
-another~$N$ configurations of the Markov chain. It is essentially a wrapper
-around the Metropolis algorithm that keeps building up the Markov chain with
-intermediate changes of the parameters. This method allows us to trace out
+instead of stopping right there and initializing a whole new run, one
+changes~$T$ or~$B$ by a tiny amount, discards some sweeps for thermalization and
+records another~$N$ configurations of the Markov chain. It is essentially a
+wrapper around the Metropolis algorithm that keeps building up the Markov chain
+with intermediate changes of the parameters. This method allows us to trace out
 paths within the phase space. It can be used to observe phase transitions or
 reach configurations that are hard to find by fixing the position in phase space
 from the very beginning.
@@ -1606,11 +1662,12 @@ configuration space with a favor for low energy states, especially for low
 temperatures. Thus if we start at a high temperature and slowly decrease it, the
 Markov chain will tend to concentrate around lower and lower energies. If we are
 lucky and the energy landscape is not too rough, there is a good chance it will
-eventually settle in the absolute minimum for~$T to 0$. Apparently we need to
-\emph{anneal} the system, because starting with~$T=0$ the Metropolis algorithm
+eventually settle in the absolute minimum for~$T \to 0$. Apparently we need to
+\emph{anneal} the system, because starting with~$T=0$, the Metropolis algorithm
 will never accept any changes towards higher energies at all and we are bound to
-get stuck in the nearest local minimum. We also cannot bridge large barriers,
-because any single update can only change the energy by a fixed amount.
+get stuck in the nearest local minimum. Moreover, we cannot bridge or tunnel
+large barriers, because any single update can only change the energy by a fixed
+amount.
 
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1619,12 +1676,12 @@ because any single update can only change the energy by a fixed amount.
 %
 In the previous sections we discussed the Metropolis algorithm and provided a
 pseudocode which should make it fairly easy to implement. However, we issued
-quite a few warnings without giving specific instructions on how to stay on the
-safe side of things. How should one choose the thermalization time~$\Ntherm$ and
-how do we know whether the system is in equilibrium? How large does~$\Nsweep$
-have to be such that consecutive configurations of the Markov chain can be
-considered independent? In this section we try to answer these questions or at
-least provide some practical guidelines.
+quite a few warnings without yet giving specific instructions on how to stay on
+the safe side of things. How should one choose the thermalization time~$\Ntherm$
+and how do we know whether the system is in equilibrium? How large
+does~$\Nsweep$ have to be such that consecutive configurations of the Markov
+chain can be considered independent? In this section we try to answer these
+questions or at least provide some practical guidelines.
 
 \subsection{Thermalization}
 
@@ -1633,23 +1690,23 @@ sufficient to let ``a few sweeps'' go by after a hot start, even at high
 temperatures. In the literature one can find guidelines that suggest that the
 thermalization time should be at least~$15-20$\% of the total runtime. The total
 runtime, as always measured in Monte Carlo time, \ie{} the number of lattice
-sweeps, is given by~$\Ntherm + N\cdot \Nsweep$. Such estimates, while helpful to
-get an idea of the order of magnitude, often lure scientists into blindly
-allocating~$20$\% of the overall runtime for equilibration and feel safe. This
-is plain wrong and indefensible. Despite all the factors that go into the
-thermalization time, the number of sweeps in between configurations and the
+sweeps, is given by~$\Ntherm + N\cdot \Nsweep$. Such estimates, while helpful
+for getting an idea of the order of magnitude, often lure scientists into
+blindly allocating~$20$\% of the overall runtime for equilibration and feel
+safe. This is plain wrong and indefensible. Despite all the factors that go into
+the thermalization time, the number of sweeps in between configurations and the
 overall number of configurations one chooses to compute are not among them. How
 could one expect the thermalization time to decrease only because we stop the
 Markov chain after a few configurations? Those are just the most obvious flaws
-in such recommendations. Besides the system size, the temperature and the
-start configuration, the equilibration time also differs for various observables
-and of course for different systems and models. We cannot expect to find a
-solution without closely analyzing the specific final implementation of the
-model at hand.
+in such recommendations. Besides the system size, the temperature and the start
+configuration, the equilibration time also differs for various observables and
+of course for different systems and models. We cannot expect to find a solution
+without closely analyzing the specific final implementation of the model at
+hand.
 
 That being said, even then there is no~$100$\% foolproof recipe to
 determine~$\Ntherm$ in a fully satisfying rigorous fashion. The most common
-approach is to simply look at the observables one is interested in. After the
+approach is to simply plot the observables one is interested in. After the
 implementation is finished and before we actually start to record states of the
 Markov chain, we write out \emph{all} observables we are interested in after
 every single sweep beginning with the initial state. If one is interested in the
@@ -1670,7 +1727,7 @@ the exact same simulation with a different start configuration could have a
 longer or shorter thermalization time. Therefore a generous additional cushion
 is mandatory. Analyzing and determining~$\Ntherm$ for the whole range of
 parameters one intends to simulate is the very first step after the Metropolis
-algorithm has been implemented and tested exhaustively for correctness.
+algorithm has been implemented and tested for correctness.
 
 \subsection{Autocorrelation and errors}
 
@@ -1693,20 +1750,19 @@ the autocorrelation function can be estimated
 %
 \begin{equation}\label{autocorr}
   R_{\cO}(t) := \frac{1}{\sigma^2 (N-t)} \sum_{i = 1}^{N-t}
-    \cO(i) \cO(i+t) - m^2
+    \cO(i) \cO(i+t) - \mu^2
 \end{equation}
 %
-for~$t \in \numlist{0}{N-1}$, where~$\sigma^2$ is the variance and~$m$ the mean
-of the observable~$\cO$. Note that it only makes sense to talk about the mean
-and variance once we draw from a stationary distribution, \ie{} after the system
-has thermalized. Since we do not have access to the true mean and variance of
-observables when the entire system is in thermal equilibrium at a fixed
-temperature, we have to estimate those quantities too. We use the standard
-sample mean and sample variance of~$\numlist{\cO(1)}{\cO(N)}$
+for~$t \in \numlist{0}{N-1}$, where~$\sigma^2$ is the variance and~$\mu$ the
+mean of the observable~$\cO$. Note that it only makes sense to talk about the
+mean and variance once we draw from a stationary distribution, \ie{} after the
+system has thermalized. Since we do not have access to the true mean and
+variance of observables, we have to estimate those quantities too. We use the
+standard sample mean and sample variance of~$\numlist{\cO(1)}{\cO(N)}$
 %
 \begin{equation}\label{samplemeanvar}
-  m = \frac{1}{N} \sum_{i=1}^N \cO(i) \qqtxtqq{and}
-  \sigma^2 = \frac{1}{M-1} \sum_{i=1}^N (\cO(i) - m)^2
+  \mu = \frac{1}{N} \sum_{i=1}^N \cO(i) \qqtxtqq{and}
+  \sigma^2 = \frac{1}{N-1} \sum_{i=1}^N (\cO(i) - \mu)^2
 \end{equation}
 %
 which makes~$R_{\cO}$ a biased estimate. A few remarks are in order. First, the
@@ -1716,34 +1772,35 @@ thermalization, \emph{not} at subsequent configurations of a Markov chain.
 Furthermore, note that the sum in~\eqref{autocorr} at~$t=0$ with the normalizing
 factor is just the variance~$\sigma^2$, which results in~$R_{\cO}(0) = 1$. The
 autocorrelation can be understood as the covariance of the sequence with a
-shifted version of it. Since we want to measure the correlation of states at
+shifted version of itself. Since we want to measure the correlation of states at
 different times in the same chain this is entirely plausible. Like the
-covariance, the autocorrelation can become negative which is interpreted in the
-same way. Negative autocorrelation at time~$t$ means that large negative values
-of~$\cO$ at a certain time correlate with large positive values~$t$ steps later
-in the chain. The variance in the denominator normalizes the autocorrelation to
-lie in~$[-1,1]$. One major issue with the estimator~$R_{\cO}$ is due to the fact
-that we are dealing with a finite sequence of measurements. The sum
-in~\eqref{autocorr} runs over fewer and fewer terms the larger~$t$. However, we
-need a certain number of terms in the sum to average out random fluctuations and
-keep the variance of our estimate for the autocorrelation small enough. We will
-see in \secref{sec:results} that autocorrelations indeed become noisy and
-statistically unreliable quickly. Therefore it only makes sense to look
-at~$R_{\cO}$ for~$t \ll N$. Our goal is to find the time after which the new
-states are not correlated with the starting configuration anymore, \ie{} the
-time after which the autocorrelation has dropped to zero or at least beneath
-some threshold close to zero.
+covariance, the autocorrelation can become negative. Negative autocorrelation at
+time~$t$ means that large negative values of~$\cO$ at a certain time correlate
+with large positive values~$t$ steps later in the chain or vice versa. The
+variance in the denominator normalizes the autocorrelation to lie in~$[-1,1]$.
+
+One major issue with the estimator~$R_{\cO}$ is due to the fact that we are
+dealing with a finite sequence of measurements. The sum in~\eqref{autocorr} runs
+over fewer and fewer terms the larger~$t$. However, we need a certain number of
+terms in the sum to average out random fluctuations and keep the variance of our
+estimate for the autocorrelation small enough. We will see in
+\secref{sec:results} that autocorrelations indeed become noisy and statistically
+unreliable quickly. Therefore it only makes sense to look at~$R_{\cO}$ for~$t
+\ll N$. Our goal is to find the time after which the new states are not
+correlated with the starting configuration anymore, \ie{} the time after which
+the autocorrelation has dropped to zero or at least beneath some threshold close
+to zero.
 
 It can be shown that the autocorrelation function in Markov chain Monte Carlo
 simulations generically decays like~$\exp(-t/\tau_{\cO})$, where~$\tau_{\cO}$ is
-called \newterm{autocorrelation time}. Technically this exponential behavior
-only holds for~$N \to \infty$ and~$t \to \infty$ with~$t/N \ll 1$. However, for
-the random walk the Markov chain performs in the configuration space this
-asymptotic behavior is also approximated for small~$t$ such that we
+called \newterm{autocorrelation time} for observable~$\cO$. Technically this
+exponential behavior only holds for~$N \to \infty$ and~$t \to \infty$ with~$t/N
+\ll 1$. However, for the random walk of the Markov chain in the configuration
+space this asymptotic behavior is also approximated for small~$t$ such that we
 assume~$R_{\cO}(t) \approx \exp(-t/\tau_{\cO})$. The simplest but also an
 inaccurate way to determine~$\tau_{\cO}$ is to plot the autocorrelation function
-and find the time after which it has dropped to~$1/e$. Alternatively one can
-use the integrated autocorrelation time
+and find the time after which it has dropped to~$1/e$. Alternatively one can use
+the integrated autocorrelation time
 %
 \begin{equation}\label{tauint}
   \tauint_{\cO} = \frac{1}{2} + \sum_{t=1}^{N-1} R_{\cO}(t)
@@ -1765,54 +1822,59 @@ The discrete version~\eqref{tauint} roots in the approximation
     \cO\biggl( \frac{1}{\tau^5} \biggr)\:.
 \end{equation}
 %
-Already for~$\tau = 10$ the relative error dropped below~$0.1$\% and approaches
+Already for~$\tau = 10$ the relative error drops below~$0.1$\% and approaches
 zero quickly. For all practical purposes~$\tau_{\cO} \approx \tauint_{\cO}$
 if~$N$ is sufficiently large. However, due to statistical fluctuations and the
 finite number of measurements they might disagree quite significantly in real
-applications. The importance of the autocorrelation time becomes obvious when
-one re-derives the error of Monte Carlo integration without the assumption that
-the samples are independent. Recall that for independent measurements we found
-that the error is given by~$\sigma/\sqrt{N}$, with the variance~$\sigma$
+applications.
+
+The importance of the autocorrelation time becomes obvious when one re-derives
+the error of Monte Carlo integration without the assumption that the samples are
+independent. Recall that for independent measurements we found that the error is
+given by~$\sigma/\sqrt{N}$, with the variance~$\sigma$
 from~\eqref{samplemeanvar}. If we set~$\Nsweep$ to one, \ie{} if we used every
 configuration after each sweep to estimate the thermal average, the error with
 correlations becomes
 %
 \begin{equation}\label{correrror}
-  \text{error} = \sqrt{\frac{\sigma^2}{N}(1 + 2\tauint_{\cO})}\:.
+  \sqrt{\frac{\sigma^2}{N}(1 + 2\tauint_{\cO})}\:.
 \end{equation}
 %
 Thus we have to perform sufficiently many sweeps in between two usable
-configurations such that each two samples are uncorrelated and thus the
-autocorrelation function and the integrated autocorrelation time are also zero.
-The number of sweeps in between two configurations~$\Nsweep$ should be at
-least~$5 \tauint_{\cO}$ to~$6 \tauint_{\cO}$ to confidently use the uncorrelated
-error estimate. Note that all this delicate business of choosing independent
-configurations only affects the errors and not the expectation values of
-observables.
+configurations such that each two samples are uncorrelated and the
+autocorrelation function as well as the integrated autocorrelation time go to
+zero. The number of sweeps in between two configurations~$\Nsweep$ should be at
+least~$5 \tauint_{\cO}$ to confidently use the uncorrelated error estimate. Note
+that all this delicate business of choosing independent configurations only
+affects the errors and not the expectation values of observables.
 
 Let us spend a few more words on practical matters. The finite number of
 measurements limits both the computation of the autocorrelation function as well
 as the sum in~\eqref{tauint} to compute the integrated autocorrelation time.
 This issue could in principle be overcome by using more data points and
-extrapolating to~$N\to \infty$. However, there is another even bigger problem.
-The values of~$R_{\cO}$ become statistically unreliable even for large~$N$
-and~$t\ll N$. This typically spoils exponential fits to determine~$\tau_{\cO}$
-directly from~$R_{\cO}$. One has to find a sensitive balance between taking into
-account enough values to capture the asymptotic decay of the exponential, but
-not too many to avoid statistically unreliable values spoiling the fit. The same
-holds true for the sum in the integrated autocorrelation time. In theory the sum
-needs to run over infinitely many values, but due to the exponential decay one
-can truncate it with clear conscience. Alternatively one can use values at
-small~$t$ to extrapolate to subsequent values by an exponential fit. However,
-their contribution is typically small enough to neglect them. Again, one has to
-choose the truncation carefully to leave out noisy values at late times~$t$.
-Usually one tries to truncate the series self-consistently such that
+extrapolating to~$N\to \infty$. However, there is another even bigger practical
+problem. The values of~$R_{\cO}$ become statistically unreliable even for
+large~$N$ and~$t\ll N$. This typically spoils exponential fits to
+determine~$\tau_{\cO}$ directly from~$R_{\cO}$. One has to find a sensitive
+balance between taking into account enough values to capture the asymptotic
+decay of the exponential, but not too many to avoid statistically unreliable
+values spoiling the fit. The same holds true for the sum in the integrated
+autocorrelation time.
+
+In theory the sum needs to run over infinitely many values, but due to the
+exponential decay one can truncate it with clear conscience. Alternatively one
+can use values at small~$t$ to extrapolate to subsequent values by an
+exponential fit. However, their contribution is typically small enough to
+neglect them. Again, one has to choose the truncation carefully to leave out
+noisy values at late times~$t$. Usually one tries to truncate the series
+self-consistently such that
 %
 \begin{equation}\label{tauinttrunc}
-  \tauint_{\cO} = \frac{1}{2} + \sum_{t=1}^{m \cdot \tauint_{\cO}} R_{\cO}\:,
+  \tauint_{\cO} \approx
+    \frac{1}{2} + \sum_{t=1}^{m \cdot \tauint_{\cO}} R_{\cO}(t)\:,
 \end{equation}
 %
-where~$m$ should be roughly~$5$ or~$6$. Even then the values for the
+where~$m$ should be roughly between~$5$ and~$6$. Even then the values for the
 autocorrelation time~$\tau_{\cO}$ from an exponential fit and the integrated
 autocorrelation time~$\tauint_{\cO}$, while estimating the same quantity, can
 differ significantly. One should always use the more conservative of the two.
@@ -1824,8 +1886,8 @@ computation times. A rule of thumb says that one should use at least~$1000
 \tau_{\cO}$ values to properly estimate~$\tau_{\cO}$. Keep in mind that every
 rule of thumb should be met with skepticism. With these values we compute the
 autocorrelation function~\eqref{autocorr} for each observable and plot them for
-small values of~$t$. One will usually see a close to exponential decay for for
-very small~$t$ which directly transitions to noisy fluctuations, maybe even
+small values of~$t$. One will usually see a close to exponential decay for
+small~$t$ which directly transitions to noisy fluctuations, maybe even
 before the autocorrelation has approached zero at all. In this case
 increasing~$N$ might help. For each observable independently one then finds a
 consistent truncation~\eqref{tauinttrunc} typically by a systematic search
@@ -1833,10 +1895,10 @@ of~$m$ and should also fit an exponential to the data on the chosen range as a
 cross check. Finally, we use
 %
 \begin{equation}
-  \tauint := \max_{\cO} \tauint_{\cO}
+  \tau := \max_{\cO} \tauint_{\cO}
 \end{equation}
 %
-to determine~$\Nsweep \in [5 \tauint, 6 \tauint]$.
+to determine~$\Nsweep \in [5 \tau, 6 \tau]$.
 
 \subsection{Additional remarks}
 
@@ -1859,8 +1921,8 @@ times we consistently used random updates.
 
 Low acceptance rates are another crucial performance drawback. Imagine our
 lattice model at low temperature and a high magnetic field. We expect the system
-to settle in a fully polarized state with little thermal fluctuations. If we
-have reached a state where most spins are already parallel to the external
+to settle in a fully polarized state with little thermal fluctuations. Let's say
+we have reached a state where most spins are already parallel to the external
 field, but just a few are still misaligned. Whenever an aligned spin is selected
 the update is almost certainly rejected, because the proposal is likely to be
 misaligned again, would therefore increase the energy and due to the small
@@ -1868,15 +1930,16 @@ temperature such moves are rejected. We might need several sweeps until one of
 the still misaligned spins is selected for an update and even then the
 probability that the random proposal is parallel to the magnetic field is tiny.
 Thus we will have to perform many sweeps to properly align just a few lattice
-sites. This will also have an impact on the autocorrelation time. There are
-several alternatives and improvements to the Metropolis algorithm. Besides
-choosing different acceptance probabilities like in the \newterm{heatbath},
-\newterm{Glauber} or \newterm{overrelaxation} algorithms, there are also
-fundamentally different approaches such as cluster algorithms or parallel
-tempering Monte Carlo (PTMC) methods. We only implemented the most primitive
-version of simulated annealing possible. However, even with such a simple setup
-one can observe interesting phenomena and find physically relevant results. It
-should be a good starting point for more sophisticated algorithms.
+sites. This will also have an impact on the autocorrelation time.
+
+There are several alternatives and improvements to the Metropolis algorithm.
+Besides choosing different acceptance probabilities like in the
+\newterm{heatbath}, \newterm{Glauber} or \newterm{overrelaxation} algorithms,
+there are also fundamentally different approaches such as cluster algorithms or
+parallel tempering Monte Carlo (PTMC) methods. We only implemented the most
+primitive version of simulated annealing possible. However, even with such a
+simple setup one can observe interesting physical results. It should be a good
+starting point for more sophisticated algorithms.
 
 Furthermore, there is a phenomenon called \newterm{critical slowing}, which
 implies that at certain parameter values, for example close to phase transitions
