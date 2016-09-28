@@ -1,0 +1,147 @@
+% tikz drawing commands
+
+% drawing spins
+
+\newcommand{\arrtwo}[3]{% coordinate, color, symbol
+  \coordinate (S) at #1;
+  \pgfmathsetmacro{\vx}{rand}
+  \pgfmathsetmacro{\vy}{rand}
+  \pgfmathsetmacro{\nn}{2 * sqrt(\vx * \vx + \vy * \vy)}
+  \draw[thick, >=latex, ->, #2] (S) -- +(\vx / \nn, \vy / \nn);
+  \ifthenelse{\equal{#3}{1}}
+    {\filldraw[#2] (S) circle (0.08);}
+    {\ifthenelse{\equal{#3}{2}}
+      {\filldraw[#2] (S)[xshift=-0.07cm, yshift=-0.07cm] rectangle ++(0.14,0.14);}
+      {\ifthenelse{\equal{#3}{3}}
+        {\node[#2, fill=#2,regular polygon, regular polygon sides=5,inner sep=0.06cm] at (S) {};}
+        {}
+      }
+    }
+}
+
+\newcommand{\arrp}[1]{% coordinate, color
+  \arrtwo{#1}{black!50}{1}}
+
+\newcommand{\arrs}[1]{% coordinate
+  \arrtwo{#1}{\select}{1}}
+
+\newcommand{\arrn}[1]{% coordinate
+  \arrtwo{#1}{\neigh}{2}}
+
+\newcommand{\arrnn}[1]{% coordinate
+  \arrtwo{#1}{\nneigh}{3}}
+
+% drawing lines
+
+\newcommand{\linep}[3]{% coordinate, length, color
+  \coordinate (S) at #1;
+  \pgfmathsetmacro{\l}{2*#2}
+  \draw[thick, #3] ($(S) - (#2,0)$) -- +(\l,0);
+  \draw[thick, #3] ($(S) - (0,#2)$) -- +(0,\l);
+}
+
+\newcommand{\linen}[1]{%
+  \pgfmathsetmacro{\d}{1}
+  \linep{#1}{\d}{\inter}}
+
+\newcommand{\linenn}[1]{%
+  \pgfmathsetmacro{\d}{1}
+  \linep{#1}{2*\d}{\inter}}
+
+% drawing lattices
+
+\newcommand{\latticeflat}[1]{%
+  \pgfmathsetmacro{\d}{1}
+  \pgfmathsetmacro{\n}{#1}
+  \pgfmathsetmacro{\nm}{\n-1}
+  \foreach \x in {0,...,\nm}{
+    \draw[black!50, dashed] (\x*\d,0) -- ++(0,\nm*\d);
+    \draw[black!50, dashed] (0,\x*\d) -- ++(\nm*\d,0);
+  }
+  \foreach \x in {0,...,\nm}{
+    \foreach \y in {0,...,\nm}{
+      \arrp{(\d*\x, \d*\y)}
+    }
+  }
+}
+
+\newcommand{\latticeselect}[1]{%
+  \pgfmathsetmacro{\d}{1}
+  \pgfmathsetmacro{\n}{#1}
+  \pgfmathsetmacro{\nm}{\n-1}
+  \pgfmathsetmacro{\s}{int(\nm/2)}
+  \foreach \x in {0,...,\nm}{
+    \draw[black!50, dashed] (\x*\d,0) -- ++(0,\nm*\d);
+    \draw[black!50, dashed] (0,\x*\d) -- ++(\nm*\d,0);
+  }
+  \foreach \x in {0,...,\nm}{
+    \foreach \y in {0,...,\nm}{
+      \ifthenelse{\x=\s \AND \y=\s}{\arrs{(\d*\x, \d*\y)}}{\arrp{(\d*\x, \d*\y)}}
+    }
+  }
+}
+
+\newcommand{\latticeinter}[1]{%
+  \pgfmathsetmacro{\d}{1}
+  \pgfmathsetmacro{\n}{#1}
+  \pgfmathsetmacro{\nm}{\n-1}
+  \pgfmathsetmacro{\s}{int(\nm/2)}
+  \foreach \x in {0,...,\nm}{
+    \draw[black!50, dashed] (\x*\d,0) -- ++(0,\nm*\d);
+    \draw[black!50, dashed] (0,\x*\d) -- ++(\nm*\d,0);
+  }
+  \linen{(\d*\s,\d*\s)}
+  \foreach [evaluate={\xx=int(abs(\x-\s));}] \x in {0,...,\nm}{
+    \foreach [evaluate={\yy=int(abs(\y-\s));}] \y in {0,...,\nm}{
+      \ifthenelse{\x=\s \AND \y=\s}{\arrs{(\d*\x, \d*\y)}}{%
+        \ifthenelse{\xx<2 \AND \yy<2 \AND \NOT \xx=\yy}{\arrn{(\d*\x, \d*\y)}}{\arrp{(\d*\x, \d*\y)}}}
+    }
+  }
+}
+
+\newcommand{\latticeinternn}[1]{%
+  \pgfmathsetmacro{\d}{1}
+  \pgfmathsetmacro{\n}{#1}
+  \pgfmathsetmacro{\nm}{\n-1}
+  \pgfmathsetmacro{\s}{int(\nm/2)}
+  \foreach \x in {0,...,\nm}{
+    \draw[black!50, dashed] (\x*\d,0) -- ++(0,\nm*\d);
+    \draw[black!50, dashed] (0,\x*\d) -- ++(\nm*\d,0);
+  }
+  \linenn{(\d*\s,\d*\s)}
+  \foreach [evaluate={\xx=int(abs(\x-\s));}] \x in {0,...,\nm}{
+    \foreach [evaluate={\yy=int(abs(\y-\s));}] \y in {0,...,\nm}{
+      \ifthenelse{\x=\s \AND \y=\s}{\arrs{(\d*\x, \d*\y)}}{%
+        \ifthenelse{\xx<2 \AND \yy<2 \AND \NOT \xx=\yy}{\arrn{(\d*\x, \d*\y)}}{%
+          \ifthenelse{\xx=2 \AND \yy=0}{\arrnn{(\d*\x, \d*\y)}}{%
+            \ifthenelse{\xx=0 \AND \yy=2}{\arrnn{(\d*\x, \d*\y)}}{\arrp{(\d*\x, \d*\y)}}}}}
+    }
+  }
+}
+
+\newcommand{\lattice}[1]{%
+  \pgfmathsetmacro{\r}{0.04}
+  \pgfmathsetmacro{\d}{1}
+  \pgfmathsetmacro{\n}{#1}
+  \pgfmathsetmacro{\nm}{\n-1}
+  \foreach \x in {0,...,\nm}{
+    \foreach \y in {0,...,\nm}{
+      \draw[black!50, dashed, opacity=0.4] (\x*\d,\y*\d,0) -- ++(0,0,\nm*\d);
+      \draw[black!50, dashed, opacity=0.4] (\x*\d,0,\y*\d) -- ++(0,\nm*\d,0);
+      \draw[black!50, dashed, opacity=0.4] (0,\x*\d,\y*\d) -- ++(\nm*\d,0,0);
+    }
+  }
+  \foreach \x in {0,...,\nm}{
+    \foreach \y in {0,...,\nm}{
+      \foreach \z in {0,...,\nm}{
+        \coordinate (S) at (\d*\x, \d*\y, \d*\z);
+        \pgfmathsetmacro{\vx}{rand}
+        \pgfmathsetmacro{\vy}{rand}
+        \pgfmathsetmacro{\vz}{rand}
+        \pgfmathsetmacro{\nn}{2.5*sqrt(\vx * \vx + \vy * \vy + \vz * \vz)}
+        \draw[>=latex, ->, black!50] (S) -- +(\vx / \nn, \vy / \nn, \vz / \nn);
+        \shade[ball color=black!50] (S) circle (\r + \z / 200);
+      }
+    }
+  }
+}

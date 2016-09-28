@@ -1,0 +1,118 @@
+% Math operators
+\DeclareMathOperator{\re}{Re}
+\DeclareMathOperator{\im}{Im}
+%
+% Mathematical shortcuts
+% Special sets
+\newcommand{\bN}{\mathbb{N}}
+\newcommand{\bZ}{\mathbb{Z}}
+\newcommand{\bQ}{\mathbb{Q}}
+\newcommand{\bR}{\mathbb{R}}
+\newcommand{\bRp}{\mathbb{R}_{\ge 0}}
+\newcommand{\bRpp}{\mathbb{R}_{> 0}}
+\newcommand{\bRn}{\mathbb{R}_{\le 0}}
+\newcommand{\bRnn}{\mathbb{R}_{< 0}}
+\newcommand{\bC}{\mathbb{C}}
+% \newcommand{\1}{\mbox{\rmfamily \scalebox{1}[0.93]{1} \hspace{-1.02 em} 1}}
+\newcommand{\cH}{\mathcal{H}}
+\newcommand{\cO}{\mathcal{O}}
+% Special objects
+\newcommand{\const}{\mathrm{const}}
+\renewcommand{\S}{\mathbf{S}}
+\newcommand{\B}{\mathbf{B}}
+\newcommand{\M}{\mathbf{M}}
+\renewcommand{\r}{\mathbf{r}}
+\newcommand{\x}{\mathbf{x}}
+\newcommand{\y}{\mathbf{y}}
+\newcommand{\z}{\mathbf{z}}
+\newcommand{\hx}{\hat{\mathbf{x}}}
+\newcommand{\hy}{\hat{\mathbf{y}}}
+\newcommand{\hz}{\hat{\mathbf{z}}}
+\newcommand{\Nsweep}{N_{\mathrm{sweep}}}
+\newcommand{\Ntherm}{N_{\mathrm{therm}}}
+\newcommand{\Nconf}{N_{\mathrm{config}}}
+\newcommand{\tauint}{\tau^{\mathrm{int}}}
+
+%
+% Map
+\newcommand{\map}[3]{{#1}:{#2}\to{#3}}
+%
+\newcommand{\maprule}[4]{{#1}:{#2}\to{#3},\quad {#4}}
+%
+% Absolute value
+\newcommand{\abs}[1]{\left\lvert#1\right\rvert}
+%
+% Norm (two lines)
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+%
+% argmin
+\DeclareMathOperator*{\argmin}{arg\,min}
+%
+% average
+\newcommand{\avg}[1]{\langle #1 \rangle}
+%
+% List of numbers
+\newcommand{\numlist}[2]{\{#1,\dots,#2\}}
+%
+% Text surrounded by quad
+\newcommand{\qtxtq}[1]{\quad\text{#1}\quad}
+%
+% Text surrounded by qquad
+\newcommand{\qqtxtqq}[1]{\qquad\text{#1}\qquad}
+%
+% For differentiation
+\newcommand{\pred}[1]{d#1\,}
+\newcommand{\sucd}[1]{\,d#1}
+\newcommand{\intd}[1]{d#1}
+%
+% Shortcuts for frequently used terms
+%
+\newcommand{\ie}{\mbox{i.\,e}.}
+\newcommand{\eg}{\mbox{e.\,g}.}
+%
+% Software names / trademarks
+\newcommand{\cpp}{C{}\texttt{++}\ }
+\newcommand{\matlab}{Matlab\textsuperscript{TM}}
+\newcommand{\mathematica}{Mathematica\textsuperscript{TM}}
+%
+\newcommand{\Secref}[1]{Section~\ref{#1}}
+\newcommand{\secref}[1]{section~\ref{#1}}
+\newcommand{\Chapref}[1]{Chapter~\ref{#1}}
+\newcommand{\chapref}[1]{chapter~\ref{#1}}
+\newcommand{\Figref}[1]{Figure~\ref{#1}}
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+%
+% Theorems
+% \swapnumbers
+%
+% \newtheoremstyle{note}% ⟨name ⟩
+% {3pt}% ⟨Space above ⟩1
+% {3pt}% ⟨Space below ⟩1
+% {}% ⟨Body font ⟩
+% {}% ⟨Indent amount ⟩2
+% {\itshape}% ⟨Theorem head font⟩
+% {:}% ⟨Punctuation after theorem head ⟩
+% {.5em}% ⟨Space after theorem head ⟩3
+% {}% ⟨Theorem head spec (can be left empty, meaning ‘normal’ )⟩
+%
+\newtheoremstyle{mathm}{}{}{}{}{\sffamily\bfseries}{.}{ }{}
+\theoremstyle{mathm}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{remark}{Remark}
+%
+\newtheoremstyle{maremark}{}{}{}{}{\sffamily\bfseries}{.}{ }{}
+\theoremstyle{maremark}
+\newtheorem*{remarkinline}{Remark}
+\newtheorem*{exampleinline}{Example}
+% Given styles: plain, definition, remark, see texdoc amsthm
+%
+% A new technical term, which is not defined at that point
+\newcommand{\newterm}[1]{\emph{#1}}
+%
+% Definition of a term
+\newcommand{\newdef}[1]{{\bfseries\sffamily #1}}
+%
+% Temporary definition, TODO: remove in the end
+\newcommand{\todo}[1]{{\color{red}TODO: #1}}
+%
