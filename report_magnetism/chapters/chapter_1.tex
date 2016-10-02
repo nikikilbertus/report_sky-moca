@@ -75,7 +75,8 @@ a two-dimensional surface as illustrated in \figref{fig:lattice}. However, all
 computations solely concern the three-dimensional model. Each vertex of the
 lattice could for example represent a nucleus in a solid with a rigid crystal
 like structure. Hence the whole lattice can be interpreted as the regular atomic
-structure of a cubical piece of solid material.
+structure of a cubical piece of solid material. Specifically we will eventually
+model chiral magnets like MnSi or Fe$_\text{1-x}$Co$_\text{x}$Si.
 
 \begin{figure}
   \centering
@@ -144,15 +145,8 @@ and continuous spins mirror nicely the natural crystal structure of solids.
 
 In a typical physical simulation one might want to find the ground state of this
 system, \ie{} the lowest energy state, for some given external and internal
-parameters. Alternatively, we could be interested in macroscopic properties such
-as the specific heat or magnetization. Necessarily, we need to define some
-notion of energy and also identify some possible parameters for the spin
-lattice. Apparently any physical measure of energy must be based on interactions
-between the spins within the system or with external fields. Let us elaborate on
-some possible interactions. Each of them comes with a constant that can be
-interpreted as a weight, \ie{} how much the respective interaction contributes
-to the energy with respect to the others. Those material constants can be
-treated as free parameters in the simulation.
+parameters. Instead we are interested in macroscopic observables, in particular
+the energy, the magnetization, the specific heat and the susceptibility.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Interactions}\label{sec:interactions}
@@ -174,13 +168,24 @@ can be expressed as
 %
 where~$\alpha$ is the angle between~$\S_{\r_1}$ and~$\S_{\r_2}$. The minus sign
 ensures that the energy of two parallel spins is actually smaller than the
-energy of two perpendicular or even antiparallel ones. In the continuum theory
-of magnetic moments, the direct exchange term consists of a gradient, which is a
-local quantity, \ie{} the gradient at a point only depends on an arbitrarily
-small neighborhood of the point. Thus we will always consider the ferromagnetic
-exchange to be \newterm{local} or \newterm{short ranged} in the sense that it
-only contributes to the energy for adjacent lattice sites, as shown in
-\figref{fig:lattice}.
+energy of two perpendicular or even antiparallel ones. While easily
+comprehensible in real materials it is far from obvious whether the direct
+exchange is indeed such a prevalent interaction. For many elements like rare
+earths the unpaired 4f electrons are close to the nucleus and cannot remotely
+extend out to the orbitals of neighboring atoms. Even the 3d orbitals of
+transition metals such as the ferromagnetic Fe, Ni and Co, which extend further
+from the nucleus the overlap is barely sufficient to base all magnetic
+properties on direct exchange. For metals one would have to account for
+conduction electrons and the band structure of course.
+
+While in reality there is almost always a significant portion of indirect
+exchange involved, the lattice model promotes ferromagnetic interactions to one
+of the key drivers. However, it is accounted for by a nearest neighbor
+interaction only, as shown in \figref{fig:lattice}. In the continuum theory, the
+direct exchange term consists of a gradient, which is a local quantity, \ie{}
+the gradient at a point only depends on an arbitrarily small neighborhood of the
+point. This corresponds to the \newterm{local} or \newterm{short ranged} lattice
+interaction.
 
 \subsubsection{Interaction with an external field}
 
@@ -192,14 +197,44 @@ contribution is also called the \newterm{Zeeman energy}. It can be misleading to
 use terms such as \newterm{non-local} or \newterm{long ranged} for this
 exchange, since it is not an interaction between two or more spins within the
 system, but affects each lattice site independently in the same fashion.
-Naturally, for the external field,~$\B$ itself is the weight or parameter of the
-interaction.
 
-\subsubsection{Dipole-dipole interaction}
+\subsubsection{Dzyaloshinskii-Moriya exchange}
 
-The \newterm{dipole-dipole interaction} is somewhat more complex, but also much
-weaker than the two previous ones. For two spins~$\S_{\r_1}, \S_{\r_2} \in S^2$,
-it is given by
+In this work we are interested in certain crystals that lack inversion symmetry,
+\eg{} MnSi, and thus exhibit chiral magnets. This can emerge as a consequence of
+the interaction between the excited state of one ion with the ground state of
+another ion. The excited state would typically arise from spin-orbit interaction
+of one of the magnetic ions.  When the crystal field has an inversion symmetry,
+this effect will always vanish. Otherwise, for two spins~$\S_{\r_1}, \S_{\r_2}
+\in S^2$ at neighboring positions~$\r_1, \r_2 \in \Sigma$ the \newterm{weak
+Dzyaloshinskii-Moriya} (DM) coupling is proportional to
+\begin{equation}
+  - (\S_{\r_1} \times \S_{\r_2}) \cdot (\r_2 - \r_1)\:.
+\end{equation}
+%
+Note that~$\r_2 - \r_1$ is normalized by definition for neighboring vertices.
+Since the cross product is zero for parallel vectors and maximal for
+perpendicular ones, the DM coupling acts against the ferromagnetic interaction
+and favors constellations where adjacent spins are perpendicular to each other
+in the plane normal to their connecting line such that the energy is decreased.
+Typically the DM coupling is weaker than the direct exchange and tends to
+slightly rotate neighboring magnetic moments with respect to each other. This
+leads to small angles from one atom to the next and eventually leads to chiral
+structures, where the spins rotate and trace out a spiral like shape along some
+direction within the material. We will come back to this phase later.
+
+% In the continuum it is described by a term proportional to~$-\S(\r) \cdot
+% (\nabla \times \S(\r))$. Just like the gradient, the curl of a vector field is a
+% local property, thus the DM exchange only contributes for adjacent lattice
+% sites. The discretized version
+
+\subsubsection{Ignored interactions}
+
+In reality there are always various complex interactions which can never all be
+captured in a single lattice model. One example is the \newterm{dipole-dipole
+interaction}, which, although rather weak, commonly plays an important role, but
+will not be part of our model regardless. For two spins~$\S_{\r_1}, \S_{\r_2}
+\in S^2$, it is given by
 %
 \begin{equation}
   - {\norm{\r}^{-3}} (3 (\S_{\r_1} \cdot \hat{\r})
@@ -207,7 +242,7 @@ it is given by
 \end{equation}
 %
 where~$\r = \r_2 - \r_1$ and~$\hat{\r} = \r / \norm{\r}$ points from the
-location of the first spin to the location of the second one. The dipole-dipole
+location of the first spin in the direction of the second one. The dipole-dipole
 interaction depends on the distance between the two lattice sites as well as the
 orientation of the two spins not only relative to each other, but also to the
 line connecting them. Moreover, the explicit dependence on the relative position
@@ -216,137 +251,18 @@ of magnetic moments in the system, it is a long ranged interaction. For a
 lattice with~$N^3$ vertices the number of pairs scales like~$N^6$. Due to
 limited computational resources and its relative weakness, most simulations do
 not take the dipole-dipole exchange into account. We will also disregard it
-completely in our implementation.
-
-\subsubsection{Dzyaloshinskii-Moriya exchange}
-
-In this work we are interested in certain crystals that lack inversion symmetry,
-\eg{} MnSi, and thus exhibit chiral magnets. The missing inversion symmetry
-gives rise to the so called \newterm{weak Dzyaloshinskii-Moriya} (DM) coupling.
-In the continuum it is described by a term proportional to~$-\S(\r) \cdot
-(\nabla \times \S(\r))$. Just like the gradient, the curl of a vector field is a
-local property, thus the DM exchange only contributes for adjacent lattice
-sites. The discretized version for two spins~$\S_{\r_1}, \S_{\r_2} \in S^2$ at
-neighboring positions~$\r_1, \r_2 \in \Sigma$ reads
-\begin{equation}
-  - (\S_{\r_1} \times \S_{\r_2}) \cdot (\r_2 - \r_1)\:.
-\end{equation}
-%
-Note that~$\r_2 - \r_1$ is normalized by definition for neighboring vertices.
-Since the cross product is zero for parallel vectors and maximal for
-perpendicular ones, the DM coupling acts against the ferromagnetic interaction
-and favors constellations where adjacent spins are perpendicular to each other.
+completely in our implementation. Besides the dipole-dipole interaction we also
+neglect all forms of superexchange, double exchange or indirect exchange via
+conduction electrons in metals.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The Hamiltonian}\label{sec:hamiltonian}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-\subsubsection{Summing up the interactions}
 
 Let us now combine the FM and DM interaction as well as an external magnetic
 field to compute the energy for the lattice~$\Sigma$. To this end we add up the
-contributions from each spin and for each interaction. For instance, the
-external field exchange term simply becomes
-%
-\begin{equation}\label{Bsum}
-  -\sum_{\r \in \Sigma} \S_{\r} \cdot \B\:.
-\end{equation}
-%
-
-Adding up the terms for the FM interaction with all direct neighbors naively as
-in
-%
-\begin{equation}\label{FMsumnaive}
-  -\sum_{\r \in \Sigma} \S_{\r} \cdot (\S_{\r + \hx} + \S_{\r - \hx} +
-    \S_{\r + \hy} + \S_{\r - \hx} + \S_{\r + \hz} + \S_{\r - \hz})\:,
-\end{equation}
-%
-poses two problems. First, apparently in this fashion we count the interaction
-between some pairs of spins multiple times. If~$\Sigma$ was an infinite grid,
-\ie{}~$\Sigma=\bZ^3$, we would count every pair exactly twice and could simply
-divide~\eqref{FMsumnaive} by~$2$. However,~$\Sigma$ is finite which leads
-to the second more subtle issue. Not every lattice site has a neighbor in each
-direction~$\hx, \hy, \hz$. Consider the spin in the lower right corner of the
-lattice in \figref{fig:lattice}. The sum in our first naive expression for the
-FM interaction~\eqref{FMsumnaive} suggests that we need its right and lower
-neighbor, which apparently do not exist. As a consequence, we need to define
-some behavior at the boundaries. There are several ways to do this and a
-plausible treatment of boundary conditions is a central aspect of many different
-areas in scientific computing. It is important to realize that this is not
-simply an implementation nuisance that we can get rid off by any means that do
-not break the code. Various boundary conditions represent different physical
-systems and can significantly alter the results of a simulation.
-
-\subsubsection{Boundary conditions}
-
-In many cases the desired simulation volume is an infinite space, or at least so
-large compared to all internal length scales that it is practically infinite. On
-physical computing machines we are always limited to finite grids. The most
-obvious way for finite systems is to set all spins outside of~$\Sigma$ to zero,
-\ie{}~$\S_\r = 0$ for all~$\r \in \bZ^3 \setminus \Sigma$. Consequently the
-lattice sites on the boundary have less neighbors to interact with. This is
-called an \newterm{open boundary}. Open boundaries are often undesirable,
-because they heavily impact the physical behavior. In our example, a magnetic
-moment at the boundary is less effected by the FM and DM interaction, simply
-because it has less neighbors. However, the external field still has the same
-impact on a boundary spin as on any other vertex. This imbalance leads to
-polarized magnetic moments at the boundaries, \ie{} they tend to all point in
-the direction of the external magnetic field~$\B$ to maximize their Zeeman
-energy.
-
-One common way to get out of this dilemma is to implement \newterm{periodic
-boundary conditions}. We think of our lattice as a finite box of volume~$L^3$
-for~$L\in \bRp$ and simply replicate that box infinitely many times to fill the
-whole space, see \figref{fig:periodic} for a two-dimensional illustration. In
-practice, we will access the lattice sites by indexing a three-dimensional array
-with indices~$(i,j,k)\in\Sigma$. Whenever the algorithm tries to index out of
-bounds, \eg{} requests~$j=N_y + 1$, we simply use~$j=1$ again. For~$i=0$ we
-use~$i=N_x$,~$k=N_z+2$ is replaced by~$k=2$ and so on. In general, this behavior
-can be achieved by always working with the indices
-%
-\begin{equation}\label{periodicindices}
-  ((i-1 \mod N_x) + 1, (j-1 \mod N_y) + 1, (k-1 \mod N_z) + 1) \in \Sigma
-\end{equation}
-%
-whenever the algorithm requests the spin at position~$(i,j,k) \in \bZ^3$. By
-construction, those new indices always lie in~$\Sigma$. We can now
-unproblematically include spins at officially non-existing positions in our
-mathematical expressions, implicitly assuming that those are being wrapped
-around periodically to positions within the original lattice. This way every
-vertex has the same number of neighbors and we do not observe spurious boundary
-effects. In this report, we will only employ periodic boundary conditions in all
-three directions using~\eqref{periodicindices}. For other scenarios we kept the
-possibility of opening up the boundaries in one direction. This solves the issue
-of missing neighbors, which we encountered in~\eqref{FMsumnaive}.
-
-\subsubsection{Combining all interactions}
-
-Now that we have established a well defined behavior at the boundary, we can
-also tackle the first problem of counting interactions multiple times. For
-periodic boundary conditions we could divide the whole expression by~$2$. In the
-implementation we do not want to actually carry out redundant computations, thus
-we work with
-%
-\begin{equation}\label{FMsum}
-  -\sum_{\r \in \Sigma} \S_{\r} \cdot
-    (\S_{\r + \hx} + \S_{\r + \hy} + \S_{\r + \hz})\:.
-\end{equation}
-%
-It is worth convincing oneself that in this expression, assuming open or
-periodic boundary conditions, every pair of neighboring lattice sites is
-included exactly once.
-
-Finally, the overall DM energy is analogously
-%
-\begin{equation}\label{DMsum}
-  -\sum_{\r \in \Sigma} ((\S_{\r} \times \S_{\r + \hx}) \cdot \hx +
-    (\S_{\r} \times \S_{\r + \hy}) \cdot \hy +
-    (\S_{\r} \times \S_{\r + \hz}) \cdot \hz)\:.
-\end{equation}
-%
-Everything we discussed about boundary conditions for the FM exchange also holds
-true for the DM interaction. Ultimately, adding up all
-interactions~\eqref{Bsum},~\eqref{FMsum} and~\eqref{DMsum}, we obtain the
+contributions from each spin and for each interaction. This results in the
 Hamiltonian, \ie{} the energy of the system in a given configuration~$\pi \in
 \Pi$
 %
@@ -355,39 +271,69 @@ Hamiltonian, \ie{} the energy of the system in a given configuration~$\pi \in
       J \S_{\r} \cdot (\S_{\r+\hx} + \S_{\r+\hy} + \S_{\r+\hz})\nonumber \\
       &+ K (\S_{\r} \times \S_{\r+\hx} \cdot \hx +
             \S_{\r} \times \S_{\r+\hy} \cdot \hy +
-            \S_{\r} \times \S_{\r+\hz} \cdot \hz)\biggr)\:.
+            \S_{\r} \times \S_{\r+\hz} \cdot \hz)\biggr)\:,
 \end{align}
 %
-The parameters~$J$,~$K$ and~$\B$ are sometimes used synonymously for the
-ferromagnetic, the Dzyaloshinskii-Moriya and the external field interaction
-terms. The physical behavior of the system strongly depends on these freely
-adjustable parameters. For a given set of parameters and at zero temperature we
-expect the system to settle in the ground state, which can be defined as the
-lowest energy configuration
+which has been proposed in~\cite{skyrm13} and extended to three dimensions
+in~\cite{skyrmion}. Sky-MoCa operates with periodic boundary conditions by
+default, but one can also open the boundaries in the~$\hx$ direction. We will
+make use of both options in our simulations. The parameters~$J$,~$K$ and~$\B$
+are sometimes used synonymously for the ferromagnetic, the Dzyaloshinskii-Moriya
+and the external field interaction terms. The physical behavior of the system
+strongly depends on these freely adjustable parameters.
+
+The corresponding continuum model is given by~\cite{skyrm4, skyrm12}
 %
-\begin{equation}\label{objective}
-  \argmin_{\pi \in \Pi} H(\pi)\:.
+\begin{equation}\label{hamiltoniancont}
+  H = \int \frac{J}{2 a}\, {(\nabla \M (\r) )}^2 - a^{-3}\, \B \cdot \M (\r) +
+  \frac{K}{a^2}\, \M (\r)\cdot (\nabla \times \M (\r)) \sucd{^3 \r} \:.
 \end{equation}
 %
+This is a commonly used model for chiral magnets that assumes a slow variation
+in the spin textures, \ie{} a certain smoothness in microscopic variations of
+the magnetization over larger distances. This scale over which spin structures
+can be considered uniform for all practical purposes is given by the
+distance~$a$ in~\eqref{hamiltoniancont}.
+
+More accurately, the lattice Hamiltonian in~\eqref{hamiltonian} should not be
+viewed as a direct representation of the atomic structure of the material. It is
+merely a coarse graining or discretization of the continuum model, which itself
+smears out the fundamentally discrete nature on the level of single atoms to a
+continuous magnetization field. Therefore, the lattice is more of computational
+nature than a physical one which also explains why we do not consider more
+realistic lattice geometries and do not distinguish different elements. The
+justification for deriving the lattice model~\eqref{hamiltonian} from the
+continuum model~\eqref{hamiltoniancont} is given by the so called
+\newterm{construction principle}. It states that the effective low-energy theory
+derived from the lattice model will only differ from the continuum model only by
+terms that can be neglected in the renormalization-group sense.
 
 \subsubsection{Anisotropy}
 
-% While we have remedied the problem of unwanted boundary effects due to missing
-% neighbors, we are still working in a finite volume. While any real crystal also
-% has a finite volume, it can typically be considered infinite relative to the
-% lattice spacing. Due to computational limitations we can only simulate lattices
-% with roughly~$30^3$ vertices. Thus the whole lattice is only~$30$ orders of
-% magnitudes longer than the lattice spacing which leads to significant
-% \newterm{finite size effects}.
-
-In~\eqref{hamiltonian} we have collected all interactions on the lattice. Those
-originally stem from a continuous model. Therefore we have to expect
-discretization errors. In particular, the transition to a finite cubical
-lattice introduces anisotropies that are absent in the original continuum model.
-Buhrandt and Fritz show in~\cite{skyrmionlattice} that we can partly compensate
-for those disruptive anisotropies by adding next-nearest neighbor interactions
-to the Hamiltonian. The optimal choice to render higher order deviations from
-the continuous model as small as possible is
+The transition from the continuum theory to a finite homogeneous cubical lattice
+introduces anisotropies. These anisotropies becomes apparent in momentum space.
+The Fourier transform of the direct interaction term of~\eqref{hamiltonian}
+reads
+%
+\begin{equation}
+  J \sum_{\k} \alpha_{\k} \S (\k) \cdot \S (- \k) \:,
+\end{equation}
+%
+where the coefficients~$\alpha_{\k}$ are given by
+%
+\begin{equation}
+  \alpha_{\k} = - (\cos (k_x a) + \cos (k_y a) + \cos (k_z a) ) =
+  -3 + \frac{a^2}{2} \k^2 + O(k^4) \:.
+\end{equation}
+%
+The series expansion of the cosine includes arbitrarily high powers of~$k$. In
+the continuum model~\eqref{hamiltoniancont} the ferromagnetic term~$\propto {(
+\nabla \M (\r) )}^2$ in momentum space only amounts to the square terms in the
+series expansion. Apparently we have introduced higher order anisotropies. For a
+uniform ordered state, those anisotropies would not matter, since a uniform
+state does not feel them. However, this is not the case for the skyrmion phase.
+Thus, we partly compensate those higher order terms by an additive correction to
+the Hamiltonian given by
 %
 \begin{align}\label{hamiltonianfix}
   H'(\pi) = & \sum_{\r \in \Sigma} \biggl(
@@ -397,14 +343,16 @@ the continuous model as small as possible is
         \S_{\r} \times \S_{\r+2\hz} \cdot \hz)\biggr)\:.
 \end{align}
 %
-The Hamiltonian used in the simulation is then~$H + H'$. Note that~$H'$ has the
-same structure of the FM and DM term of~$H$, but enters with smaller constants
-and opposite sign. Thus it complements the nearest neighbor exchange by a
-directly related next-nearest neighbor interaction term. Adding next-nearest
-neighbor interactions makes a big difference computationally, but is handled
-analogously to the nearest neighbor interactions, see \figref{fig:interact}.
-Periodic and open boundaries still work precisely the same way and are already
-taken care of by~\eqref{periodicindices}.
+Buhrandt and Fritz show in~\cite{skyrmion} that the prefactors~$J/16$ and~$K/8$
+in the  next-nearest neighbor interactions are the optimal choice to render
+higher order deviations from the continuous model as small as possible, while
+not breaking symmetries of the underlying system. The Hamiltonian used in the
+simulation is then~$H + H'$. Note that~$H'$ has the same structure of the FM and
+DM term of~$H$, but enters with smaller constants and opposite sign. Thus it
+complements the nearest neighbor exchange by a directly related next-nearest
+neighbor interaction term. Adding next-nearest neighbor interactions makes a big
+difference computationally, but is handled analogously to the nearest neighbor
+interactions, see \figref{fig:interact}.
 
 \begin{figure}
   \centering
@@ -419,41 +367,40 @@ taken care of by~\eqref{periodicindices}.
 \label{fig:interact}
 \end{figure}
 
-\subsection{A note on parameter values}
+Although the cubic lattice in principle does feature inversion symmetry and the
+Hamiltonian~\eqref{hamiltonian} does not favor any direction at~$B=0$, even then
+do we find the helical phase in which a certain direction is clearly
+distinguished. The necessary anisotropies are implicitly generated by
+discretization errors of our model. Aferall, a cube is not spherically
+symmetric, but for example extends further from the origin in the diagonal [111]
+direction then in the [100], [010], or [001] directions.
+
+\subsubsection{A note on parameter values}
 
 Recall that there is a great conflict of interest between the FM and the DM
 interactions. While the FM term in the Hamiltonian is minimal when all spins are
 parallel to each other, the DM term favors a configuration where neighboring
 spins are orthogonal. The specific compromise between those effects depends
 mostly on their respective strengths~$J$ and~$K$. In reality the direct
-interaction~$J$ is much stronger and one typically encounters helical structures
-with long modulation periods. For example in MnSi the spins wind around a given
-modulation axis only once per roughly~$40$ lattice spacings.  By tuning the
-ratio~$J/K$ we can set the periodicity. For a period of~$N$ lattice sites, we
-have to set~$J/K$ to~$1/\tan(2\pi / N)$. In all our simulations we chose~$J=1$
-and~$K=\tan(2\pi / 10)$, \ie{} one full modulation every~$10$ vertices.
-Because~$K=\tan(2\pi / 10)\approx 0.73$ is not much smaller than~$J=1$ we cannot
-directly model known chiral magnets such as MnSi in our simulation. However,
-larger periodicities would require much larger grids and thus be computationally
-infeasible. Moreover, we let the external magnetic field point in the~$\hz$
+interaction~$J$ is much stronger and one typically encounters helical or conical
+structures with long modulation periods for zero or small external fields
+respectively. For example in MnSi the spins wind around a given modulation axis
+only once per roughly~$40$ lattice spacings. By tuning the ratio~$J/K$ we can
+set the periodicity. For a period of~$N$ lattice sites, we have to set~$J/K$
+to~$1/\tan(2\pi / N)$. In all our simulations we chose~$J=1$ and~$K=\tan(2\pi /
+10)$, \ie{} one full modulation every~$10$ vertices. Because~$K=\tan(2\pi /
+10)\approx 0.73$ is not much smaller than~$J=1$ we cannot directly model known
+chiral magnets such as MnSi in our simulation. However, larger periodicities
+would require much larger grids and thus be computationally infeasible.
+Moreover, we let the external magnetic field point in the~$\hz$
 direction~$\B=(0,0,B)$ and only keep~$B$ as a free scalar parameter.
 
 We can fix one of the parameters, in this case~$J$, arbitrarily and then work in
-abstract lattice units. A computer can only deal with dimensionless numbers and
-in numerical simulations one often makes some convenient, but arbitrary choices.
-It is then sometimes quite difficult to translate the results back to physically
-meaningful values.
-
-The alert reader might have realized that so far our model does not contain any
-thermal energy. When talking about magnetism, temperature typically has a strong
-influence on the physical properties of various materials. However, thermal
-energy cannot be accounted for by an additional term in the Hamiltonian. Our
-intuition tells us that thermal energy is intrinsically of dynamic nature, thus
-cannot be captured sensibly in a single static spin configuration. Thermodynamic
-observables are statistical properties of an ever evolving underlying system. In
-fact we will account for temperature not in the Hamiltonian buy via the
-Metropolis algorithm, which we will encounter in \secref{sec:metropolis}, where
-the dynamic and statistical nature of thermodynamics will become apparent.
+abstract lattice units such that everything is implicitly measured in units
+of~$J$. A computer can only deal with dimensionless numbers and in numerical
+simulations one often makes convenient, but arbitrary choices.  It is then
+sometimes quite difficult to translate the results back to physically meaningful
+values.
 
 \subsection{Summary}
 
@@ -472,21 +419,64 @@ yields the configuration space
   \Pi := \prod_{\r \in \Sigma} S^2\:.
 \end{equation}
 %
-On~$\Pi$ we define the Hamiltonian~$H+H'$ from~\eqref{hamiltonion}
-and~\eqref{hamiltonianfull} where we implement periodic (or partially open)
+On~$\Pi$ we define the Hamiltonian~$H+H'$ from~\eqref{hamiltonian}
+and~\eqref{hamiltonianfix} where we implement periodic (or partially open)
 boundary conditions. The parameters~$J=1$ and~$K=\tan(2\pi / 10)$ of the FM and
 DM interaction are fixed, which leaves us only with the magnetic field in
-the~$\hz$ direction~$B$ as a free parameter. In the next section we will
-introduce the temperature as a second adjustable quantity. Instead of finding
-the energy minimizing configuration as stated in~\eqref{objective} at zero
-temperature, we now seek to evaluate prominent observables such as the
-magnetization or specific heat of the system for given values of~$B$ and~$T$. As
-mentioned before, we cannot expect to compute such macroscopic properties from a
-single static configuration~$\pi \in \Pi$ due to thermal effects. Before we go
-into statistical physics, let us present a first primer on general Monte Carlo
-methods.
+the~$\hz$ direction~$B$ and the temperature~$T$ of the simulated annealing
+algorithm as free scalar parameters.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Observables and Analysis}\label{sec:analysis}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+Besides the energy~$E$ from~\eqref{hamiltonian} and the magnetization
+%
+\begin{equation}
+  \M = \frac{1}{\abs{\Sigma}} \sum_{\r \in \Sigma} \S_{\r}
+\end{equation}
+%
+we are also interested in the specific heat and the magnetic susceptibility in
+the~$\hz$ direction given by
+%
+\begin{equation}
+  c_V (T) = \frac{\avg{E^2} - \avg{E}^2}{N T^2} \qqtxtqq{and}
+  \chi_{zz} (T) = \frac{\avg{M_z^2} - \avg{M_z}^2}{N T}
+\end{equation}
+%
+respectively. Those will prove particularly helpful in detecting phase
+transitions when analyzing the results in \chapref{chap:2}.
+
+The canonic way to distinguish different thermodynamic phases of the system is
+to plot the the whole spin structure, \ie{} a three-dimensional lattice with a
+vector attached to each vertex. However, this is somewhat inaccurate, due to
+limited visualization possibilities on a two-dimensional screen. We can simplify
+this task by observing the spin texture on the reciprocal lattice. We first
+compute the discrete Fourier transform
+%
+\begin{equation}
+  \avg{\S_{\k}} = \frac{1}{N} \sum_{\r} \avg{\S_{\r}} e^{- i\, \k \cdot \r}\:.
+\end{equation}
+%
+componentwise. The Bragg intensity profile is then proportional to the squared
+norm of~$\avg{\S_{\k}}$,
+%
+\begin{equation}
+  \mathbf{I}(\k) \propto \norm{\avg{\S_{\k}}}^2 \:.
+\end{equation}
+%
+Now we have already reduced the problem from classifying a three-dimensional
+vector field in three dimension to a scalar field in three dimensions. This is
+still inconvenient. If we further project the Bragg intensity to various
+coordinate planes
+%
+\begin{equation}
+  I_{xy} (i,j) := \sum_{k = 1}^{N_z} \avg{\S_{(i,j,k)}} \qtxtq{and}
+  I_{xz} (i,k) := \sum_{j = 1}^{N_y} \avg{\S_{(i,j,k)}}\:,
+\end{equation}
+%
+we end up with scalar functions in two dimensions, which we can print nicely as
+grayscale images. Moreover, due to the order in the helical, conical and
+skyrmion phase, those images will feature only few bright spots in different
+pattern, which allows a convenient classification. Now we are equipped with the
+theoretic foundation to look at some results of the simulations.
