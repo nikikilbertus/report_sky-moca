@@ -8,23 +8,72 @@
 \section{Thermodynamic Phases}\label{sec:phases}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-First we explore the phase space by separate Monte Carlo simulations at
-different target temperatures~$T$ and external fields~$B$. Since it is not
-always straight forward to reach
+One of the main goals of this project was to explore the phase space by separate
+Monte Carlo simulations at different target temperatures~$T$ and external
+fields~$B$. First, let us describe the three phases by reference to
+\figref{fig:phases}. The temperature and magnetic field for each of these
+simulations is shown in \figref{fig:diagram}.
+
+In the top left area we illustrate the helical phase. The spins wind around the
+easy axis, which in our simulation is in the [111] direction.  If we contracted
+them along the easy axis they would all lie in a plane, hence are perpendicular
+to the pitch axis. We also show the Bragg intensity~\eqref{braggproj} projected
+to the~$xz$ (top) and~$xy$ (bottom) planes. We see two distinct maxima since the
+helix winds diagonally through the cube. In all images of the Bragg intensity we
+have subtracted the mean of the original field first to discard the constant
+offset.
+
+On the right side we illustrate the conical phase, where the rotation axis
+points in the~$\hz$ axis parallel to the magnetic field. Thus the spins are not
+perpendicular to the axis, but have a constant component in the~$\hz$ direction.
+If we contracted them along the~$\hz$ axis, they would form a cone, which is
+where the phase got its name from. Due to the alignment with the external field
+the Bragg intensity projection to the~$xy$ plane is now a single dot. It
+represents the single distinct winding mode of the spins.
+
+In the bottom region we show the skyrmion phase. One can clearly see the tubes
+parallel to the magnetic field throughout the simulation volume and their
+hexagonal order. This is also clearly visible as the characteristic hexagon in
+the Bragg intensity projection to the~$xy$ plane. The red arrows point in the
+direction of the magnetic field, \ie{} along the~$\hz$ direction. At the
+skyrmion tubes they rotate into the~$xy$ plane in a circular fashion until
+their~$z$ component vanishes roughly between the yellow and green arrows. Inside
+the circle the spins rotate further down until they are antiparallel to the
+magnetic field (blue arrows), \ie{} they point in the~$-\hz$ direction.
 
 \begin{figure}
   \centering
-  \includegraphics[height=7cm]{images/chiral}
-  \hspace{1cm}
-  \includegraphics[width=3cm]{images/chiral_flat}
+  \includegraphics[height=8cm]{images/helical}
+  \hspace{0.5cm}
+  \includegraphics[height=8cm]{images/helic}
   \hfill
-  \includegraphics[height=7cm]{images/conical}
+  \includegraphics[height=8cm]{images/conical}
+  \hspace{0.5cm}
+  \includegraphics[height=8cm]{images/conic}\\
+  \vspace{1.5cm}
+  \includegraphics[height=8cm]{images/skyrmions_full}
   \hspace{1cm}
-  \includegraphics[width=3cm]{images/conical_flat}
-  \caption{\todo{}}
-\label{fig:chiralconical}
+  \includegraphics[height=8cm]{images/skyrm}
+  \caption{We illustrate the helical (top left), conical (top right) and
+  skyrmion (bottom) phases. The Bragg intensity projections~\eqref{braggproj}
+  are given for the~$xz$ (top) and~$xy$ (bottom) plane respectively. A detailed
+  description is in the text.}
+\label{fig:phases}
 \end{figure}
 
+As we have already mentioned in \secref{sec:analysis}, we could not perform
+various annealing schedules to reach the true physical state for the whole
+parameter range. Therefore we adopted the phase diagram in \figref{fig:diagram}
+from Buhrandt and Fritz~\cite{skyrmion}. We marked the positions where we
+recorded the data for \figref{fig:phases}.
+
+\begin{figure}
+  \centering
+  \includegraphics[angle=270, width=9cm]{images/phase_diagram}
+  \caption{The phase diagram of the skyrmion phase as shown by Buhrandt and
+  Fritz in~\cite{skyrmion}.}
+\label{fig:diagram}
+\end{figure}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The Helimagnetic Phase Transition}\label{sec:details}
