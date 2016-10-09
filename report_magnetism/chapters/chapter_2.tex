@@ -41,7 +41,7 @@ their~$z$ component vanishes roughly between the yellow and green arrows. Inside
 the circle the spins rotate further down until they are antiparallel to the
 magnetic field (blue arrows), \ie{} they point in the~$-\hz$ direction.
 
-\begin{figure}
+\begin{figure}[H]
   \centering
   \includegraphics[height=8cm]{images/helical}
   \hspace{0.5cm}
@@ -65,27 +65,176 @@ As we have already mentioned in \secref{sec:analysis}, we could not perform
 various annealing schedules to reach the true physical state for the whole
 parameter range. Therefore we adopted the phase diagram in \figref{fig:diagram}
 from Buhrandt and Fritz~\cite{skyrmion}. We marked the positions where we
-recorded the data for \figref{fig:phases}.
+recorded the data for \figref{fig:phases}. These runs where done on a~$30^3$
+lattice with periodic boundary conditions using 2000 configurations separated by
+just 30 lattice sweeps each. The number of lattice sweeps should be
+significantly higher particularly for smaller temperatures to yield truly
+uncorrelated samples. A detailed explanation can be found in the accompanying
+report \emph{Sky-MoCa -- Introduction to Monte Carlo Methods by Example}.
+However, a tradeoff between computation time and error estimates had to be made.
+In the following all error bars have been computed by the jackknife method and
+should be taken with a grain of salt.
 
-\begin{figure}
+\begin{figure}[H]
   \centering
-  \includegraphics[angle=270, width=9cm]{images/phase_diagram}
+  \begin{tikzpicture}
+    \node[anchor=south west, inner sep=0] at (0,0)
+      {\includegraphics[angle=270, width=10cm]{images/phase_diagram}};
+    \filldraw (7.27,1.03) circle (0.06cm);
+    \filldraw (7.27,3.5) circle (0.06cm);
+    \filldraw (8.15,3.15) circle (0.06cm);
+  \end{tikzpicture}
   \caption{The phase diagram of the skyrmion phase as shown by Buhrandt and
-  Fritz in~\cite{skyrmion}.}
+  Fritz in~\cite{skyrmion}. The inset is the phase diagram one obtais without
+  the counterterms in~$H'$ to suppress unwanted anisotropy effects. The three
+  circles indicate the points in phase space we have used for the Bragg
+  intensity projections in \figref{fig:phases}.}
 \label{fig:diagram}
 \end{figure}
 %
+
+Instead of densely sampling the whole phase space, we decided to only look at
+some specific transitions. The first one is the transition from the high
+temperature regime~$T/J > 1$ into the low temperature regime~$T/J < 0.5$ for
+different magnetic fields.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The Helimagnetic Phase Transition}\label{sec:details}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+The theory of the temperature driven phase transition at high external fields
+has first been described by Brazovskii~\cite{brazovskii} and has been
+investigated extensively experimentally~\cite{exp1, exp2, exp3, exp4, exp5,
+exp6}. In the simulation we perform simulated annealing at a high
+temperature~$T/J = 3$ at various magnetic fields. While slowly descreasing the
+temperature we take 2000 configurations at each temperature. \Figref{fig:heat}
+shows the resulting behavior of the heat capacity.
+
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Unwinding Skyrmions}\label{sec:transitions}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+Let us now start in the skyrmion phase and decrease or increase the magnetic
+field to investigate the transitions to the helical and fully ordered phase. To
+this extent we follow the description in the supplemental material
+of~\cite{Milde} and first anneal at constant magnetic field~$B/J=0.16$
+from~$T/J=1.5$ to~$T/J=0.7$. Due to the topological stability of the skyrmion
+tubes they survive after their formation around~$T/J = 0.9 - 0.8$ all the way
+down to~$T=0$. Hence when we arrive at~$T/J=0.7$ the system is in a stable
+skyrmion phase as shown in \figref{fig:skyrmanneal}. At this stage the whole
+system looks something like the one shown in \figref{fig:phases}.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \node[label={[align=center]\small $T=1.0 J$\\$B=0.16 J$}, draw, inner sep = 0] (rect) at (0, 0) {\includegraphics[width=3.1cm]{images/t10_b016}};
+    \node[label={[align=center]\small $T=0.9 J$\\$B=0.16 J$}, draw, inner sep = 0] (rect) at (3.1, 0) {\includegraphics[width=3.1cm]{images/t09_b016}};
+    \node[label={[align=center]\small $T=0.8 J$\\$B=0.16 J$}, draw, inner sep = 0] (rect) at (6.2, 0) {\includegraphics[width=3.1cm]{images/t08_b016}};
+    \node[label={[align=center]\small $T=0.7 J$\\$B=0.16 J$}, draw, inner sep = 0] (rect) at (9.3, 0) {\includegraphics[width=3.1cm]{images/t07_b016}};
+    \node[label={[align=center]\small $T=0.7 J$\\$B=0.147J$}, draw, inner sep = 0] (rect) at (12.4,0) {\includegraphics[width=3.1cm]{images/t07_b0147}};
+  \end{tikzpicture}
+  \caption{We show a top view, \ie{} looking in the~$-\hz$ direction, of the
+  system at some snapshots during the annealing phase from~$T/J = 1.5$
+  to~$T/J=0.7$. The shaded surfaces are contours of vanishing~$z$ component of
+  the spins. This corresponds to the yellow to green transition of the arrows in
+  \figref{fig:phases} and can be interpreted as the boundaries of the skyrmion
+  tubes. The skyrmion tubes build up and stabilize further after reaching the
+  target temperature.}
+\label{fig:skyrmanneal}
+\end{figure}
+
+Subsequently we decrease the magnetic field from~$B/J=0.16$ in steps of~$0.0005$
+all the way down to~$B/J=0.0005$. At smaller magnetic fields the radius of the
+skyrmion tubes increases and they become increasingly instable, which is
+expressed in a sort of wobbling. Once two tubes come in
+contact, a topological defect, which can be interpreted as a magnetic monopole
+and is thus often called \emph{hedgehog}, moves along the tubes and zips them
+together. Again we show some selected snapshots of the dynamics in
+\figref{fig:hedgehog}. The first contact between tubes has already been
+established at~$B=0.054 J$, but the skyrmions have separated again. A video of
+the whole simulation can be found at \todo{link video}. The whole phase
+transitions ocurrs between~$B= 0.04 J$, where all tubes are still well separated
+and~$B= 0.03$ where all tubes have connected to form wavy sheets characteristic
+for the helical phase.
+
+Due to the rapid dynamics of the transition from the skyrmion phase to the
+helical phase, we cannot average over too many configurations. If the thermal
+average contains a large number of samples, the dynamic effects will be averaged
+out completely and we could not resolve the transition temporally. However, a
+certain number of configurations is needed for reasonable statistics. We chose
+to discard the first 250 lattice sweeps after each change in the magnetic field
+and then record 250 configurations separated by 30 lattice sweeps.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \node[label={[align=center]\small $B=0.0400 J$}, draw, inner sep = 0] (rect) at (0, 0) {\includegraphics[width=3.1cm]{images/2t07_b400}};
+    \node[label={[align=center]\small $B=0.0395 J$}, draw, inner sep = 0] (rect) at (3.1, 0) {\includegraphics[width=3.1cm]{images/2t07_b395}};
+    \node[label={[align=center]\small $B=0.0390 J$}, draw, inner sep = 0] (rect) at (6.2, 0) {\includegraphics[width=3.1cm]{images/2t07_b390}};
+    \node[label={[align=center]\small $B=0.0385 J$}, draw, inner sep = 0] (rect) at (9.3, 0) {\includegraphics[width=3.1cm]{images/2t07_b385}};
+    \node[label={[align=center]\small $B=0.0380 J$}, draw, inner sep = 0] (rect) at (12.4,0) {\includegraphics[width=3.1cm]{images/2t07_b380}};
+    \node[label={[align=center]below:\small $B=0.0375 J$}, draw, inner sep = 0] (rect) at (0, -3) {\includegraphics[width=3.1cm]{images/2t07_b375}};
+    \node[label={[align=center]below:\small $B=0.0370 J$}, draw, inner sep = 0] (rect) at (3.1, -3) {\includegraphics[width=3.1cm]{images/2t07_b370}};
+    \node[label={[align=center]below:\small $B=0.0365 J$}, draw, inner sep = 0] (rect) at (6.2, -3) {\includegraphics[width=3.1cm]{images/2t07_b365}};
+    \node[label={[align=center]below:\small $B=0.0360 J$}, draw, inner sep = 0] (rect) at (9.3, -3) {\includegraphics[width=3.1cm]{images/2t07_b360}};
+    \node[label={[align=center]below:\small $B=0.0320 J$}, draw, inner sep = 0] (rect) at (12.4,-3) {\includegraphics[width=3.1cm]{images/2t07_b320}};
+  \end{tikzpicture}
+  \caption{Again, we show a top view, \ie{} looking in the~$-\hz$ direction, of
+  the system at some snapshots when decreasing the external magnetic field. All
+  images have been taken at~$T=0.7 J$. Note that the last snapshot is
+  significantly later then the others. The configuration of the second to last
+  one does not change much for quite some time.}
+\label{fig:hedgehog}
+\end{figure}
+
+Note that we have to open the boundaries in the~$\hz$ direction for this
+simulation to allow for this transition. With periodic boundary conditions in
+all directions, the tubes could not come in contact at the bottom of the cube,
+while staying intact on the top surface for instance. The dimensions of the
+simulation lattice are~$42 \times 42 \times 30$ with~$30$ points in the~$\hz$
+direction.
+
+In the second part of this section we want to increase the magnetic field. We
+use the same setup and start after the temperature annealing at~$T = 0.7 J$
+and~$B = 0.16 J$ to increase the magnetic field in steps of~$0.002$. The
+skyrmion tubes slowly shrink in radius and become very well separated before
+they simply start to disappear, see \figref{fig:kill}. This is in accordance
+with experiment~\todo{back ref}. Starting from~$B \approx 0.21 J$ all tubes have
+vanished by the time~$B = 0.27 J$.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \node[label={[align=center]\small $B=0.19 J$}, draw, inner sep = 0] (rect) at (0, 0) {\includegraphics[width=3.1cm]{images/3t07_b190}};
+    \node[label={[align=center]\small $B=0.20 J$}, draw, inner sep = 0] (rect) at (3.1, 0) {\includegraphics[width=3.1cm]{images/3t07_b200}};
+    \node[label={[align=center]\small $B=0.21 J$}, draw, inner sep = 0] (rect) at (6.2, 0) {\includegraphics[width=3.1cm]{images/3t07_b210}};
+    \node[label={[align=center]\small $B=0.22 J$}, draw, inner sep = 0] (rect) at (9.3, 0) {\includegraphics[width=3.1cm]{images/3t07_b220}};
+    \node[label={[align=center]\small $B=0.23 J$}, draw, inner sep = 0] (rect) at (12.4,0) {\includegraphics[width=3.1cm]{images/3t07_b230}};
+    \node[label={[align=center]below:\small $B=0.24 J$}, draw, inner sep = 0] (rect) at (0, -3) {\includegraphics[width=3.1cm]{images/3t07_b240}};
+    \node[label={[align=center]below:\small $B=0.25 J$}, draw, inner sep = 0] (rect) at (3.1, -3) {\includegraphics[width=3.1cm]{images/3t07_b250}};
+    \node[label={[align=center]below:\small $B=0.26 J$}, draw, inner sep = 0] (rect) at (6.2, -3) {\includegraphics[width=3.1cm]{images/3t07_b260}};
+    \node[label={[align=center]below:\small $B=0.264 J$}, draw, inner sep = 0] (rect) at (9.3, -3) {\includegraphics[width=3.1cm]{images/3t07_b264}};
+    \node[label={[align=center]below:\small $B=0.268 J$}, draw, inner sep = 0] (rect) at (12.4,-3) {\includegraphics[width=3.1cm]{images/3t07_b268}};
+  \end{tikzpicture}
+  \caption{Again, we show a top view, \ie{} looking in the~$-\hz$ direction, of
+  the system at some snapshots when decreasing the external magnetic field. All
+  images have been taken at~$T= 0.7 J$.}
+\label{fig:hedgehog}
+\end{figure}
+
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusion}\label{sec:conclusion}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+We have shown that fully non-perturbative classical three-dimensional Monte
+Carlo lattice simulations are a valuable tool to investigate chiral magnets and
+the skyrmion phase. Furthermore we demonstrated that the implementation of the
+simulated annealing algorithm, at least a simple version of it, is rather
+straight forward and still yields interesting results. With a more sophisticated
+parallel tempering Monte Carlo code and sufficient computational resources the
+whole phase diagram can be reproduced and thermodynamical properties in the
+temperature driven helimagnetic phase transition match experimental data well.
+The isothermal transitions from the skyrmion phase into the helical and the
+magnetically ordered phase are qualitatively consistent with experiments.
