@@ -3,6 +3,9 @@
 \chapter{Results}\label{chap:2}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+In this chapter we present some results from simulations performed with
+\emph{Sky-MoCa}, available publicly at
+\href{https://github.com/nikikilbertus/Sky-MoCa}{\textsf{https://github.com/nikikilbertus/Sky-MoCa}}.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Thermodynamic Phases}\label{sec:phases}
@@ -57,7 +60,7 @@ magnetic field (blue arrows), \ie{} they point in the~$-\hz$ direction.
   \caption{We illustrate the helical (top left), conical (top right) and
   skyrmion (bottom) phases. The Bragg intensity projections~\eqref{braggproj}
   are given for the~$xz$ (top) and~$xy$ (bottom) plane respectively. A detailed
-  description is in the text.}
+  description can be found in the text.}
 \label{fig:phases}
 \end{figure}
 
@@ -105,11 +108,64 @@ different magnetic fields.
 The theory of the temperature driven phase transition at high external fields
 has first been described by Brazovskii~\cite{brazovskii} and has been
 investigated extensively experimentally~\cite{exp1, exp2, exp3, exp4, exp5,
-exp6}. In the simulation we perform simulated annealing at a high
-temperature~$T/J = 3$ at various magnetic fields. While slowly descreasing the
-temperature we take 2000 configurations at each temperature. \Figref{fig:heat}
-shows the resulting behavior of the heat capacity.
+exp6}. In the simulation we perform simulated annealing starting at a high
+temperature~$T/J = 3$ down to~$T/J=0$ at various fixed magnetic fields. While
+slowly descreasing the temperature we take 1000 configurations at each step. The
+configurations are separated by 30 lattice sweeps.  \Figref{fig:heat} shows the
+resulting behavior of the heat capacity. There are distinct spikes at low
+external fields around a critical temperature of~$T_c =0.9 J$. This phenomenon
+can be verified by looking at the susceptibility for~$B=0$, see
+\figref{fig:susc}.
 
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={12cm},
+      xlabel={temperature $T/J$},
+      ylabel={specific heat $c_V$},
+      legend pos={outer north east},
+      legend entries={$B=0.0 J$, $B=0.01 J$, $B=0.02 J$, $B=0.05 J$, $B=0.1 J$, $B=0.15 J$, $B=0.2 J$, $B=0.3 J$},
+      only marks,
+      cycle list name=clist,
+    ]
+      \addplot+[error bars/.cd, y dir=both, y explicit] table[y error index=2] {plots/B0.0_specific_heat.csv};
+      \addplot+[error bars/.cd, y dir=both, y explicit] table[y error index=2] {plots/B0.01_specific_heat.csv};
+      \addplot+[error bars/.cd, y dir=both, y explicit] table[y error index=2] {plots/B0.02_specific_heat.csv};
+      \addplot+[error bars/.cd, y dir=both, y explicit] table[y error index=2] {plots/B0.05_specific_heat.csv};
+      \addplot+[error bars/.cd, y dir=both, y explicit] table[y error index=2] {plots/B0.1_specific_heat.csv};
+      \addplot+[error bars/.cd, y dir=both, y explicit] table[y error index=2] {plots/B0.15_specific_heat.csv};
+      \addplot+[error bars/.cd, y dir=both, y explicit] table[y error index=2] {plots/B0.2_specific_heat.csv};
+      \addplot+[error bars/.cd, y dir=both, y explicit] table[y error index=2] {plots/B0.3_specific_heat.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \caption{We plot the specific heat as a function of temperature for various
+  external fields. The different plots have been offset by~$0.5$ each for better
+  visibility. Thus they would all roughly converge to~$1$ for~$T \to 0$. Besides
+  the broad maximum they all exhibit corresponding to the Schottky anomaly, at
+  low magnetic fields there is a highly localized and distinct spike
+  around~$T=0.9$. As a discontinuity in the heat capacity, this hints towards a
+  phase transition. The errors are computed with the jackknife method with 2000
+  configurations each.}
+\label{fig:heat}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+      width={9cm},
+      xlabel={temperature $T/J$},
+      ylabel={susceptibility~$\chi_{zz}$},
+      only marks,
+    ]
+      \addplot+[black, mark=o, error bars/.cd, y dir=both, y explicit] table[y error index=2] {plots/B0.0_susceptibility.csv};
+    \end{axis}
+  \end{tikzpicture}%
+  \caption{The critical behavior around~$T_c \approx 0.9 J$ is clearly visible
+  in the temperature dependent susceptibility at zero magnetic field.}
+\label{fig:susc}
+\end{figure}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Unwinding Skyrmions}\label{sec:transitions}
@@ -152,11 +208,14 @@ contact, a topological defect, which can be interpreted as a magnetic monopole
 and is thus often called \emph{hedgehog}, moves along the tubes and zips them
 together. Again we show some selected snapshots of the dynamics in
 \figref{fig:hedgehog}. The first contact between tubes has already been
-established at~$B=0.054 J$, but the skyrmions have separated again. A video of
-the whole simulation can be found at \todo{link video}. The whole phase
-transitions ocurrs between~$B= 0.04 J$, where all tubes are still well separated
-and~$B= 0.03$ where all tubes have connected to form wavy sheets characteristic
-for the helical phase.
+established at~$B=0.054 J$, but the skyrmions have separated again. The whole
+phase transitions ocurrs between~$B= 0.04 J$, where all tubes are still well
+separated and~$B= 0.03$, where all tubes have connected to form wavy sheets
+characteristic for the helical phase. This value is slightly smaller then what
+we would infer from the phase diagram in \figref{fig:diagram}. However, for some
+degree of temporal resolution the external field schedule advances rather fast
+so that we might not give the system enough time to transition at higher
+magnetic fields.
 
 Due to the rapid dynamics of the transition from the skyrmion phase to the
 helical phase, we cannot average over too many configurations. If the thermal
