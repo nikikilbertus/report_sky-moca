@@ -13,7 +13,7 @@
 %todo: delete draft option
 %todo: add correct BCOR
 \LoadClass[
-  draft=true,
+  % draft=true,
   a4paper,
   english,
   fontsize=12pt,
@@ -123,6 +123,16 @@
   {color=RdBu-11-10},
   {color=RdBu-11-11},
 }
+\pgfplotscreateplotcyclelist{clist}{%
+  {color=clist8_1, mark=x},
+  {color=clist8_2, mark=+},
+  {color=clist8_3, mark=o},
+  {color=clist8_4, mark=asterisk},
+  {color=clist8_5, mark=square},
+  {color=clist8_6, mark=diamond},
+  {color=clist8_7, mark=triangle},
+  {color=clist8_8, mark=otimes},
+}
 \pgfplotscreateplotcyclelist{set2}{%
   {color=Set2-8-1},
   {color=Set2-8-2},
@@ -137,8 +147,11 @@
   {color=DarkOrange, mark=x},
   {color=MiddleBlue, mark=+},
   {color=DarkRed, mark=o},
+  {color=DarkRed, mark=*},
   {color=MidYellow, mark=square},
+  {color=MidYellow, mark=diamond},
   {color=LightRed, mark=triangle},
+  {color=LightRed, mark=otimes},
 }
 
 % xy matrix diagrams
