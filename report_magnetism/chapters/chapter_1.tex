@@ -32,8 +32,7 @@ Monte Carlo code and reproduce results by Buhrandt and Fritz~\cite{skyrmion},
 repeated sampling at different temperatures and external fields. Furthermore we
 observe the disappearance of skyrmions both into the fully ordered phase and
 into the helical phase by dynamically increasing or decreasing the magnetic
-field respectively as described and observed in~\cite{Milde} \todo{back paper
-ausknipsen}.
+field respectively as described and observed in~\cite{Milde,progress}.
 
 Since most of the limited time designated for this project was spent on the
 implementation and verification of the Monte Carlo code with simulated annealing
@@ -49,7 +48,7 @@ well as \secref{sec:hamiltonian} inevitably have quite some overlap with the
 introductory sections of the previous report \emph{Sky-MoCa -- Introduction to
 Monte Carlo Methods by Example}.
 
-After that basic introduction, we describe the physical observables and possible
+After this basic introduction, we describe the physical observables and possible
 diagnostic techniques to analyze the output of the simulations in
 \secref{sec:analysis}. This concludes our theoretical introduction and we
 continue in \chapref{chap:2} by first sampling the phase space for different
@@ -189,9 +188,9 @@ comprehensible theoretically, in real materials it is far from obvious whether
 the direct exchange between localized magnetic moments at different lattice
 sites is indeed such a prevalent interaction. For many elements like rare earths
 the unpaired 4f electrons are close to the nucleus and cannot remotely extend
-out to the orbitals of neighboring atoms. Even the 3d orbitals of transition
+out to the orbitals of neighboring atoms. Even for the 3d orbitals of transition
 metals such as the ferromagnetic Fe, Ni and Co, which extend further from the
-nucleus the overlap is barely sufficient to base all magnetic properties on
+nucleus, the overlap is barely sufficient to base all magnetic properties on
 direct exchange. For metals one would have to account for conduction electrons
 and the band structure of course.
 
@@ -242,14 +241,13 @@ Note that~$\r_2 - \r_1$ is normalized by definition for neighboring vertices.
 Since the cross product is zero for parallel vectors and maximal for
 perpendicular ones, the DM coupling acts against the ferromagnetic interaction
 and favors constellations where adjacent spins are perpendicular to each other
-in the plane normal to their connecting line such that the energy is decreased.
-Typically the DM coupling is weaker than the direct exchange and tends to
-slightly rotate neighboring magnetic moments with respect to each other. This
-leads to small angles from one atom to the next and eventually leads to chiral
-structures, where the spins rotate and trace out a spiral like shape along some
-direction within the material. The DM interaction is also called weak
-ferromagnetism, since it commonly occurs in antiferromagnetic materials where it
-adds a small ferromagnetic component.
+in the plane normal to their connecting line. Typically the DM coupling is
+weaker than the direct exchange and tends to slightly rotate neighboring
+magnetic moments with respect to each other. This leads to small angles from one
+atom to the next and eventually to helical structures, where the spins rotate
+and trace out a spiral like shape within the material. The DM interaction is
+also called weak ferromagnetism, since it commonly occurs in antiferromagnetic
+materials where it adds a small ferromagnetic component.
 
 In the continuum it is described by a term proportional to~$-\S(\r) \cdot
 (\nabla \times \S(\r))$. Just like the gradient, the curl of a vector field is a
@@ -266,7 +264,7 @@ will not be part of our model regardless. For two spins~$\S_{\r_1}, \S_{\r_2}
 %
 \begin{equation}
   \frac{1}{\norm{\r}^{3}} (\S_{\r_1} \cdot \S_{\r_2} -
-  3 (\S_{\r_1} \cdot \hat{\r}) (\S_{\r_2} \cdot \hat{\r}) - )\:,
+  3 (\S_{\r_1} \cdot \hat{\r}) (\S_{\r_2} \cdot \hat{\r}) )\:,
 \end{equation}
 %
 where~$\r = \r_2 - \r_1$ and~$\hat{\r} = \r / \norm{\r}$ points from the
@@ -316,9 +314,9 @@ The corresponding continuum model is given by~\cite{skyrm4, skyrm12}
 %
 \begin{align}\label{hamiltoniancont}
   H = \int \pred{^3 \r} \biggl( & \frac{J}{2 a}
-  ({(\nabla \M_x)}^2 + {(\nabla \M_y)}^2 + {(\nabla \M_z)}^2) \\
+  ({(\nabla \M_x)}^2 + {(\nabla \M_y)}^2 + {(\nabla \M_z)}^2)\nonumber \\
   - & \frac{1}{a^3}\, \B \cdot \M +
-  \frac{K}{a^2}\, \M \cdot \nabla \times \M \biggr) \:.
+  \frac{K}{a^2}\, \M \cdot (\nabla \times \M) \biggr) \:.
 \end{align}
 %
 This is a commonly used model for chiral magnets that assumes a slow variation
@@ -332,18 +330,18 @@ viewed as a direct representation of the atomic structure of the material. It is
 merely a coarse graining or discretization of the continuum model, which itself
 smears out the fundamentally discrete nature on the level of single atoms to a
 continuous magnetization field. Therefore, the lattice is more of computational
-nature than a physical one which also explains why we do not consider more
-realistic lattice geometries and do not distinguish different elements. The
-justification for deriving the lattice model~\eqref{hamiltonian} from the
-continuum model~\eqref{hamiltoniancont} is given by the so called
-\newterm{construction principle}. It states that the effective low-energy theory
-derived from the lattice model will only differ from the continuum model by
-terms that can be neglected in the renormalization-group sense.
+nature which also explains why we do not consider more realistic lattice
+geometries and do not distinguish different elements. The justification for
+deriving the lattice model~\eqref{hamiltonian} from the continuum
+model~\eqref{hamiltoniancont} is given by the so called \newterm{construction
+principle}. It states that the effective low-energy theory derived from the
+lattice model will only differ from the continuum model by terms that can be
+neglected in the renormalization-group sense.
 
 \subsubsection{Anisotropy}
 
 The transition from the continuum theory to a finite homogeneous cubical lattice
-introduces anisotropies. These anisotropies becomes apparent in momentum space.
+introduces anisotropies. These anisotropies become apparent in momentum space.
 The Fourier transform of the direct interaction term of~\eqref{hamiltonian}
 reads
 %
@@ -402,9 +400,9 @@ handled analogously to the nearest neighbor interactions, see
 \end{figure}
 
 Although the cubic lattice in principle does feature inversion symmetry and the
-Hamiltonian~\eqref{hamiltonian} does not favor any direction at~$B=0$, even for
-small external fields do we find the helical phase in which a certain direction
-is clearly distinguished. The necessary anisotropies are implicitly generated by
+Hamiltonian~\eqref{hamiltonian} does not favor any direction at~$B=0$, we find
+the helical phase in which a certain direction is clearly distinguished even for
+small external fields. The necessary anisotropies are implicitly generated by
 discretization errors of our model. After all, a cube is not spherically
 symmetric, but for example extends further from its center in the diagonal [111]
 direction than in the [100], [010], or [001] directions.
@@ -491,24 +489,24 @@ temperature~$T^*$ and magnetic field~$B^*$ are therefore
 \begin{itemize}
   \item Start at a high temperature~$T_0$ and with the target magnetic
     field~$B^*$. Then slowly cool the system to the target temperature~$T$.
-  \item Slowly cool from a high temperature~$T^0$ to the target
+  \item Slowly cool from a high temperature~$T_0$ to the target
     temperature~$T^*$ at a large magnetic field~$B_0$. Then slowly decrease the
     magnetic field to the target field~$B^*$.
-  \item Slowly cool from a high temperature~$T^0$ to the target
+  \item Slowly cool from a high temperature~$T_0$ to the target
     temperature~$T^*$ at zero magnetic field~$B_0=0$. Then slowly increase the
     magnetic field to the target field~$B^*$.
 \end{itemize}
 
 Ideally, one would compute all three scenarios in parallel. In case they all
 agree one would confidently declare the result to be the thermodynamic state. In
-case of disagreement the run which results in the lowest energy is your best
+case of disagreement the run which results in the lowest energy is our best
 shot at the true physical state. Note that even with advanced parallel tempering
 Monte Carlo simulations the Metropolis algorithm sometimes gets trapped in a
 metastable state. In our implementation we did not use parallel tempering nor
 did we have the computational resources and time to compare different annealing
 schedules. Fortunately, we could nevertheless identify all three phases. On the
 downside it was impossible to draw precise boundaries and we had problems with
-both meta stable traps and correlation lengths at low temperatures.
+both metastable traps and diverging correlation lengths at low temperatures.
 
 Besides the energy~$E$ from~$H + H'$ and the magnetization
 %
@@ -520,8 +518,8 @@ we are also interested in the specific heat and the magnetic susceptibility in
 the~$\hz$ direction given by
 %
 \begin{equation}\label{heatsusc}
-  c_V (T) = \frac{\avg{E^2} - \avg{E}^2}{N T^2} \qqtxtqq{and}
-  \chi_{zz} (T) = \frac{\avg{M_z^2} - \avg{M_z}^2}{N T}
+  c_V (T) = \frac{\avg{E^2} - \avg{E}^2}{\abs{\Sigma} T^2} \qqtxtqq{and}
+  \chi_{zz} (T) = \frac{\avg{M_z^2} - \avg{M_z}^2}{\abs{\Sigma} T}
 \end{equation}
 %
 respectively. Those will prove particularly helpful in detecting phase
@@ -530,11 +528,11 @@ transitions during the analysis of the results in \chapref{chap:2}.
 The canonic way to distinguish different thermodynamic phases of the system is
 to plot the whole spin structure, \ie{} a three-dimensional lattice with a
 vector attached to each vertex. However, this is somewhat flawed, because
-limited visualization possibilities on a two-dimensional screen such that the
-classification becomes highly subjective and ambiguous. Recalling that we expect
-to find periodic excitations in each phase, we might be able to get a better
-grip on the task in reciprocal space. Thus we first compute the discrete Fourier
-transform
+visualization possibilities on a two-dimensional screen are limited such that
+the classification becomes highly subjective and ambiguous. Recalling that we
+expect to find periodic excitations in each phase, we might be able to get a
+better grip on the task in reciprocal space. Thus we first compute the discrete
+Fourier transform
 %
 \begin{equation}
   \avg{\S_{\k}} = \frac{1}{N} \sum_{\r} \avg{\S_{\r}} e^{- i\, \k \cdot \r}\:.
@@ -566,7 +564,7 @@ as grayscale images.
 Moreover, due to the order in the helical, conical and skyrmion phase, those
 images will feature only few bright spots in different patterns, which allows a
 convenient classification. In \figref{fig:phases} we show the characteristic
-projected Bragg intensity patterns for the chiral, conical and skyrmion phase. A
-detailed discussion of these images will follow in \secref{sec:phases}.  Now we
-are equipped with the theoretic foundation to look at some results of the
+projected Bragg intensity patterns for the helical, conical and skyrmion phase.
+A detailed discussion of these images follows in \secref{sec:phases}. Now
+we are equipped with the theoretic foundation to look at some results of the
 simulations.
