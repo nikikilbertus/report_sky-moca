@@ -4,21 +4,22 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 In this chapter we present some results from simulations performed with
-\emph{Sky-MoCa}, available publicly at
+\emph{Sky-MoCa}, a Monte Carlo code written in Julia~\cite{julia}, publicly
+available at
 \href{https://github.com/nikikilbertus/Sky-MoCa}{\textsf{https://github.com/nikikilbertus/Sky-MoCa}}.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Thermodynamic Phases}\label{sec:phases}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-One of the main goals of this project was to explore the phase space by separate
+One of the main goals of this project was to explore the phase space by 
 Monte Carlo simulations at different target temperatures~$T$ and external
 fields~$B$. First, let us describe the three phases by reference to
 \figref{fig:phases}. The temperature and magnetic field for each of these
 simulations is shown in \figref{fig:diagram}.
 
 In the top left area we illustrate the helical phase. The spins wind around the
-easy axis, which in our simulation is in the [111] direction.  If we contracted
+easy axis, which in our simulation is in the [111] direction. If we contracted
 them along the easy axis they would all lie in a plane, hence are perpendicular
 to the pitch axis. We also show the Bragg intensity~\eqref{braggproj} projected
 to the~$xz$ (top) and~$xy$ (bottom) planes. We see two distinct maxima since the
@@ -88,8 +89,8 @@ should be taken with a grain of salt.
     \filldraw (8.15,3.15) circle (0.06cm);
   \end{tikzpicture}
   \caption{The phase diagram of the skyrmion phase as shown by Buhrandt and
-  Fritz in~\cite{skyrmion}. The inset is the phase diagram one obtais without
-  the counterterms in~$H'$ to suppress unwanted anisotropy effects. The three
+  Fritz in~\cite{skyrmion}. The inset is the phase diagram one obtains without
+  the counter terms in~$H'$ to suppress unwanted anisotropy effects. The three
   circles indicate the points in phase space we have used for the Bragg
   intensity projections in \figref{fig:phases}.}
 \label{fig:diagram}
@@ -110,11 +111,11 @@ has first been described by Brazovskii~\cite{brazovskii} and has been
 investigated extensively experimentally~\cite{exp1, exp2, exp3, exp4, exp5,
 exp6}. In the simulation we perform simulated annealing starting at a high
 temperature~$T/J = 3$ down to~$T/J=0$ at various fixed magnetic fields. While
-slowly descreasing the temperature we take 1000 configurations at each step. The
-configurations are separated by 30 lattice sweeps.  \Figref{fig:heat} shows the
+slowly decreasing the temperature we take 1000 configurations at each step. The
+configurations are separated by 30 lattice sweeps. \Figref{fig:heat} shows the
 resulting behavior of the heat capacity. There are distinct spikes at low
-external fields around a critical temperature of~$T_c =0.9 J$. This phenomenon
-can be verified by looking at the susceptibility for~$B=0$, see
+external fields around a critical temperature of~$T_c \approx 0.9 J$. This
+phenomenon can be verified by looking at the susceptibility for~$B=0$, see
 \figref{fig:susc}.
 
 \begin{figure}[h]
@@ -141,12 +142,12 @@ can be verified by looking at the susceptibility for~$B=0$, see
   \end{tikzpicture}%
   \caption{We plot the specific heat as a function of temperature for various
   external fields. The different plots have been offset by~$0.5$ each for better
-  visibility. Thus they would all roughly converge to~$1$ for~$T \to 0$. Besides
+  visibility. Thus they all roughly converge to~$1$ for~$T \to 0$. Besides
   the broad maximum they all exhibit corresponding to the Schottky anomaly, at
   low magnetic fields there is a highly localized and distinct spike
-  around~$T=0.9$. As a discontinuity in the heat capacity, this hints towards a
-  phase transition. The errors are computed with the jackknife method with 2000
-  configurations each.}
+  around~$T\approx 0.9 J$. As a discontinuity in the heat capacity, this hints
+  towards a phase transition. The errors are computed with the jackknife method
+  with 1000 configurations each.}
 \label{fig:heat}
 \end{figure}
 
@@ -176,8 +177,8 @@ field to investigate the transitions to the helical and fully ordered phase. To
 this extent we follow the description in the supplemental material
 of~\cite{Milde} and first anneal at constant magnetic field~$B/J=0.16$
 from~$T/J=1.5$ to~$T/J=0.7$. Due to the topological stability of the skyrmion
-tubes they survive after their formation around~$T/J = 0.9 - 0.8$ all the way
-down to~$T=0$. Hence when we arrive at~$T/J=0.7$ the system is in a stable
+tubes they survive after their formation at roughly~$T/J = 0.9 - 0.8$ all the
+way down to~$T=0$. Hence when we arrive at~$T/J=0.7$ the system is in a stable
 skyrmion phase as shown in \figref{fig:skyrmanneal}. At this stage the whole
 system looks something like the one shown in \figref{fig:phases}.
 
@@ -202,14 +203,14 @@ system looks something like the one shown in \figref{fig:phases}.
 
 Subsequently we decrease the magnetic field from~$B/J=0.16$ in steps of~$0.0005$
 all the way down to~$B/J=0.0005$. At smaller magnetic fields the radius of the
-skyrmion tubes increases and they become increasingly instable, which is
+skyrmion tubes increases and they become increasingly unstable, which is
 expressed in a sort of wobbling. Once two tubes come in
 contact, a topological defect, which can be interpreted as a magnetic monopole
 and is thus often called \emph{hedgehog}, moves along the tubes and zips them
 together. Again we show some selected snapshots of the dynamics in
 \figref{fig:hedgehog}. The first contact between tubes has already been
 established at~$B=0.054 J$, but the skyrmions have separated again. The whole
-phase transitions ocurrs between~$B= 0.04 J$, where all tubes are still well
+phase transition occurs between~$B= 0.04 J$, where all tubes are still well
 separated and~$B= 0.03$, where all tubes have connected to form wavy sheets
 characteristic for the helical phase. This value is slightly smaller then what
 we would infer from the phase diagram in \figref{fig:diagram}. However, for some
@@ -248,19 +249,18 @@ and then record 250 configurations separated by 30 lattice sweeps.
 \end{figure}
 
 Note that we have to open the boundaries in the~$\hz$ direction for this
-simulation to allow for this transition. With periodic boundary conditions in
-all directions, the tubes could not come in contact at the bottom of the cube,
-while staying intact on the top surface for instance. The dimensions of the
-simulation lattice are~$42 \times 42 \times 30$ with~$30$ points in the~$\hz$
-direction.
+simulation. With periodic boundary conditions in all directions, the tubes could
+not come into contact at the bottom of the cube, while staying intact on the top
+surface for instance. The dimensions of the simulation lattice are~$42 \times 42
+\times 30$ with~$30$ points along the~$\hz$ axis.
 
-In the second part of this section we want to increase the magnetic field. We
+In the second part of this section we increase the magnetic field. We
 use the same setup and start after the temperature annealing at~$T = 0.7 J$
 and~$B = 0.16 J$ to increase the magnetic field in steps of~$0.002$. The
 skyrmion tubes slowly shrink in radius and become very well separated before
-they simply start to disappear, see \figref{fig:kill}. This is in accordance
-with experiment~\todo{back ref}. Starting from~$B \approx 0.21 J$ all tubes have
-vanished by the time~$B = 0.27 J$.
+they start to disappear, see \figref{fig:kill}. This is in accordance
+with experiment~\cite{progress}. Starting from~$B \approx 0.21 J$ all tubes have
+vanished by the time~$B \approx 0.27 J$.
 
 \begin{figure}[H]
   \centering
@@ -279,7 +279,7 @@ vanished by the time~$B = 0.27 J$.
   \caption{Again, we show a top view, \ie{} looking in the~$-\hz$ direction, of
   the system at some snapshots when decreasing the external magnetic field. All
   images have been taken at~$T= 0.7 J$.}
-\label{fig:hedgehog}
+\label{fig:kill}
 \end{figure}
 
 %
@@ -293,7 +293,7 @@ the skyrmion phase. Furthermore we demonstrated that the implementation of the
 simulated annealing algorithm, at least a simple version of it, is rather
 straight forward and still yields interesting results. With a more sophisticated
 parallel tempering Monte Carlo code and sufficient computational resources the
-whole phase diagram can be reproduced and thermodynamical properties in the
+whole phase diagram can be reproduced. Thermodynamic properties in the
 temperature driven helimagnetic phase transition match experimental data well.
 The isothermal transitions from the skyrmion phase into the helical and the
 magnetically ordered phase are qualitatively consistent with experiments.
