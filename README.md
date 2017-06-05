@@ -4,7 +4,9 @@ These are the reports for a research project in Computational Physics and Magnet
 
 *Skyrmion - Monte Carlo: Simulated annealing with the Metropolis algorithm for a 3D spin lattice*
 
-The code can be found [here](https://github.com/nikikilbertus/Sky-MoCa).
+The julia notebook in the `source` directory of this repository does not contain the final version of the code, but only served as a playground for the initial development.
+
+The actual code can be found [here](https://github.com/nikikilbertus/Sky-MoCa).
 
 ## Computational Physics Part
 
