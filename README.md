@@ -4,6 +4,8 @@ These are the reports for a research project in Computational Physics and Magnet
 
 *Skyrmion - Monte Carlo: Simulated annealing with the Metropolis algorithm for a 3D spin lattice*
 
+The code can be found [here](https://github.com/nikikilbertus/Sky-MoCa).
+
 ## Computational Physics Part
 
 We give a general introduction to Monte Carlo methods with a special focus on
@@ -35,3 +37,7 @@ gradually merge eventually resulting in the helical phase. Secondly, we increase
 the magnetic field until the skyrmion tubes simply vanish and the system
 transitions into the fully aligned phase. All observed phenomena qualitatively
 match experimental data.
+
+## Compilation
+
+To compile the `tex` files, navigate either to the directory `report_magnetism` or `report_computational` and simply type `make`.
