@@ -8,7 +8,7 @@ The julia notebook in the `source` directory of this repository does not contain
 
 The actual code can be found [here](https://github.com/nikikilbertus/Sky-MoCa).
 
-## Computational Physics Part
+## [Computational Physics Part](report_computational/project.pdf)
 
 We give a general introduction to Monte Carlo methods with a special focus on
 simulated annealing and the Metropolis algorithm. This report is conceived as an
@@ -21,7 +21,7 @@ to the specific example. All code is publicly available for reproducability.
 Common pitfalls are identified and we provide clear and practical guidelines on
 how to avoid them.
 
-## Magnetism Part
+## [Magnetism Part](report_magnetism/project.pdf)
 
 We use the three-dimensional spin lattice Monte Carlo code Sky-MoCa to
 investigate the skyrmion phase in chiral magnets non-perturbatively. We derive
