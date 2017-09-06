@@ -28,7 +28,6 @@ images/
 *.ps
 *.eps
 *.dvi
-*.pdf
 *.dpth
 *.md5
 *.gnuplot
